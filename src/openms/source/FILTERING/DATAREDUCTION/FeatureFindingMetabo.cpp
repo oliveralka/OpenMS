@@ -37,8 +37,7 @@
 #include <OpenMS/CONCEPT/Constants.h>
 #include <OpenMS/DATASTRUCTURES/ListUtils.h>
 #include <OpenMS/SYSTEM/File.h>
-#include <OpenMS/ANALYSIS/OPENSWATH/OpenSwathHelper.h>
-#include <OpenMS/KERNEL/MSChromatogram.h>
+//#include <OpenMS/ANALYSIS/OPENSWATH/OpenSwathHelper.h>
 #include <OpenMS/CONCEPT/UniqueIdGenerator.h>
 #include <OpenMS/METADATA/SpectrumSettings.h>
 
@@ -245,8 +244,7 @@ namespace OpenMS
   {
     if (iso_pattern_.empty())
     {
-      throw Exception::InvalidValue(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION,
-                                    "FeatureHypothesis is empty, no centroid MZ!", String(iso_pattern_.size()));
+      throw Exception::InvalidValue(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION, "FeatureHypothesis is empty, no centroid MZ!", String(iso_pattern_.size()));
     }
     return iso_pattern_[0]->getCentroidMZ();
   }
@@ -255,8 +253,7 @@ namespace OpenMS
   {
     if (iso_pattern_.empty())
     {
-      throw Exception::InvalidValue(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION,
-        "FeatureHypothesis is empty, no centroid RT!", String(iso_pattern_.size()));
+      throw Exception::InvalidValue(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION, "FeatureHypothesis is empty, no centroid RT!", String(iso_pattern_.size()));
     }
     return iso_pattern_[0]->getCentroidRT();
   }
