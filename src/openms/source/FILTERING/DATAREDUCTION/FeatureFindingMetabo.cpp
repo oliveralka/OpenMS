@@ -34,21 +34,12 @@
 
 #include <OpenMS/FILTERING/DATAREDUCTION/FeatureFindingMetabo.h>
 #include <OpenMS/CHEMISTRY/IsotopeDistribution.h>
-#include <OpenMS/CONCEPT/Constants.h>
-#include <OpenMS/DATASTRUCTURES/ListUtils.h>
 #include <OpenMS/SYSTEM/File.h>
-//#include <OpenMS/ANALYSIS/OPENSWATH/OpenSwathHelper.h>
-#include <OpenMS/CONCEPT/UniqueIdGenerator.h>
 #include <OpenMS/METADATA/SpectrumSettings.h>
 
-#include <vector>
-#include <map>
-#include <algorithm>
 #include <numeric>
-#include <sstream>
 #include <fstream>
 
-#include <boost/dynamic_bitset.hpp>
 
 #ifdef _OPENMP
 #include <omp.h>
