@@ -615,7 +615,9 @@ namespace OpenMS
     defaults_.setValidStrings("preferences:on_file_change", ListUtils::create<String>("none,ask,update automatically"));
     defaults_.setValue("preferences:topp_cleanup", "true", "If the temporary files for calling of TOPP tools should be removed after the call.");
     defaults_.setValidStrings("preferences:topp_cleanup", ListUtils::create<String>("true,false"));
-    // 1d view
+    defaults_.setValue("preferences:rt_unit","sec","Set retention time unit.");
+    defaults_.setValidStrings("preferences:rt_unit", ListUtils::create<String>("sec,min"));
+    // 1d View
     Spectrum1DCanvas* def1 = new Spectrum1DCanvas(Param(), 0);
     defaults_.insert("preferences:1d:", def1->getDefaults());
     delete def1;
@@ -758,7 +760,8 @@ namespace OpenMS
     QComboBox* map_default = dlg.findChild<QComboBox*>("map_default");
     QComboBox* map_cutoff = dlg.findChild<QComboBox*>("map_cutoff");
     QComboBox* on_file_change = dlg.findChild<QComboBox*>("on_file_change");
-
+    QComboBox* rt_unit = dlg.findChild<QComboBox*>("rt_unit");
+    
     // 1D view tab
     ColorSelector* color_1D = dlg.findChild<ColorSelector*>("color_1D");
     ColorSelector* selected_1D = dlg.findChild<ColorSelector*>("selected_1D");
@@ -817,6 +820,7 @@ namespace OpenMS
     map_default->setCurrentIndex(map_default->findText(param_.getValue("preferences:default_map_view").toQString()));
     map_cutoff->setCurrentIndex(map_cutoff->findText(param_.getValue("preferences:intensity_cutoff").toQString()));
     on_file_change->setCurrentIndex(on_file_change->findText(param_.getValue("preferences:on_file_change").toQString()));
+    rt_unit->setCurrentIndex(rt_unit->findText(param_.getValue("preferences:rt_unit").toQString()));
 
     // 1D view
     color_1D->setColor(QColor(param_.getValue("preferences:1d:peak_color").toQString()));
@@ -963,6 +967,7 @@ namespace OpenMS
       param_.setValue("preferences:default_map_view", map_default->currentText());
       param_.setValue("preferences:intensity_cutoff", map_cutoff->currentText());
       param_.setValue("preferences:on_file_change", on_file_change->currentText());
+      param_.setValue("preferences:rt_unit", rt_unit->currentText());
 
       param_.setValue("preferences:1d:peak_color", color_1D->getColor().name());
       param_.setValue("preferences:1d:highlighted_peak_color", selected_1D->getColor().name());

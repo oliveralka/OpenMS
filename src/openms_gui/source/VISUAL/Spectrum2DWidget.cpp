@@ -58,9 +58,22 @@ namespace OpenMS
   {
     setCanvas_(new Spectrum2DCanvas(preferences, this), 1, 2);
 
+    std::cout << this << std::endl;
+
+    //std::cout << preferences.getValue(preferences::rt_unit) << std::endl;
+
+    // check rt_unit
+    //if (preferences.getValue(preferences::rt_unit) == sec)
+    //{
+    //    bool rt_unit_sec = true;
+    //};
+
+    //std::cout << rt_unit_sec << std::endl;
+
     // add axes
     x_axis_->setLegend(String(Peak2D::shortDimensionName(Peak2D::MZ)) + " [" + String(Peak2D::shortDimensionUnit(Peak2D::MZ)) + "]");
-    y_axis_->setLegend(String(Peak2D::shortDimensionName(Peak2D::RT)) + " [" + String(Peak2D::shortDimensionUnit(Peak2D::RT)) + "]");
+    //y_axis_ = rt_unit_sec ? setLegend(String("RT [sec]")) : setLegend(String("RT [min]"));
+    y_axis_ ->setLegend(String("RT [sec]"));
     y_axis_->setMinimumWidth(50);
 
     // add projections
