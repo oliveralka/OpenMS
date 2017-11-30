@@ -86,18 +86,19 @@ protected:
     setMinInt_("size", 0);
     registerStringOption_("unit", "<choice>", "MB", "Unit for 'size' (base 1024)", false);
     setValidStrings_("unit", ListUtils::create<String>("KB,MB,GB"));
-    registerFlag_("precursor", "The precursor spectrum and its corresponding MSn spectra will be saved in the same file");
+    registerStringOption_("split", "<choice>", "uniform", "Split at lowest MS-Level. If no MS1 level are present, split is performed using regular spacing", false);
+    setValidStrings_("split", ListUtils::create<String>("uniform,atMS1")); 
     registerFlag_("no_chrom", "Remove chromatograms, keep only spectra.");
     registerFlag_("no_spec", "Remove spectra, keep only chromatograms.");
   }
 
   ExitCodes main_(int, const char **)
   {
-    String in = getStringOption_("in"), out = getStringOption_("out");
+    String in = getStringOption_("in"), out = getStringOption_("out"), split = getStringOption_("split");
 
     if (out.empty()){out = File::removeExtension(in);}
 
-    bool no_chrom = getFlag_("no_chrom"), no_spec = getFlag_("no_spec"), precursor = getFlag_("precursor");
+    bool no_chrom = getFlag_("no_chrom"), no_spec = getFlag_("no_spec");
     
     if (no_chrom && no_spec)
     {
@@ -113,9 +114,8 @@ protected:
         writeLog_("Error: Higher value for parameter 'parts' or 'size' required");
         return ILLEGAL_PARAMETERS;
       }
-
       QFile mzml_file(in.toQString());
-      // use float here to avoid too many decimals in output below:
+      // use float here to avoid too many decimals in output below:   
       float total_size = mzml_file.size();
       String unit = getStringOption_("unit");
       if (unit == "KB") total_size /= 1024;
@@ -133,7 +133,7 @@ protected:
     vector<MSSpectrum > spectra;
     vector<MSChromatogram > chromatograms;
     
-    //remove spectra or chromatograms 
+    // remove spectra or chromatograms 
     if (no_spec)
     {
       experiment.getSpectra().clear();
@@ -155,7 +155,21 @@ protected:
     writeLog_("Total spectra: " + String(spectra.size()));
     writeLog_("Total chromatograms: " + String(chromatograms.size()));
 
-    //calculate split ranges e.g., (0,100), (101, 200), ...
+    // check if file consists a MS1 spectrum - if set method to uniform
+    bool hasMS1 = false;
+    if( split == "atMS1")
+    {
+       for(size_t i = 0; i < experiment.getSpectra().size(); ++i)
+       {
+         if(experiment[i].getMSLevel() == 1)
+         { 
+           hasMS1 = true;
+           break;
+         }
+       }
+    }
+    
+    // calculate split ranges e.g., (0,100), (101, 200), ...  
     vector<std::pair<int, int>> parts_spec_ranges;
     vector<std::pair<int, int>> parts_chrom_ranges;
     Size spec_start = 0,  chrom_start = 0;
@@ -165,18 +179,19 @@ protected:
     for (Size counter = 0 ; counter < parts; ++counter)
     {
       Size remaining = parts - counter ;
-      //n_spec has to be substracted by -1, since list of spectra (index) starts at 0  
+      
+      // n_spec has to be substracted by -1, since list of spectra (index) starts at 0
       n_spec = ceil((spectra.size() - spec_start) / double(remaining));
       n_chrom = ceil((chromatograms.size() - chrom_start) / double(remaining));
 
-      //chromatograms
+      // chromatograms  
       if (n_chrom > 0)
       {
         parts_chrom_ranges.push_back(std::make_pair(chrom_start, chrom_start + n_chrom - 1));   
       }
 
-      //spectra
-      if (!precursor)
+      // spectra
+      if (split == "uniform" || !hasMS1)
       {
         if (n_spec > 0)
         {
@@ -186,7 +201,7 @@ protected:
       else
       {
         int last_spectrum = spec_start + n_spec - 1;
-        //Last spectrum is a MS1 spectrum and either a MS2 Spectrum follows - than the MS1 will be in the next part.
+        // last spectrum is a MS1 spectrum and either a MS2 Spectrum follows - than the MS1 will be in the next part. 
         if (spectra[last_spectrum].getMSLevel() == 1)
         {
           if (spectra[last_spectrum + 1].getMSLevel() == 2)
@@ -194,10 +209,10 @@ protected:
             n_spec -= 1;
           }
         }
-        //Last spectrum is a MS2 spectrum - appends all MS2 till next MS1 is reached. ´
+        // last spectrum is a MS2 spectrum - appends all MS2 till next MS1 is reached. 
         else
         {
-          //if not end of file 
+          // if not end of file  
           if (last_spectrum != spectra.size() - 1)
           {
             int i(1);
@@ -215,7 +230,6 @@ protected:
       chrom_start += n_chrom;
     }
     
-    
     //add spectra
     if(n_spec > 0)
     {
@@ -223,6 +237,7 @@ protected:
       { 
         MSExperiment part = experiment;
         addDataProcessing_(part, getProcessingInfo_(DataProcessing::FILTERING));
+        
         //add chromatograms
         if(n_chrom > 0)
         { 
