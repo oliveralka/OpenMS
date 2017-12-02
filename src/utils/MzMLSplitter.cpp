@@ -170,8 +170,8 @@ protected:
     }
     
     // calculate split ranges e.g., (0,100), (101, 200), ...  
-    vector<std::pair<int, int>> parts_spec_ranges;
-    vector<std::pair<int, int>> parts_chrom_ranges;
+    vector<std::pair<size_t, size_t>> parts_spec_ranges;
+    vector<std::pair<size_t, size_t>> parts_chrom_ranges;
     Size spec_start = 0,  chrom_start = 0;
     Size width = String(parts).size(); 
     Size n_chrom, n_spec;   
@@ -200,7 +200,7 @@ protected:
       }
       else
       {
-        int last_spectrum = spec_start + n_spec - 1;
+        size_t last_spectrum = spec_start + n_spec - 1;
         // last spectrum is a MS1 spectrum and either a MS2 Spectrum follows - than the MS1 will be in the next part. 
         if (spectra[last_spectrum].getMSLevel() == 1)
         {
@@ -259,6 +259,7 @@ protected:
         MzMLFile().store(out_name.str(), part);
       }
     }
+    return EXECUTION_OK;
   }
 };
 
