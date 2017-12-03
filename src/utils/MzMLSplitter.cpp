@@ -157,18 +157,18 @@ protected:
 
     // check if file consists a MS1 spectrum - if set method to uniform
     bool hasMS1 = false;
-    if( split == "atMS1")
+    if (split == "atMS1")
     {
-       for(size_t i = 0; i < experiment.getSpectra().size(); ++i)
-       {
-         if(experiment[i].getMSLevel() == 1)
+       for(size_t i = 0; i < spectra.size(); ++i)
+       { 
+         if(spectra[i].getMSLevel() == 1)
          { 
            hasMS1 = true;
            break;
          }
        }
     }
-    
+
     // calculate split ranges e.g., (0,100), (101, 200), ...  
     vector<std::pair<size_t, size_t>> parts_spec_ranges;
     vector<std::pair<size_t, size_t>> parts_chrom_ranges;
@@ -191,7 +191,7 @@ protected:
       }
 
       // spectra
-      if (split == "uniform" || !hasMS1)
+      if (split == "uniform" || hasMS1 == false)
       {
         if (n_spec > 0)
         {
