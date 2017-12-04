@@ -119,12 +119,12 @@ protected:
     registerStringOption_("isotope", "<choice>", "both", "how to handle isotope pattern data. Use 'score' to use them for ranking or 'filter' if you just want to remove candidates with bad isotope pattern. With 'both' you can use isotopes for filtering and scoring (default). Use 'omit' to ignore isotope pattern.", false);
     setValidStrings_("isotope", ListUtils::create<String>("score,filter,both,omit"));
     registerStringOption_("elements", "<choice>", "CHNOP[5]S", "The allowed elements. Write CHNOPSCl to allow the elements C, H, N, O, P, S and Cl. Add numbers in brackets to restrict the maximal allowed occurrence of these elements: CHNOP[5]S[8]Cl[1]. By default CHNOP[5]S is used.", false);
-
     registerIntOption_("number", "<num>", 10, "The number of compounds used in the output", false);
-
+    registerIntOption_("sirius_runtime", "<num>", -1 , "Time [msec] a sirius process is allowed to run, it is disrupted afterwards (default: -1)", false);
     registerFlag_("auto_charge", "Use this option if the charge of your compounds is unknown and you do not want to assume [M+H]+ as default. With the auto charge option SIRIUS will not care about charges and allow arbitrary adducts for the precursor peak.", false);
     registerFlag_("iontree", "Print molecular formulas and node labels with the ion formula instead of the neutral formula", false);
     registerFlag_("no_recalibration", "If this option is set, SIRIUS will not recalibrate the spectrum during the analysis.", false);
+    registerFlag_("quiet", "If this option is set, SIRIUS command line output will be suppressed.", false);
   }
 
   ExitCodes main_(int, const char **)
@@ -140,7 +140,7 @@ protected:
     // needed for counting
     int number_compounds = getIntOption_("number"); 
 
-    // Parameter for Sirius3
+    // parameter for Sirius3
     QString executable = getStringOption_("executable").toQString();
     const QString profile = getStringOption_("profile").toQString();
     const QString elements = getStringOption_("elements").toQString();
@@ -153,12 +153,16 @@ protected:
     bool auto_charge = getFlag_("auto_charge");
     bool no_recalibration = getFlag_("no_recalibration");
     bool iontree = getFlag_("iontree");
+    bool quiet = getFlag_("quiet");
+
+    // additional parameter for qprocess control
+    const int sirius_runtime = getIntOption_("sirius_runtime");
 
     //-------------------------------------------------------------
     // Determination of the Executable
     //-------------------------------------------------------------
 
-    // Parameter executable not provided
+    // parameter executable not provided
     if (executable.isEmpty())
     {
       const QProcessEnvironment env;
@@ -170,7 +174,7 @@ protected:
       }
       executable = qsiriuspathenv;
     }
-    // Normalize file path
+    // normalize file path
     QFileInfo file_info(executable);
     executable = file_info.canonicalFilePath();
 
@@ -192,10 +196,10 @@ protected:
     String tmp_ms_file = QDir(tmp_base_dir).filePath((File::getUniqueName() + ".ms").toQString());
     String out_dir = QDir(tmp_dir).filePath("sirius_out");
 
-    //Write msfile
+    // write msfile
     SiriusMSFile::store(spectra, tmp_ms_file);
 
-    // Assemble SIRIUS parameters
+    // assemble SIRIUS parameters
     QStringList process_params;
     process_params << "-p" << profile
                    << "-e" << elements
@@ -204,10 +208,9 @@ protected:
                    << "--noise" << noise
                    << "--candidates" << candidates
                    << "--ppm-max" << ppm_max
-                   << "--quiet"
-                   << "--output" << out_dir.toQString(); //internal output folder for temporary SIRIUS output file storage
-
-    // Add flags
+                   << "--output" << out_dir.toQString(); // internal output folder for temporary SIRIUS output file storage
+                  
+    // add flags
     if (no_recalibration)
     {
       process_params << "--no-recalibration";
@@ -224,12 +227,17 @@ protected:
     {
       process_params << "--auto-charge";
     }
+    // suppress sirius command line output
+    if (quiet)
+    {
+      process_params << "--quiet";
+    }
 
     process_params << tmp_ms_file.toQString();
 
-    // The actual process
+    // the actual process
     QProcess qp;
-    qp.setWorkingDirectory(path_to_executable); //since library paths are relative to sirius executable path
+    qp.setWorkingDirectory(path_to_executable); // since library paths are relative to sirius executable path
     qp.start(executable, process_params); // does automatic escaping etc... start
     std::stringstream ss;
     ss << "COMMAND: " << executable.toStdString();
@@ -240,7 +248,7 @@ protected:
     LOG_DEBUG << ss.str() << endl;
     writeLog_("Executing: " + String(executable));
     writeLog_("Working Dir is: " + path_to_executable);
-    const bool success = qp.waitForFinished(-1); // wait till job is finished
+    const bool success = qp.waitForFinished(sirius_runtime); // wait till job is finished
     qp.close();
 
     if (success == false || qp.exitStatus() != 0 || qp.exitCode() != 0)
@@ -250,7 +258,9 @@ protected:
       const QString sirius_stderr(qp.readAllStandardOutput());
       writeLog_(sirius_stdout);
       writeLog_(sirius_stderr);
-      writeLog_(String(qp.exitCode()));
+      writeLog_("bool success: " +  String(success));
+      writeLog_("exitStatus: " + String(qp.exitStatus()));
+      writeLog_("exitCode: " + String(qp.exitCode()));
 
       return EXTERNAL_PROGRAM_ERROR;
     }
@@ -259,23 +269,23 @@ protected:
     // writing output
     //-------------------------------------------------------------
 
-    //Extract path to subfolders (sirius internal folder structure)
+    // extract path to subfolders (sirius internal folder structure)
     QDirIterator it(out_dir.toQString(), QDir::Dirs | QDir::NoDotAndDotDot, QDirIterator::NoIteratorFlags);
     while (it.hasNext())
     {
       subdirs.push_back(it.next());
     }
 
-    //sort vector path list
+    // sort vector path list
     std::sort(subdirs.begin(), subdirs.end(), sortByScanIndex);
 
-    //Convert sirius_output to mztab and store file
+    // convert sirius_output to mztab and store file
     MzTab sirius_result;
     MzTabFile siriusfile;
     SiriusMzTabWriter::read(subdirs, number_compounds, sirius_result);
     siriusfile.store(out_sirius, sirius_result);
 
-    //Convert sirius_output to mztab and store file
+    // convert sirius_output to mztab and store file
     if (out_csifingerid.empty() == false)
     {
       MzTab csi_result;
@@ -284,7 +294,7 @@ protected:
       csifile.store(out_csifingerid, csi_result);
     }
 
-    //clean tmp directory if debug level < 2
+    // clean tmp directory if debug level < 2
     if (debug_level_ >= 2)
     {
       writeDebug_("Keeping temporary files in directory '" + String(tmp_dir) + " and msfile at this location "+ tmp_ms_file + ". Set debug level to 1 or lower to remove them.", 2);
