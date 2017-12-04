@@ -123,8 +123,8 @@ protected:
     registerIntOption_("sirius_runtime", "<num>", -1 , "Time [msec] a sirius process is allowed to run, it is disrupted afterwards (default: -1)", false);
     registerFlag_("auto_charge", "Use this option if the charge of your compounds is unknown and you do not want to assume [M+H]+ as default. With the auto charge option SIRIUS will not care about charges and allow arbitrary adducts for the precursor peak.", false);
     registerFlag_("iontree", "Print molecular formulas and node labels with the ion formula instead of the neutral formula", false);
-    registerFlag_("no_recalibration", "If this option is set, SIRIUS will not recalibrate the spectrum during the analysis.", false);
-    registerFlag_("quiet", "If this option is set, SIRIUS command line output will be suppressed.", false);
+    registerFlag_("no_recalibration", "SIRIUS will not recalibrate the spectrum during the analysis.", false);
+    registerFlag_("quiet", "Option to sppress SIRIUS command line output.", false);
   }
 
   ExitCodes main_(int, const char **)
@@ -234,7 +234,7 @@ protected:
     }
 
     process_params << tmp_ms_file.toQString();
-
+   
     // the actual process
     QProcess qp;
     qp.setWorkingDirectory(path_to_executable); // since library paths are relative to sirius executable path
