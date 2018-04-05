@@ -641,8 +641,25 @@ Polish your code - add additional functionality
 \snippet Tutorial_final.cpp final 
 
 @subsection tutorial_pull Open a pull request 
-Afterwards you can commit your changes to a new branch “feature/DatabaseFilter” of your %OpenMS clone on github and submit a pull request on your github page. After a short review process by the %OpenMS Team, the tool will be added the %OpenMS Library.
+Afterwards you can commit your changes to a new branch “feature/DatabaseFilter” of your %OpenMS clone on github and submit a pull request on your github page. After a short review process by the %OpenMS Team, the tool will be added the %OpenMS Library. 
 
+@subsection tutorial_Adapter Tool Adapters
+There are cases were tools, which would fit perfectly in the OpenMS Pipeline, are already written in other languages, such as java from developers outside of OpenMS. To integrate them you would write a so called -Adapter, which is a c++ wrapper using QT to call the process.
+In the following the structure of an Adapter and its integration process into the OpenMS Framework is depicted.
+The general layout of the tool is the same as shown in the "TOPP-Tool" section.
+
+
+
+
+@subsection tutorial_create Create and register a minimal tool in OpenMS
+- Create an empty file src/utils/DatabaseFilter.cpp
+- Add the scaffold code for a minimal TOPP tool. Text in bold will later be adapted to our DatabaseFilter tool. 
+
+<b>Example: Tutorial_Template.cpp</b>
+<br>
+Template for %OpenMS tool development
+
+\snippet Tutorial_Template.cpp Template
 @section tutorial_appendix Appendix 
 @subsection tutorial_d_dim D-dimensional data points 
 The d-dimensional data points are neededin special cases only, e.g. in template classes that operate in any number of dimensions. The base class of the d-dimensional data points is DPeak. The methods to access the position are getPosition and setPosition. Note that the one-dimensional and two-dimensional data points also have the methods getPosition and setPosition. They are needed in order to be able to write algorithms that can operate on all data point types. It is, however, recommended not to use these members unless you really write such a generic algorithm.
