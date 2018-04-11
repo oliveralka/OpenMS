@@ -1,3 +1,4 @@
+//![final]
 // --------------------------------------------------------------------------
 //                   OpenMS -- Open-Source Mass Spectrometry
 // --------------------------------------------------------------------------
@@ -117,6 +118,7 @@ public:
 
 //! [citation]
 
+//! [register]
 protected:
   // this function will be used to register the tool parameters
   // it gets automatically called on tool execution
@@ -159,6 +161,7 @@ protected:
    registerIntOption_("java_memory", "<num>", 3500, "Maximum Java heap size (in MB)", false);
 
   }
+  //! [register]
 
   // remove temporary folder 
   void removeTempDir_(const QString& tmp_dir)
@@ -260,16 +263,21 @@ protected:
     // reading input
     //-------------------------------------------------------------
 
-    //! [parseinput]
 
     //tmp_dir
     const String tmp_dir = makeTempDirectory_();
     writeDebug_("Creating temporary directory '" + tmp_dir + "'", 1);
 
+    //! [paramfile]
+
     // parameter file
     String tmp_param = tmp_dir + "param.txt";    
     ofstream os(tmp_param.c_str());
     createParamFile_(os);
+
+    //! [paramfile]
+
+    //! [parseinput]
 
     // convert mzML to mgf format
     MzMLFile f;
@@ -411,7 +419,7 @@ protected:
       vector<ProteinIdentification> protein_ids;
       StringList versionrow;
       csv.getRow(2, versionrow);
-      versionrow[0].suffix('#').trim();
+      String version = versionrow[0].substr(versionrow[0].find("v."));
         
       protein_ids = vector<ProteinIdentification>(1);
       protein_ids[0].setDateTime(DateTime::now());
@@ -461,3 +469,5 @@ int main(int argc, const char ** argv)
   return tool.main(argc, argv);
 }
 /// @endcond
+//![final]
+

@@ -643,23 +643,105 @@ Polish your code - add additional functionality
 @subsection tutorial_pull Open a pull request 
 Afterwards you can commit your changes to a new branch “feature/DatabaseFilter” of your %OpenMS clone on github and submit a pull request on your github page. After a short review process by the %OpenMS Team, the tool will be added the %OpenMS Library. 
 
-@subsection tutorial_Adapter Tool Adapters
-There are cases were tools, which would fit perfectly in the OpenMS Pipeline, are already written in other languages, such as java from developers outside of OpenMS. To integrate them you would write a so called -Adapter, which is a c++ wrapper using QT to call the process.
+@subsection tutorial_adapter Adapters
+It is possible to integrate an already existing tool into the OpenMS Pipeline. You can write a so called -Adapter, which is using QT for running the process in the C++ wrapper.
 In the following the structure of an Adapter and its integration process into the OpenMS Framework is depicted.
+
 The general layout of the tool is the same as shown in the "TOPP-Tool" section.
 
+The Adapter creation process will be displayed using the integrated NovorAdapter as an example.
+The NovorAdapter is a de-novo tool for peptide sequencing. The existing tool Novor takes a .mgf input file, a parameter.txt file and returns an output file in .csv format.
+In case of OpenMS want to provide the standard data formats, which means we will provide a .mzML file and want to read the novor output .csv into the internal data format (.idXML).
 
+Please have a look at the TOPP-Tool section if you are not familiar with the OpenMS Tool layout and creation process.
 
+@subsection tutorial_ad_register Register tool parameters
+Similar to the TOPP-Tool the parameters have to be registered.
 
-@subsection tutorial_create Create and register a minimal tool in OpenMS
-- Create an empty file src/utils/DatabaseFilter.cpp
-- Add the scaffold code for a minimal TOPP tool. Text in bold will later be adapted to our DatabaseFilter tool. 
-
-<b>Example: Tutorial_Template.cpp</b>
+<b>Example: Tutorial_Adapter.cpp </b>
 <br>
-Template for %OpenMS tool development
 
-\snippet Tutorial_Template.cpp Template
+\snippet Tutorial_Adapter.cpp register
+
+@subsection tutorial_ad_param Write Parameter.txt file using the registered parameters
+The parameter information can now be used to write the parameter.txt file which is needed as input for Novor.
+
+<b>Example: Tutorial_Adapter.cpp </b>
+<br>
+
+\snippet Tutorial_Adapter.cpp paramfile
+
+@subsection tutorial_ad_ex Check the availability of the executables
+Novor is a java program which can be called via java using the novor.jar file.
+Here it is essential that the path to the executables are specified and their existence checked.
+If not the user has to be notified by using writeLog and an error message to specify the issue.
+
+<b>Example: Tutorial_Adapter.cpp </b>
+<br>
+
+\snippet Tutorial_Adapter.cpp executable
+
+@subsection tutorial_ad_pinput Convert the input file in the needed format
+The NovorAdapter is provided with an .mzML as input, but novor.jar needs an .mgf file.
+In a lot of times the file conversion is already implemented in OpenMS and can be used on the fly.
+
+<b>Example: Tutorial_Adapter.cpp </b>
+<br>
+
+\snippet Tutorial_Adapter.cpp parseinput
+
+@subsection tutorial_ad_pros Execute the program using qprocess
+The NovorAdapter is provided with an .mzML as input, but novor.jar needs an .mgf file.
+In a lot of times the file conversion is already implemented in OpenMS and can be used on the fly.
+
+<b>Example: Tutorial_Adapter.cpp </b>
+<br>
+
+\snippet Tutorial_Adapter.cpp executable
+
+@subsection tutorial_ad_cerror catcherror
+It may be that novor run into an error while running. This error has to be catched - qprocess provides the functionality  for it.
+Additionally it is adviced to have an debug output of the called command to check if any error occur there and if pasted into the command line it should run the tool as well.
+
+<b>Example: Tutorial_Adapter.cpp </b>
+<br>
+
+\snippet Tutorial_Adapter.cpp catcherror
+
+@subsection tutorial_ad_pout parsingoutput
+The process will return a output.csv file in the end which has to be transformed to and internal .idXML format.
+Here the .csv file has to be parsed and with this the internal datastructure of OpenMS can be filled.
+
+<b>Example: Tutorial_Adapter.cpp </b>
+<br>
+
+\snippet Tutorial_Adapter.cpp parsingoutput
+
+
+@subsection tutorial_ad_cite Cite the authors of the integrated tool
+In the end please add the author/publication information of the wrapped tool.
+
+<b>Example: Tutorial_Adapter.cpp </b>
+<br>
+
+\snippet Tutorial_Adapter.cpp citation
+
+
+@subsection tutorial_ad_final Complete NovorAdapter
+In the end please add the author/publication information of the wrapped tool.
+
+<b>Example: Tutorial_Adapter.cpp </b>
+<br>
+
+\snippet Tutorial_Adapter.cpp final
+
+@subsection tutorial_ad_third Add tool to THIRDPARTY
+If the licensce of the tool allows we are able to add it into the THIRDPARTY repository which is shipped with OpenMS (https://github.com/OpenMS/THIRDPARTY).
+Here can fork the repositry and open a pull request after adding the tool.
+
+Add tests to thirdparty directory and search for software
+
+
 @section tutorial_appendix Appendix 
 @subsection tutorial_d_dim D-dimensional data points 
 The d-dimensional data points are neededin special cases only, e.g. in template classes that operate in any number of dimensions. The base class of the d-dimensional data points is DPeak. The methods to access the position are getPosition and setPosition. Note that the one-dimensional and two-dimensional data points also have the methods getPosition and setPosition. They are needed in order to be able to write algorithms that can operate on all data point types. It is, however, recommended not to use these members unless you really write such a generic algorithm.

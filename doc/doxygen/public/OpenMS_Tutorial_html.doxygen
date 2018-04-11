@@ -78,6 +78,19 @@
 	- @subpage tutorial_doc
 	- @subpage tutorial_polish
 	- @subpage tutorial_pull
+	- @subpage tutorial_adapter
+	- @subpage tutorial_ad_register
+	- @subpage tutorial_ad_param
+	- @subpage tutorial_ad_ex
+	- @subpage tutorial_ad_pinput
+	- @subpage tutorial_ad_pros
+	- @subpage tutorial_ad_cerror
+	- @subpage tutorial_ad_pout
+	- @subpage tutorial_ad_cite
+	- @subpage tutorial_ad_final
+	- @subpage tutorial_ad_third
+
+
 
 	Here you find additional Information:
 	- @subpage tutorial_appendix
