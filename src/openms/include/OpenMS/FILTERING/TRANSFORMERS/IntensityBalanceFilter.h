@@ -32,8 +32,7 @@
 // $Authors: $
 // --------------------------------------------------------------------------
 //
-#ifndef OPENMS_FILTERING_TRANSFORMERS_INTENSITYBALANCEFILTER_H
-#define OPENMS_FILTERING_TRANSFORMERS_INTENSITYBALANCEFILTER_H
+#pragma once
 
 #include <OpenMS/FILTERING/TRANSFORMERS/FilterFunctor.h>
 
@@ -65,7 +64,7 @@ public:
     IntensityBalanceFilter(const IntensityBalanceFilter & source);
 
     /// destructor
-    virtual ~IntensityBalanceFilter();
+    ~IntensityBalanceFilter() override;
     // @}
 
     // @name Operators
@@ -132,4 +131,3 @@ public:
 
   };
 }
-#endif // OPENMS_FILTERING_TRANSFORMERS_INTENSITYBALANCEFILTER_H

@@ -32,8 +32,7 @@
 // $Authors: Stephan Aiche $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_ANALYSIS_QUANTITATION_ISOBARICQUANTITATIONMETHOD_H
-#define OPENMS_ANALYSIS_QUANTITATION_ISOBARICQUANTITATIONMETHOD_H
+#pragma once
 
 #include <OpenMS/DATASTRUCTURES/DefaultParamHandler.h>
 #include <OpenMS/DATASTRUCTURES/String.h>
@@ -105,7 +104,7 @@ public:
     IsobaricQuantitationMethod();
 
     /// @brief d'tor
-    virtual ~IsobaricQuantitationMethod();
+    ~IsobaricQuantitationMethod() override;
 
     typedef std::vector<IsobaricChannelInformation> IsobaricChannelList;
 
@@ -151,4 +150,3 @@ protected:
   };
 } // namespace
 
-#endif // OPENMS_ANALYSIS_QUANTITATION_ISOBARICQUANTITATIONMETHOD_H

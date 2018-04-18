@@ -32,8 +32,7 @@
 // $Authors: $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_FILTERING_BASELINE_MORPHOLOGICALFILTER_H
-#define OPENMS_FILTERING_BASELINE_MORPHOLOGICALFILTER_H
+#pragma once
 
 #include <OpenMS/CONCEPT/ProgressLogger.h>
 #include <OpenMS/DATASTRUCTURES/DefaultParamHandler.h>
@@ -182,7 +181,7 @@ public:
     }
 
     /// Destructor
-    virtual ~MorphologicalFilter()
+    ~MorphologicalFilter() override
     {
     }
 
@@ -286,7 +285,7 @@ public:
     void filter(MSSpectrum & spectrum)
     {
       //make sure the right peak type is set
-      spectrum.setType(SpectrumSettings::RAWDATA);
+      spectrum.setType(SpectrumSettings::PROFILE);
 
       //Abort if there is nothing to do
       if (spectrum.size() <= 1) { return; }
@@ -586,4 +585,3 @@ private:
 
 } // namespace OpenMS
 
-#endif

@@ -32,8 +32,7 @@
 // $Authors: $
 // --------------------------------------------------------------------------
 //
-#ifndef OPENMS_FILTERING_TRANSFORMERS_SQRTMOWER_H
-#define OPENMS_FILTERING_TRANSFORMERS_SQRTMOWER_H
+#pragma once
 
 #include <OpenMS/KERNEL/StandardTypes.h>
 #include <OpenMS/DATASTRUCTURES/DefaultParamHandler.h>
@@ -59,7 +58,7 @@ public:
     /// default constructor
     SqrtMower();
     /// destructor
-    virtual ~SqrtMower();
+    ~SqrtMower() override;
 
     /// copy constructor
     SqrtMower(const SqrtMower & source);
@@ -101,4 +100,3 @@ public:
 
 }
 
-#endif // OPENMS_FILTERING_TRANSFORMERS_SQRTMOWER_H

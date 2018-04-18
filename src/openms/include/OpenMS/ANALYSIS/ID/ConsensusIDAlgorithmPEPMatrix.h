@@ -32,8 +32,7 @@
 // $Authors: Andreas Bertsch, Marc Sturm, Sven Nahnsen, Hendrik Weisser $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_ANALYSIS_ID_CONSENSUSIDALGORITHMPEPMATRIX_H
-#define OPENMS_ANALYSIS_ID_CONSENSUSIDALGORITHMPEPMATRIX_H
+#pragma once
 
 #include <OpenMS/ANALYSIS/ID/ConsensusIDAlgorithmSimilarity.h>
 #include <OpenMS/DATASTRUCTURES/SeqanIncludeWrapper.h>
@@ -182,13 +181,12 @@ namespace OpenMS
     ConsensusIDAlgorithmPEPMatrix& operator=(const ConsensusIDAlgorithmPEPMatrix&);
 
     /// Docu in base class
-    virtual void updateMembers_();
+    void updateMembers_() override;
 
     /// Sequence similarity based on substitution matrix (ignores PTMs)
-    virtual double getSimilarity_(AASequence seq1, AASequence seq2);
+    double getSimilarity_(AASequence seq1, AASequence seq2) override;
 
   };
 
 } // namespace OpenMS
 
-#endif // OPENMS_ANALYSIS_ID_CONSENSUSIDALGORITHMPEPMATRIX_H

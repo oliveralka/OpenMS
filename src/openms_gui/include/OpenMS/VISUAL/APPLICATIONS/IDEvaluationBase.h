@@ -32,8 +32,7 @@
 // $Authors: Chris Bielow $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_VISUAL_APPLICATIONS_IDEVALUATIONBASE_H
-#define OPENMS_VISUAL_APPLICATIONS_IDEVALUATIONBASE_H
+#pragma once
 
 // OpenMS_GUI config
 #include <OpenMS/VISUAL/OpenMS_GUIConfig.h>
@@ -44,16 +43,16 @@
 #include <OpenMS/KERNEL/StandardTypes.h>
 
 //QT
-#include <QtGui/QMainWindow>
-#include <QtGui/QWorkspace>
-#include <QtGui/QButtonGroup>
+#include <QtWidgets/QMainWindow>
+#include <QtWidgets/QMdiArea>
+#include <QtWidgets/QButtonGroup>
 #include <QtCore/QProcess>
-#include <QtGui/QSplashScreen>
+#include <QtWidgets/QSplashScreen>
 
 class QToolBar;
 class QListWidget;
 class QTextEdit;
-class QWorkspace;
+class QMdiArea;
 class QLabel;
 class QWidget;
 class QTreeWidget;
@@ -88,11 +87,11 @@ namespace OpenMS
 public:
 
     ///Constructor
-    IDEvaluationBase(QWidget * parent = 0);
+    IDEvaluationBase(QWidget * parent = nullptr);
     ///Destructor
-    virtual ~IDEvaluationBase();
+    ~IDEvaluationBase() override;
 
-    QSize sizeHint() const;
+    QSize sizeHint() const override;
 
     void setVisibleArea(double low, double high);
 
@@ -164,7 +163,7 @@ protected:
     QTextEdit * desc_;
 
     /// Main workspace
-    QWorkspace * ws_;
+    QMdiArea * ws_;
 
     Spectrum1DWidget * spec_1d_;
 
@@ -180,8 +179,8 @@ protected:
     String current_path_;
     ///@name reimplemented Qt events
     //@{
-    void closeEvent(QCloseEvent * event);
-    void keyPressEvent(QKeyEvent * e);
+    void closeEvent(QCloseEvent * event) override;
+    void keyPressEvent(QKeyEvent * e) override;
     //@}
 
     ///Log message states
@@ -213,4 +212,3 @@ protected:
 
 } //namespace
 
-#endif // OPENMS_VISUAL_APPLICATIONS_IDEVALUATIONBASE_H

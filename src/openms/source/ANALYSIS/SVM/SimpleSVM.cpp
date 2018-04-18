@@ -37,14 +37,12 @@
 #include <OpenMS/CONCEPT/ProgressLogger.h>
 #include <OpenMS/FORMAT/SVOutStream.h>
 
-#include <fstream>
-
 using namespace OpenMS;
 using namespace std;
 
 
 SimpleSVM::SimpleSVM():
-  DefaultParamHandler("SimpleSVM"), data_(), model_(0)
+  DefaultParamHandler("SimpleSVM"), data_(), model_(nullptr)
 {
   defaults_.setValue("kernel", "RBF", "SVM kernel");
   defaults_.setValidStrings("kernel", ListUtils::create<String>("RBF,linear"));
@@ -79,7 +77,7 @@ SimpleSVM::SimpleSVM():
 
 SimpleSVM::~SimpleSVM()
 {
-  if (model_ != 0) svm_free_model_content(model_);
+  if (model_ != nullptr) svm_free_model_content(model_);
   delete[] data_.x;
   delete[] data_.y;
 }
@@ -151,7 +149,7 @@ void SimpleSVM::setup(PredictorMap& predictors, const map<Size, Int>& labels)
   optimizeParameters_();
   svm_params_.probability = 1;
   // in case "setup" was called before:
-  if (model_ != 0) svm_free_model_content(model_);
+  if (model_ != nullptr) svm_free_model_content(model_);
   model_ = svm_train(&data_, &svm_params_);
   LOG_INFO << "Number of support vectors in the final model: " << model_->l
            << endl;
@@ -161,7 +159,7 @@ void SimpleSVM::setup(PredictorMap& predictors, const map<Size, Int>& labels)
 void SimpleSVM::predict(vector<Prediction>& predictions, vector<Size> indexes)
   const
 {
-  if (model_ == 0)
+  if (model_ == nullptr)
   {
     throw Exception::Precondition(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION,
                                   "SVM model has not been trained (use the "
@@ -172,7 +170,7 @@ void SimpleSVM::predict(vector<Prediction>& predictions, vector<Size> indexes)
   if (indexes.empty())
   {
     indexes.reserve(n_obs);
-    for (Size i = 0; i < n_obs; indexes.push_back(i++));
+    for (Size i = 0; i < n_obs; indexes.push_back(i++)){};
   }
   Size n_classes = svm_get_nr_class(model_);
   vector<Int> labels(n_classes);
@@ -203,7 +201,7 @@ void SimpleSVM::predict(vector<Prediction>& predictions, vector<Size> indexes)
 
 void SimpleSVM::getFeatureWeights(map<String, double>& feature_weights) const
 {
-  if (model_ == 0)
+  if (model_ == nullptr)
   {
     throw Exception::Precondition(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION,
                                   "SVM model has not been trained (use the "

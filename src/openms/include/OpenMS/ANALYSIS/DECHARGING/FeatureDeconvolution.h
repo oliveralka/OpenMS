@@ -32,8 +32,7 @@
 // $Authors: $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_ANALYSIS_DECHARGING_FEATUREDECONVOLUTION_H
-#define OPENMS_ANALYSIS_DECHARGING_FEATUREDECONVOLUTION_H
+#pragma once
 
 // OpenMS
 #include <OpenMS/KERNEL/FeatureMap.h>
@@ -83,7 +82,7 @@ public:
     FeatureDeconvolution& operator=(const FeatureDeconvolution& source);
 
     /// destructor
-    virtual ~FeatureDeconvolution();
+    ~FeatureDeconvolution() override;
     //@}
 
     /**
@@ -100,7 +99,7 @@ public:
 
 protected:
 
-    void updateMembers_();
+    void updateMembers_() override;
 
     /**
       @brief 1-sided Compomer for a feature
@@ -160,4 +159,3 @@ protected:
   };
 } // namespace OpenMS
 
-#endif // OPENMS_ANALYSIS_DECHARGING_FEATUREDECONVOLUTION_H

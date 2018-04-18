@@ -32,8 +32,7 @@
 // $Authors: $
 // --------------------------------------------------------------------------
 //
-#ifndef OPENMS_FILTERING_TRANSFORMERS_SCALER_H
-#define OPENMS_FILTERING_TRANSFORMERS_SCALER_H
+#pragma once
 
 #include <OpenMS/KERNEL/StandardTypes.h>
 #include <OpenMS/DATASTRUCTURES/DefaultParamHandler.h>
@@ -59,7 +58,7 @@ public:
     /// default constructor
     Scaler();
     /// destructor
-    virtual ~Scaler();
+    ~Scaler() override;
 
     /// copy constructor
     Scaler(const Scaler & source);
@@ -105,4 +104,3 @@ public:
   };
 
 }
-#endif //OPENMS_FILTERING_TRANSFORMERS_SCALER_H

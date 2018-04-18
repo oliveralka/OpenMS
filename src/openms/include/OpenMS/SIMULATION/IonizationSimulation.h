@@ -32,8 +32,7 @@
 // $Authors: Stephan Aiche, Chris Bielow$
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_SIMULATION_IONIZATIONSIMULATION_H
-#define OPENMS_SIMULATION_IONIZATIONSIMULATION_H
+#pragma once
 
 #include <OpenMS/CONCEPT/ProgressLogger.h>
 #include <OpenMS/DATASTRUCTURES/DefaultParamHandler.h>
@@ -87,7 +86,7 @@ public:
     IonizationSimulation(const IonizationSimulation& source);
 
     /// Destructor
-    virtual ~IonizationSimulation();
+    ~IonizationSimulation() override;
     //@}
 
     /// Assignment operator
@@ -129,7 +128,7 @@ private:
     void setDefaultParams_();
 
     /// Synchronize members with param class
-    void updateMembers_();
+    void updateMembers_() override;
 
     /**
      @brief counts all basic residues inside the amino acid sequence to give an upper bound on the maximal charge during ESI ionization
@@ -187,5 +186,4 @@ protected:
 
 }
 
-#endif // OPENMS_SIMULATION_IONIZATIONSIMULATION_H
 

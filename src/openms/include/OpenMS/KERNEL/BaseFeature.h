@@ -32,8 +32,7 @@
 // $Authors: Hendrik Weisser, Chris Bielow $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_KERNEL_BASEFEATURE_H
-#define OPENMS_KERNEL_BASEFEATURE_H
+#pragma once
 
 #include <OpenMS/KERNEL/RichPeak2D.h>
 
@@ -96,7 +95,7 @@ public:
     explicit BaseFeature(const RichPeak2D& point);
 
     /// Destructor
-    ~BaseFeature();
+    ~BaseFeature() override;
     //@}
 
     /// @name Quality methods
@@ -181,4 +180,3 @@ protected:
 
 } // namespace OpenMS
 
-#endif // OPENMS_KERNEL_BASEFEATURE_H

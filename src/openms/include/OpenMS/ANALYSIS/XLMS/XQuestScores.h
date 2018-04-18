@@ -32,8 +32,7 @@
 // $Authors: Eugen Netz $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_ANALYSIS_XLMS_XQUESTSCORES_H
-#define OPENMS_ANALYSIS_XLMS_XQUESTSCORES_H
+#pragma once
 
 #include <OpenMS/KERNEL/MSSpectrum.h>
 #include <OpenMS/KERNEL/StandardTypes.h>
@@ -76,7 +75,9 @@ namespace OpenMS
     * @param type of cross-link, true = cross-link, false = mono-link
     * @param number of considered charges in the theoretical spectrum
     */
-    static double matchOddsScore(const PeakSpectrum& theoretical_spec,  const std::vector< std::pair< Size, Size > >& matched_spec, double fragment_mass_tolerance, bool fragment_mass_tolerance_unit_ppm, bool is_xlink_spectrum, Size n_charges = 1);
+    static double matchOddsScore(const PeakSpectrum& theoretical_spec,  const Size matched_size, double fragment_mass_tolerance, bool fragment_mass_tolerance_unit_ppm, bool is_xlink_spectrum = false, Size n_charges = 1);
+
+    static double logOccupancyProb(const PeakSpectrum& theoretical_spec,  const Size matched_size, double fragment_mass_tolerance, bool fragment_mass_tolerance_unit_ppm);
 
 
    /**
@@ -136,4 +137,3 @@ namespace OpenMS
 
 }
 
-#endif // XQUESTSCORES_H

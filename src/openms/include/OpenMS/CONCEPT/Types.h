@@ -32,8 +32,7 @@
 // $Authors: Marc Sturm, Clemens Groepl $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_CONCEPT_TYPES_H
-#define OPENMS_CONCEPT_TYPES_H
+#pragma once
 
 #include <OpenMS/config.h>
 
@@ -44,7 +43,7 @@
 // If possible use the ISO C99-compliant header stdint.h
 // to define the portable integer types.
 #ifdef OPENMS_HAS_STDINT_H
-#include <stdint.h>
+#include <cstdint>
 #endif
 
 namespace OpenMS
@@ -310,4 +309,3 @@ namespace OpenMS
 
 } // namespace OpenMS
 
-#endif // OPENMS_CONCEPT_TYPES_H

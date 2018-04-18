@@ -32,8 +32,7 @@
 // $Authors: Stephan Aiche $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_ANALYSIS_MAPMATCHING_TRANSFORMATIONMODELLINEAR_H
-#define OPENMS_ANALYSIS_MAPMATCHING_TRANSFORMATIONMODELLINEAR_H
+#pragma once
 
 #include <OpenMS/config.h>
 
@@ -68,10 +67,10 @@ public:
     TransformationModelLinear(const DataPoints& data, const Param& params);
 
     /// Destructor
-    ~TransformationModelLinear();
+    ~TransformationModelLinear() override;
 
     /// Evaluates the model at the given value
-    virtual double evaluate(double value) const;
+    double evaluate(double value) const override;
 
     using TransformationModel::getParameters;
 
@@ -98,4 +97,3 @@ protected:
   };
 } // namespace
 
-#endif // OPENMS_ANALYSIS_MAPMATCHING_TRANSFORMATIONMODELLINEAR_H

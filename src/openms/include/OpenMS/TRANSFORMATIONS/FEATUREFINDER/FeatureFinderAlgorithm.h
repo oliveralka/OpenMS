@@ -32,8 +32,7 @@
 // $Authors: $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_TRANSFORMATIONS_FEATUREFINDER_FEATUREFINDERALGORITHM_H
-#define OPENMS_TRANSFORMATIONS_FEATUREFINDER_FEATUREFINDERALGORITHM_H
+#pragma once
 
 #include <OpenMS/KERNEL/StandardTypes.h>
 #include <OpenMS/DATASTRUCTURES/DefaultParamHandler.h>
@@ -86,14 +85,14 @@ public:
     /// default constructor
     FeatureFinderAlgorithm() :
       DefaultParamHandler("FeatureFinderAlgorithm"),
-      map_(0),
-      features_(0),
-      ff_(0)
+      map_(nullptr),
+      features_(nullptr),
+      ff_(nullptr)
     {
     }
 
     /// destructor
-    virtual ~FeatureFinderAlgorithm()
+    ~FeatureFinderAlgorithm() override
     {
     }
 
@@ -156,4 +155,3 @@ private:
   };
 }
 
-#endif // OPENMS_TRANSFORMATIONS_FEATUREFINDER_FEATUREFINDERALGORITHM_H

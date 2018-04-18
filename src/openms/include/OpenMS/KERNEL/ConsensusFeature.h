@@ -32,8 +32,7 @@
 // $Authors: $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_KERNEL_CONSENSUSFEATURE_H
-#define OPENMS_KERNEL_CONSENSUSFEATURE_H
+#pragma once
 
 #include <OpenMS/DATASTRUCTURES/DRange.h>
 #include <OpenMS/KERNEL/BaseFeature.h>
@@ -181,7 +180,7 @@ public:
     ConsensusFeature& operator=(const ConsensusFeature& rhs);
 
     /// Destructor
-    virtual ~ConsensusFeature();
+    ~ConsensusFeature() override;
     //@}
 
 
@@ -337,4 +336,3 @@ private:
 
 } // namespace OpenMS
 
-#endif // OPENMS_KERNEL_CONSENSUSFEATURE_H

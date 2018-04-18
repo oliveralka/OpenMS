@@ -33,8 +33,7 @@
 // --------------------------------------------------------------------------
 //
 
-#ifndef OPENMS_FILTERING_NOISEESTIMATION_SIGNALTONOISEESTIMATOR_H
-#define OPENMS_FILTERING_NOISEESTIMATION_SIGNALTONOISEESTIMATOR_H
+#pragma once
 
 #include <OpenMS/KERNEL/MSSpectrum.h>
 #include <OpenMS/DATASTRUCTURES/DefaultParamHandler.h>
@@ -102,7 +101,7 @@ public:
     }
 
     /// Destructor
-    virtual ~SignalToNoiseEstimator()
+    ~SignalToNoiseEstimator() override
     {}
 
 
@@ -217,4 +216,3 @@ protected:
 
 } // namespace OpenMS
 
-#endif //OPENMS_FILTERING_NOISEESTIMATION_SIGNALTONOISEESTIMATOR_H

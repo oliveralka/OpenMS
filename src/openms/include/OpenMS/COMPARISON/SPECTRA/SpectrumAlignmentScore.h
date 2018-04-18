@@ -32,8 +32,7 @@
 // $Authors: $
 // --------------------------------------------------------------------------
 //
-#ifndef OPENMS_COMPARISON_SPECTRA_SPECTRUMALIGNMENTSCORE_H
-#define OPENMS_COMPARISON_SPECTRA_SPECTRUMALIGNMENTSCORE_H
+#pragma once
 
 #include <OpenMS/KERNEL/MSSpectrum.h>
 #include <OpenMS/KERNEL/Peak1D.h>
@@ -81,7 +80,7 @@ public:
     SpectrumAlignmentScore(const SpectrumAlignmentScore & source);
 
     /// destructor
-    virtual ~SpectrumAlignmentScore();
+    ~SpectrumAlignmentScore() override;
     // @}
 
     // @name Operators
@@ -90,9 +89,9 @@ public:
     SpectrumAlignmentScore & operator=(const SpectrumAlignmentScore & source);
 
     ///
-    double operator()(const PeakSpectrum & spec1, const PeakSpectrum & spec2) const;
+    double operator()(const PeakSpectrum & spec1, const PeakSpectrum & spec2) const override;
 
-    double operator()(const PeakSpectrum & spec) const;
+    double operator()(const PeakSpectrum & spec) const override;
     // @}
 
     // @name Accessors
@@ -115,4 +114,3 @@ protected:
   };
 
 }
-#endif //OPENMS_COMPARISON_SPECTRA_SPECTRUMALIGNMENTSCORE_H

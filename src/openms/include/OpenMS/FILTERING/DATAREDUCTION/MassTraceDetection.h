@@ -32,8 +32,7 @@
 // $Authors: Erhan Kenar, Holger Franken $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_FILTERING_DATAREDUCTION_MASSTRACEDETECTION_H
-#define OPENMS_FILTERING_DATAREDUCTION_MASSTRACEDETECTION_H
+#pragma once
 
 #include <OpenMS/KERNEL/StandardTypes.h>
 #include <OpenMS/KERNEL/MassTrace.h>
@@ -79,7 +78,7 @@ public:
     MassTraceDetection();
 
     /// Default destructor
-    virtual ~MassTraceDetection();
+    ~MassTraceDetection() override;
 
     /** @name Helper methods
     */
@@ -99,7 +98,7 @@ public:
     /** @name Private methods and members 
     */
 protected:
-    virtual void updateMembers_();
+    void updateMembers_() override;
 
 private:
 
@@ -128,4 +127,3 @@ private:
   };
 }
 
-#endif // OPENMS_FILTERING_DATAREDUCTION_MASSTRACEDETECTION_H

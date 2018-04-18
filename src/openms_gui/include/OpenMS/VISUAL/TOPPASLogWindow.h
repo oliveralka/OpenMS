@@ -32,14 +32,13 @@
 // $Authors: Johannes Junker $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_VISUAL_TOPPASLOGWINDOW_H
-#define OPENMS_VISUAL_TOPPASLOGWINDOW_H
+#pragma once
 
 // OpenMS_GUI config
 #include <OpenMS/VISUAL/OpenMS_GUIConfig.h>
 
 //QT
-#include <QtGui/QTextEdit>
+#include <QtWidgets/QTextEdit>
 class QContextMenuEvent;
 
 namespace OpenMS
@@ -56,9 +55,9 @@ namespace OpenMS
 
   public:
     /// Constructor
-    TOPPASLogWindow(QWidget * parent = 0);
+    TOPPASLogWindow(QWidget * parent = nullptr);
     /// Destructor
-    ~TOPPASLogWindow();
+    ~TOPPASLogWindow() override;
 
     /// read max_length
     int maxLength() const;
@@ -68,7 +67,7 @@ namespace OpenMS
   protected:
     ///@name Reimplemented Qt events
     //@{
-    void contextMenuEvent(QContextMenuEvent * e);
+    void contextMenuEvent(QContextMenuEvent * e) override;
     //@}
 
     /// Members:
@@ -80,4 +79,3 @@ namespace OpenMS
 
   };
 }
-#endif // OPENMS_VISUAL_TOPPASLOGWINDOW_H

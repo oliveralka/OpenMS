@@ -32,8 +32,7 @@
 // $Authors: $
 // --------------------------------------------------------------------------
 //
-#ifndef OPENMS_FILTERING_TRANSFORMERS_NEUTRALLOSSDIFFFILTER_H
-#define OPENMS_FILTERING_TRANSFORMERS_NEUTRALLOSSDIFFFILTER_H
+#pragma once
 
 #include <OpenMS/FILTERING/TRANSFORMERS/FilterFunctor.h>
 
@@ -63,7 +62,7 @@ public:
     NeutralLossDiffFilter(const NeutralLossDiffFilter & source);
 
     /// destructor
-    virtual ~NeutralLossDiffFilter();
+    ~NeutralLossDiffFilter() override;
     // @}
 
     // @name Operators
@@ -116,4 +115,3 @@ public:
 
   };
 }
-#endif // OPENMS_FILTERING_TRANSFORMERS_NEUTRALLOSSDIFFFILTER_H

@@ -32,8 +32,7 @@
 // $Authors: $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_KERNEL_FEATUREHANDLE_H
-#define OPENMS_KERNEL_FEATUREHANDLE_H
+#pragma once
 
 #include <OpenMS/CONCEPT/Types.h>
 #include <OpenMS/CONCEPT/UniqueIdInterface.h>
@@ -89,7 +88,7 @@ public:
     FeatureHandle& operator=(const FeatureHandle& rhs);
 
     /// Destructor
-    virtual ~FeatureHandle();
+    ~FeatureHandle() override;
 
     /**
       @brief Override (most of all) constness.
@@ -193,4 +192,3 @@ private:
   OPENMS_DLLAPI std::ostream& operator<<(std::ostream& os, const FeatureHandle& cons);
 } // namespace OpenMS
 
-#endif // OPENMS_KERNEL_FEATUREHANDLE_H

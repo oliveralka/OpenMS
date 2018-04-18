@@ -32,8 +32,7 @@
 // $Authors: Andreas Bertsch, Marc Sturm, Sven Nahnsen, Hendrik Weisser $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_ANALYSIS_ID_CONSENSUSIDALGORITHMWORST_H
-#define OPENMS_ANALYSIS_ID_CONSENSUSIDALGORITHMWORST_H
+#pragma once
 
 #include <OpenMS/ANALYSIS/ID/ConsensusIDAlgorithmIdentity.h>
 
@@ -61,10 +60,9 @@ namespace OpenMS
     ConsensusIDAlgorithmWorst& operator=(const ConsensusIDAlgorithmWorst&);
 
     /// Aggregate peptide scores into one final score (by taking the worst score)
-    virtual double getAggregateScore_(std::vector<double>& scores,
-                                      bool higher_better);
+    double getAggregateScore_(std::vector<double>& scores,
+                                      bool higher_better) override;
   };
 
 } // namespace OpenMS
 
-#endif // OPENMS_ANALYSIS_ID_CONSENSUSIDALGORITHMWORST_H

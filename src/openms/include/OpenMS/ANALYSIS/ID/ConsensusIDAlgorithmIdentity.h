@@ -32,8 +32,7 @@
 // $Authors: Andreas Bertsch, Marc Sturm, Sven Nahnsen, Hendrik Weisser $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_ANALYSIS_ID_CONSENSUSIDALGORITHMIDENTITY_H
-#define OPENMS_ANALYSIS_ID_CONSENSUSIDALGORITHMIDENTITY_H
+#pragma once
 
 #include <OpenMS/ANALYSIS/ID/ConsensusIDAlgorithm.h>
 
@@ -87,10 +86,9 @@ namespace OpenMS
     ConsensusIDAlgorithmIdentity& operator=(const ConsensusIDAlgorithmIdentity&);
 
     /// Consensus scoring
-    virtual void apply_(std::vector<PeptideIdentification>& ids,
-                        SequenceGrouping& results);
+    void apply_(std::vector<PeptideIdentification>& ids,
+                        SequenceGrouping& results) override;
   };
 
 } // namespace OpenMS
 
-#endif // OPENMS_ANALYSIS_ID_CONSENSUSIDALGORITHMIDENTITY_H

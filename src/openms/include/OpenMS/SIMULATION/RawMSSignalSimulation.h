@@ -32,8 +32,7 @@
 // $Authors: Stephan Aiche, Chris Bielow$
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_SIMULATION_RAWMSSIGNALSIMULATION_H
-#define OPENMS_SIMULATION_RAWMSSIGNALSIMULATION_H
+#pragma once
 
 #include <OpenMS/DATASTRUCTURES/DefaultParamHandler.h>
 #include <OpenMS/CONCEPT/ProgressLogger.h>
@@ -77,7 +76,7 @@ public:
     RawMSSignalSimulation(const RawMSSignalSimulation& source);
 
     /// Destructor
-    virtual ~RawMSSignalSimulation();
+    ~RawMSSignalSimulation() override;
     //@}
 
     RawMSSignalSimulation& operator=(const RawMSSignalSimulation& source);
@@ -100,7 +99,7 @@ protected:
     enum RESOLUTIONMODEL {RES_CONSTANT, RES_LINEAR, RES_SQRT};
 
     /// Synchronize members with param class
-    void updateMembers_();
+    void updateMembers_() override;
 
     /// Set default parameters
     void setDefaultParams_();
@@ -280,4 +279,3 @@ protected:
 
 }
 
-#endif

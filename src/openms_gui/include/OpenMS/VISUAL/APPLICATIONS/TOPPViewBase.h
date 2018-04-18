@@ -32,8 +32,7 @@
 // $Authors: Marc Sturm, Timo Sachsenberg $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_VISUAL_APPLICATIONS_TOPPVIEWBASE_H
-#define OPENMS_VISUAL_APPLICATIONS_TOPPVIEWBASE_H
+#pragma once
 
 // OpenMS_GUI config
 #include <OpenMS/VISUAL/OpenMS_GUIConfig.h>
@@ -54,9 +53,9 @@
 #include <map>
 
 //QT
-#include <QtGui/QMainWindow>
-#include <QtGui/QButtonGroup>
-#include <QtGui/QActionGroup>
+#include <QtWidgets/QMainWindow>
+#include <QtWidgets/QButtonGroup>
+#include <QtWidgets/QActionGroup>
 #include <QtCore/QStringList>
 #include <QtCore/QProcess>
 
@@ -93,12 +92,10 @@ namespace OpenMS
 
     @improvement Use DataRepository singleton to share data between TOPPView and the canvas classes (Hiwi)
 
-        @improvement For painting single mass traces with no width we currently paint each line twice (once going down, and then coming back up).
-        This could be more efficient...
+    @improvement For painting single mass traces with no width we currently paint each line twice (once going down, and then coming back up).
+    This could be more efficient...
 
     @improvement Keep spectrum browser widgets of all layers in memory in order to avoid rebuilding the entire tree view every time the active layer changes (Hiwi, Johannes)
-
-    @todo Add TOPPView live-tutorial (Stephan, Marc)
 
     @ingroup TOPPView_elements
   */
@@ -132,9 +129,9 @@ public:
     //@}
 
     ///Constructor
-    TOPPViewBase(QWidget* parent = 0);
+    TOPPViewBase(QWidget* parent = nullptr);
     ///Destructor
-    ~TOPPViewBase();
+    ~TOPPViewBase() override;
 
     /**
       @brief Opens and displays data from a file
@@ -255,7 +252,7 @@ public slots:
     /// enabled/disabled menu entries depending on the current state
     void updateMenu();
     /// brings the tab corresponding to the active window in front
-    void updateTabBar(QWidget* w);
+    void updateTabBar(QMdiSubWindow* w);
     /// tile the open windows vertically
     void tileVertical();
     /// tile the open windows horizontally
@@ -506,7 +503,7 @@ protected:
     void checkPreferences_();
     ///@name reimplemented Qt events
     //@{
-    void closeEvent(QCloseEvent* event);
+    void closeEvent(QCloseEvent* event) override;
     //@}
 
     ///Log message states
@@ -558,4 +555,3 @@ private:
 
 } //namespace
 
-#endif

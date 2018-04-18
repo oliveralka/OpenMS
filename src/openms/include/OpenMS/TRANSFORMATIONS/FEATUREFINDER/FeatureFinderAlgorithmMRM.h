@@ -32,8 +32,7 @@
 // $Authors: Andreas Bertsch $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_TRANSFORMATIONS_FEATUREFINDER_FEATUREFINDERALGORITHMMRM_H
-#define OPENMS_TRANSFORMATIONS_FEATUREFINDER_FEATUREFINDERALGORITHMMRM_H
+#pragma once
 
 #include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/FeatureFinderAlgorithm.h>
 
@@ -87,7 +86,7 @@ public:
     FeatureFinderAlgorithmMRM();
 
     /// Main method for actual FeatureFinder
-    virtual void run();
+    void run() override;
 
     static FeatureFinderAlgorithm* create();
 
@@ -98,9 +97,8 @@ protected:
     double fitRT_(std::vector<Peak1D>& rt_input_data, InterpolationModel*& model) const;
 
     //Docu in base class
-    virtual void updateMembers_();
+    void updateMembers_() override;
   };
 
 } // namespace OpenMS
 
-#endif // OPENMS_TRANSFORMATIONS_FEATUREFINDER_FEATUREFINDERALGORITHMMRM_H

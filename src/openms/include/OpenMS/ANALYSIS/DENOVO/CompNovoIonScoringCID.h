@@ -33,8 +33,7 @@
 // --------------------------------------------------------------------------
 
 
-#ifndef OPENMS_ANALYSIS_DENOVO_COMPNOVOIONSCORINGCID_H
-#define OPENMS_ANALYSIS_DENOVO_COMPNOVOIONSCORINGCID_H
+#pragma once
 
 // OpenMS includes
 #include <OpenMS/METADATA/PeptideIdentification.h>
@@ -78,7 +77,7 @@ public:
     CompNovoIonScoringCID(const CompNovoIonScoringCID & source);
 
     /// destructor
-    virtual ~CompNovoIonScoringCID();
+    ~CompNovoIonScoringCID() override;
     //@}
 
     ///
@@ -92,9 +91,8 @@ public:
 
 protected:
 
-    void scoreWitnessSet_(Size charge, double precursor_weight, Map<double, IonScore> & CID_nodes, const PeakSpectrum & CID_orig_spec);
+    void scoreWitnessSet_(Size charge, double precursor_weight, Map<double, IonScore> & CID_nodes, const PeakSpectrum & CID_orig_spec) override;
   };
 
 }
 
-#endif

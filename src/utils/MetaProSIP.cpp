@@ -54,6 +54,8 @@
 #include <OpenMS/MATH/MISC/CubicSpline2d.h>
 #include <OpenMS/CHEMISTRY/MASSDECOMPOSITION/MassDecomposition.h>
 #include <OpenMS/CHEMISTRY/MASSDECOMPOSITION/MassDecompositionAlgorithm.h>
+#include <OpenMS/SYSTEM/File.h>
+
 
 #include <boost/math/distributions/normal.hpp>
 
@@ -69,7 +71,7 @@
 #include <fstream>
 #include <map>
 
-#include <math.h>
+#include <cmath>
 
 //#define DEBUG_METAPROSIP
 
@@ -1132,7 +1134,9 @@ public:
       const SIPPeptide& current_SIPpeptide = peptide_to_cluster_index[i].first;
 
       // skip non natural peptides for repoting if flag is set
-      if (!report_natural_peptides && current_SIPpeptide.incorporations.size() == 1 && current_SIPpeptide.incorporations[0].rate < 5.0)
+      if (!report_natural_peptides 
+        && current_SIPpeptide.incorporations.size() == 1 
+        && current_SIPpeptide.incorporations[0].rate < 5.0)
       {
         continue;
       }
@@ -1233,7 +1237,7 @@ protected:
           Int bin = iit->rate / 100.0 * n_heatmap_bins;
           bin = bin > (Int)binned.size() - 1 ? (Int)binned.size() - 1 : bin;
           bin = bin < 0 ? 0 : bin;
-          binned[bin] = log(1.0 + iit->abundance);
+          binned[bin] = log1p(iit->abundance);
         }
         binned_peptide_ria.push_back(binned);
         cluster_labels.push_back((String)(cit - sip_clusters.begin()));
@@ -1410,13 +1414,16 @@ public:
     else if (labeling_element == "C")
     {
       e = ElementDB::getInstance()->getElement("Carbon");
-    } else if (labeling_element == "H")
+    }
+    else if (labeling_element == "H")
     {
       e = ElementDB::getInstance()->getElement("Hydrogen");
-    } else if (labeling_element == "O")
+    }
+    else if (labeling_element == "O")
     {
       e = ElementDB::getInstance()->getElement("Oxygen");
-    } else
+    }
+    else
     {
       return 0;
     }
@@ -2044,7 +2051,7 @@ protected:
   std::string FEATURE_STRING;
   std::string UNASSIGNED_ID_STRING;
   std::string UNIDENTIFIED_STRING;
-  void registerOptionsAndFlags_()
+  void registerOptionsAndFlags_() override
   {
     registerInputFile_("in_mzML", "<file>", "", "Centroided MS1 data");
     setValidFormats_("in_mzML", ListUtils::create<String>("mzML"));
@@ -2073,7 +2080,7 @@ protected:
 
     registerDoubleOption_("xic_threshold", "<tol>", 0.7, "Minimum correlation to mono-isotopic peak for retaining a higher isotopic peak. If featureXML from reference file is used it should be disabled (set to -1) as no mono-isotopic peak is expected to be present.", false);
 
-    registerDoubleOption_("decomposition_threshold", "<tol>", 0.7, "Minimum R² of decomposition that must be achieved for a peptide to be reported.", false);
+    registerDoubleOption_("decomposition_threshold", "<tol>", 0.7, "Minimum R-squared of decomposition that must be achieved for a peptide to be reported.", false);
 
     registerDoubleOption_("weight_merge_window", "<tol>", 5.0, "Decomposition coefficients within +- this rate window will be combined", false);
 
@@ -2209,13 +2216,16 @@ protected:
     if (labeling_element == "N")
     {
       TIC_threshold = getDoubleOption_("pattern_15N_TIC_threshold");
-    } else if (labeling_element == "C")
+    }
+    else if (labeling_element == "C")
     {
       TIC_threshold = getDoubleOption_("pattern_13C_TIC_threshold");
-    } else if (labeling_element == "H")
+    }
+    else if (labeling_element == "H")
     {
       TIC_threshold = getDoubleOption_("pattern_2H_TIC_threshold");
-    } else if (labeling_element == "O")
+    }
+    else if (labeling_element == "O")
     {
       TIC_threshold = getDoubleOption_("pattern_18O_TIC_threshold");
     }
@@ -2918,7 +2928,7 @@ protected:
     return sum_incorporated / sum;
   }
 
-  ExitCodes main_(int, const char**)
+  ExitCodes main_(int, const char**) override
   {
     String file_extension_ = getStringOption_("plot_extension");
     Int debug_level = getIntOption_("debug");
@@ -3265,13 +3275,16 @@ protected:
       if (labeling_element == "C")
       {
         sip_peptide.mass_diff = 1.003354837810;
-      } else if (labeling_element == "N")
+      }
+      else if (labeling_element == "N")
       {
         sip_peptide.mass_diff = 0.9970349;
-      } else if (labeling_element == "H")
+      }
+      else if (labeling_element == "H")
       {
         sip_peptide.mass_diff = 1.00627675;
-      } else if (labeling_element == "O")
+      }
+      else if (labeling_element == "O")
       {
         // 18O-16O distance is approx. 2.0042548 Dalton but natural isotopic pattern is dominated by 13C-12C distance (approx. 1.0033548)
         // After the convolution of the O-isotope distribution with the natural one we get multiple copies of the O-distribution (with 2 Da spaces) 
@@ -3291,13 +3304,16 @@ protected:
         if (labeling_element == "C")
         {
           element_count = sip_peptide.mass_theo * 0.0444398894906044;
-        } else if (labeling_element == "N")
+        }
+        else if (labeling_element == "N")
         {
           element_count = sip_peptide.mass_theo * 0.0122177302837372;
-        } else if (labeling_element == "H")
+        }
+        else if (labeling_element == "H")
         {
           element_count = sip_peptide.mass_theo * 0.06981572169;
-        } else if (labeling_element == "O")
+        }
+        else if (labeling_element == "O")
         {
           element_count = sip_peptide.mass_theo * 0.01329399039;
         }
@@ -3412,13 +3428,16 @@ protected:
        if (labeling_element == "N")
        {
          patterns = MetaProSIPDecomposition::calculateIsotopePatternsFor15NRange(AASequence::fromString(feature_hit_seq));
-       } else if (labeling_element == "C")
+       }
+       else if (labeling_element == "C")
        {
          patterns = MetaProSIPDecomposition::calculateIsotopePatternsFor13CRange(AASequence::fromString(feature_hit_seq));
-       } else if (labeling_element == "H")
+       }
+       else if (labeling_element == "H")
        {
          patterns = MetaProSIPDecomposition::calculateIsotopePatternsFor2HRange(AASequence::fromString(feature_hit_seq));
-       } else if (labeling_element == "O")
+       }
+       else if (labeling_element == "O")
        { 
          patterns = MetaProSIPDecomposition::calculateIsotopePatternsFor18ORange(AASequence::fromString(feature_hit_seq));
        }
@@ -3428,13 +3447,16 @@ protected:
        if (labeling_element == "N")
        {
          patterns = MetaProSIPDecomposition::calculateIsotopePatternsFor15NRangeOfAveraginePeptide(sip_peptide.mass_theo);
-       } else if (labeling_element == "C")
+       }
+       else if (labeling_element == "C")
        {
          patterns = MetaProSIPDecomposition::calculateIsotopePatternsFor13CRangeOfAveraginePeptide(sip_peptide.mass_theo);
-       } else if (labeling_element == "H")
+       }
+       else if (labeling_element == "H")
        {
          patterns = MetaProSIPDecomposition::calculateIsotopePatternsFor2HRangeOfAveraginePeptide(sip_peptide.mass_theo);
-       } else if (labeling_element == "O")
+       }
+       else if (labeling_element == "O")
        {
          patterns = MetaProSIPDecomposition::calculateIsotopePatternsFor18ORangeOfAveraginePeptide(sip_peptide.mass_theo);
        }
@@ -3601,7 +3623,15 @@ protected:
     if (!out_peptide_centric_csv.empty())
     {
       LOG_INFO << "Creating peptide centric report: " << out_peptide_centric_csv << std::endl;
-      MetaProSIPReporting::createPeptideCentricCSVReport(in_mzml, file_extension_, sippeptide_clusters, out_peptide_csv_stream, proteinid_to_description, qc_output_directory, file_suffix, report_natural_peptides);
+
+      if (getFlag_("test")) 
+      {
+        MetaProSIPReporting::createPeptideCentricCSVReport("test_mode_enabled.mzML", file_extension_, sippeptide_clusters, out_peptide_csv_stream, proteinid_to_description, qc_output_directory, file_suffix, report_natural_peptides);
+      }
+      else
+      {
+        MetaProSIPReporting::createPeptideCentricCSVReport(in_mzml, file_extension_, sippeptide_clusters, out_peptide_csv_stream, proteinid_to_description, qc_output_directory, file_suffix, report_natural_peptides);
+      }
     }
 
     // quality report

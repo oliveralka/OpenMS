@@ -32,13 +32,12 @@
 // $Authors: Hannes Roest $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_ANALYSIS_OPENSWATH_SONARSCORING_H
-#define OPENMS_ANALYSIS_OPENSWATH_SONARSCORING_H
+#pragma once
 
-#include <OpenMS/ANALYSIS/OPENSWATH/OPENSWATHALGO/DATAACCESS/ISpectrumAccess.h>
-#include <OpenMS/ANALYSIS/OPENSWATH/OPENSWATHALGO/DATAACCESS/DataStructures.h>
-#include <OpenMS/ANALYSIS/OPENSWATH/OPENSWATHALGO/DATAACCESS/ITransition.h>
-#include <OpenMS/ANALYSIS/OPENSWATH/OPENSWATHALGO/DATAACCESS/TransitionExperiment.h>
+#include <OpenMS/OPENSWATHALGO/DATAACCESS/ISpectrumAccess.h>
+#include <OpenMS/OPENSWATHALGO/DATAACCESS/DataStructures.h>
+#include <OpenMS/OPENSWATHALGO/DATAACCESS/ITransition.h>
+#include <OpenMS/OPENSWATHALGO/DATAACCESS/TransitionExperiment.h>
 
 #include <OpenMS/DATASTRUCTURES/DefaultParamHandler.h>
 
@@ -63,7 +62,7 @@ public:
     SONARScoring();
 
     /// Destructor
-    virtual ~SONARScoring() {}
+    ~SONARScoring() override {}
     //@}
     //
 
@@ -84,7 +83,7 @@ private:
     SONARScoring& operator=(const SONARScoring& rhs);
 
     /// Synchronize members with param class
-    void updateMembers_();
+    void updateMembers_() override;
 
     double dia_extract_window_;
     bool dia_centroided_;
@@ -93,5 +92,4 @@ private:
   };
 }
 
-#endif // OPENMS_ANALYSIS_OPENSWATH_SONARSCORING_H
 

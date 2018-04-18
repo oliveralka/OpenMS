@@ -32,8 +32,7 @@
 // $Authors: Marc Sturm $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_KERNEL_RICHPEAK2D_H
-#define OPENMS_KERNEL_RICHPEAK2D_H
+#pragma once
 
 #include <OpenMS/KERNEL/Peak2D.h>
 #include <OpenMS/METADATA/MetaInfoInterface.h>
@@ -86,7 +85,7 @@ public:
     {}
 
     /// Destructor
-    ~RichPeak2D()
+    ~RichPeak2D() override
     {}
 
     /// Assignment operator
@@ -131,4 +130,3 @@ public:
 
 } // namespace OpenMS
 
-#endif // OPENMS_KERNEL_RICHPEAK2D_H

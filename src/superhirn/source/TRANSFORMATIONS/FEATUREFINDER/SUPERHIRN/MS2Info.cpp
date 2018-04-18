@@ -49,7 +49,7 @@
 #include <list>
 #include <vector>
 #include <algorithm>
-#include <string.h>
+#include <cstring>
 #include <cstdio>
 
 namespace OpenMS
@@ -409,7 +409,7 @@ namespace OpenMS
       if (F != get_Modification_list_end())
       {
         char buffer[20];
-        sprintf(buffer, "[%0.4f]", (*F).second);
+        snprintf(buffer, 20, "[%0.4f]", (*F).second);
         FULL_SQ += buffer;
         pos += strlen(buffer);
       }

@@ -32,8 +32,7 @@
 // $Authors: $
 // --------------------------------------------------------------------------
 //
-#ifndef OPENMS_FILTERING_TRANSFORMERS_PEAKMARKER_H
-#define OPENMS_FILTERING_TRANSFORMERS_PEAKMARKER_H
+#pragma once
 
 #include <map>
 
@@ -57,7 +56,7 @@ public:
     PeakMarker(const PeakMarker & source);
 
     /// destructor
-    virtual ~PeakMarker();
+    ~PeakMarker() override;
 
     /// assignment operator
     PeakMarker & operator=(const PeakMarker & source);
@@ -75,4 +74,3 @@ public:
   };
 
 }
-#endif // OPENMS_FILTERING_TRANSFORMERS_PEAKMARKER_H

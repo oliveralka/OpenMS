@@ -33,8 +33,7 @@
 // --------------------------------------------------------------------------
 //
 
-#ifndef OPENMS_CHEMISTRY_DIGESTIONENZYMERNA_H
-#define OPENMS_CHEMISTRY_DIGESTIONENZYMERNA_H
+#pragma once
 
 #include <OpenMS/CHEMISTRY/DigestionEnzyme.h>
 
@@ -65,7 +64,7 @@ namespace OpenMS
 
        Returns whether the key was recognized and the value set successfully.
     */
-    bool setValueFromFile(const String& key, const String& value);
+    bool setValueFromFile(const String& key, const String& value) override;
 
   protected:
     String three_prime_gain_;
@@ -75,4 +74,3 @@ namespace OpenMS
   typedef DigestionEnzymeRNA RNase;
 }
 
-#endif

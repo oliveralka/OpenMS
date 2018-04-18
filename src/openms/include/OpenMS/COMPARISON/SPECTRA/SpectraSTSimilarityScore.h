@@ -32,8 +32,7 @@
 // $Authors: David Wojnar $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_COMPARISON_SPECTRA_SPECTRASTSIMILARITYSCORE_H
-#define OPENMS_COMPARISON_SPECTRA_SPECTRASTSIMILARITYSCORE_H
+#pragma once
 
 #include <OpenMS/COMPARISON/SPECTRA/PeakSpectrumCompareFunctor.h>
 #include <OpenMS/COMPARISON/SPECTRA/BinnedSpectrum.h>
@@ -74,7 +73,7 @@ public:
     SpectraSTSimilarityScore(const SpectraSTSimilarityScore & source);
 
     /// destructor
-    virtual ~SpectraSTSimilarityScore();
+    ~SpectraSTSimilarityScore() override;
     // @}
 
     /// assignment operator
@@ -83,7 +82,7 @@ public:
     /**
         @brief: calculates the dot product of the two spectra
     */
-    double operator()(const PeakSpectrum & spec1, const PeakSpectrum & spec2) const;
+    double operator()(const PeakSpectrum & spec1, const PeakSpectrum & spec2) const override;
     /**
         @brief: calculates the dot product of the two spectra
     */
@@ -91,7 +90,7 @@ public:
     /**
         @brief: calculates the dot product of itself
     */
-    double operator()(const PeakSpectrum & spec) const;
+    double operator()(const PeakSpectrum & spec) const override;
 
     /**
         @brief Preprocesses the spectrum
@@ -155,4 +154,3 @@ protected:
   };
 
 }
-#endif //OPENMS_COMPARISON_SPECTRA_SPECTRASTSIMILARTIYSCORE_H

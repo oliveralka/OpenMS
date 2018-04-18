@@ -32,8 +32,7 @@
 // $Authors: $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_TRANSFORMATIONS_FEATUREFINDER_FEATUREFINDERDEFS_H
-#define OPENMS_TRANSFORMATIONS_FEATUREFINDER_FEATUREFINDERDEFS_H
+#pragma once
 
 
 #include <OpenMS/DATASTRUCTURES/IsotopeCluster.h>
@@ -75,7 +74,7 @@ public:
         Exception::GlobalExceptionHandler::getInstance().setMessage(what_);
       }
 
-      virtual ~NoSuccessor() throw()
+      ~NoSuccessor() throw() override
       {
       }
 
@@ -84,4 +83,3 @@ protected:
     };
   };
 }
-#endif // OPENMS_TRANSFORMATIONS_FEATUREFINDER_FEATUREFINDERDEFS_H

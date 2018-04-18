@@ -32,8 +32,7 @@
 // $Authors: $
 // --------------------------------------------------------------------------
 //
-#ifndef OPENMS_COMPARISON_SPECTRA_PEAKSPECTRUMCOMPAREFUNCTOR_H
-#define OPENMS_COMPARISON_SPECTRA_PEAKSPECTRUMCOMPAREFUNCTOR_H
+#pragma once
 
 #include <OpenMS/DATASTRUCTURES/DefaultParamHandler.h>
 #include <OpenMS/KERNEL/StandardTypes.h>
@@ -63,7 +62,7 @@ public:
     PeakSpectrumCompareFunctor(const PeakSpectrumCompareFunctor & source);
 
     /// destructor
-    virtual ~PeakSpectrumCompareFunctor();
+    ~PeakSpectrumCompareFunctor() override;
 
     /// assignment operator
     PeakSpectrumCompareFunctor & operator=(const PeakSpectrumCompareFunctor & source);
@@ -86,4 +85,3 @@ public:
   };
 
 }
-#endif // OPENMS_COMPARISON_SPECTRA_COMPAREFUNCTOR_H

@@ -32,8 +32,7 @@
 // $Authors: Andreas Bertsch $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_CHEMISTRY_CROSSLINKSDB_H
-#define OPENMS_CHEMISTRY_CROSSLINKSDB_H
+#pragma once
 
 #include <OpenMS/CHEMISTRY/ModificationsDB.h>
 
@@ -47,8 +46,8 @@ namespace OpenMS
     /// Returns a pointer to the modifications DB (singleton)
     inline static CrossLinksDB* getInstance()
     {
-      static CrossLinksDB* db_ = 0;
-      if (db_ == 0)
+      static CrossLinksDB* db_ = nullptr;
+      if (db_ == nullptr)
       {
         db_ = new CrossLinksDB;
       }
@@ -77,7 +76,7 @@ namespace OpenMS
       CrossLinksDB(const CrossLinksDB& residue_db);
 
       /// Destructor
-      virtual ~CrossLinksDB();
+      ~CrossLinksDB() override;
       //@}
 
       /** @name Assignment
@@ -90,4 +89,3 @@ namespace OpenMS
   };
 }
 
-#endif // CROSSLINKSDB_H

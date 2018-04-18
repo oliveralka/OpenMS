@@ -32,8 +32,7 @@
 // $Authors: Marc Sturm, Stephan Aiche $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_FORMAT_HANDLERS_PARAMXMLHANDLER_H
-#define OPENMS_FORMAT_HANDLERS_PARAMXMLHANDLER_H
+#pragma once
 
 #include <OpenMS/DATASTRUCTURES/Param.h>
 #include <OpenMS/FORMAT/HANDLERS/XMLHandler.h>
@@ -56,13 +55,13 @@ public:
       /// Default constructor
       ParamXMLHandler(Param& param, const String& filename, const String& version);
       /// Destructor
-      virtual ~ParamXMLHandler();
+      ~ParamXMLHandler() override;
 
       // Docu in base class
-      virtual void endElement(const XMLCh* const uri, const XMLCh* const local_name, const XMLCh* const qname);
+      void endElement(const XMLCh* const uri, const XMLCh* const local_name, const XMLCh* const qname) override;
 
       // Docu in base class
-      virtual void startElement(const XMLCh* const uri, const XMLCh* const local_name, const XMLCh* const qname, const xercesc::Attributes& attributes);
+      void startElement(const XMLCh* const uri, const XMLCh* const local_name, const XMLCh* const qname, const xercesc::Attributes& attributes) override;
 
 protected:
       /// The current absolute path (concatenation of nodes_ with <i>:</i> in between)
@@ -94,4 +93,3 @@ private:
   } // namespace Internal
 } // namespace OpenMS
 
-#endif // OPENMS_FORMAT_HANDLERS_PARAMXMLHANDLER_H

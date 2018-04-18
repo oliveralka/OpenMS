@@ -32,8 +32,7 @@
 // $Authors: Eva Lange, Clemens Groepl $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_ANALYSIS_MAPMATCHING_MAPALIGNMENTALGORITHMPOSECLUSTERING_H
-#define OPENMS_ANALYSIS_MAPMATCHING_MAPALIGNMENTALGORITHMPOSECLUSTERING_H
+#pragma once
 
 #include <OpenMS/ANALYSIS/MAPMATCHING/TransformationDescription.h>
 #include <OpenMS/ANALYSIS/MAPMATCHING/StablePairFinder.h>
@@ -77,7 +76,7 @@ public:
     MapAlignmentAlgorithmPoseClustering();
 
     /// Destructor
-    virtual ~MapAlignmentAlgorithmPoseClustering();
+    ~MapAlignmentAlgorithmPoseClustering() override;
 
     void align(const FeatureMap& map, TransformationDescription& trafo);
     void align(const PeakMap& map, TransformationDescription& trafo);
@@ -93,7 +92,7 @@ public:
 
 protected:
 
-    virtual void updateMembers_();
+    void updateMembers_() override;
 
     PoseClusteringAffineSuperimposer superimposer_;
 
@@ -112,4 +111,3 @@ private:
   };
 } // namespace OpenMS
 
-#endif // OPENMS_ANALYSIS_MAPMATCHING_MAPALIGNMENTALGORITHMPOSECLUSTERING_H

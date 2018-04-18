@@ -43,8 +43,7 @@
  *
  */
 
-#ifndef OPENMS_TRANSFORMATIONS_FEATUREFINDER_SUPERHIRN_CENTROIDPEAK_H
-#define OPENMS_TRANSFORMATIONS_FEATUREFINDER_SUPERHIRN_CENTROIDPEAK_H
+#pragma once
 
 #include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/SuperHirnConfig.h>
 
@@ -123,7 +122,7 @@ public:
 
     DeconvPeak & operator=(const DeconvPeak &);
 
-    virtual ~DeconvPeak();
+    ~DeconvPeak() override;
 
     // shows the info of the peak:
     void show_info();
@@ -290,4 +289,3 @@ protected:
 
 } // ns
 
-#endif // OPENMS_TRANSFORMATIONS_FEATUREFINDER_SUPERHIRN_CENTROIDPEAK_H

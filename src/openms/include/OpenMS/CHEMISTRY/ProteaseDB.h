@@ -32,8 +32,7 @@
 // $Authors: Xiao Liang, Chris Bielow $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_CHEMISTRY_PROTEASEDB_H
-#define OPENMS_CHEMISTRY_PROTEASEDB_H
+#pragma once
 
 #include <OpenMS/CHEMISTRY/DigestionEnzymeDB.h>
 #include <OpenMS/CHEMISTRY/DigestionEnzymeProtein.h>
@@ -66,6 +65,9 @@ namespace OpenMS
     /// returns all the enzyme names available for Comet
     void getAllCometNames(std::vector<String>& all_names) const;
 
+    /// returns all the enzyme names available for Crux
+    void getAllCruxNames(std::vector<String>& all_names) const;
+
     /// returns all the enzyme names available for OMSSA
     void getAllOMSSANames(std::vector<String>& all_names) const;
 
@@ -74,4 +76,4 @@ namespace OpenMS
   };
 }
 
-#endif
+

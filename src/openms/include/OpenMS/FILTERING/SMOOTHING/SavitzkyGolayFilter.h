@@ -32,8 +32,7 @@
 // $Authors: Eva Lange $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_FILTERING_SMOOTHING_SAVITZKYGOLAYFILTER_H
-#define OPENMS_FILTERING_SMOOTHING_SAVITZKYGOLAYFILTER_H
+#pragma once
 
 #include <OpenMS/DATASTRUCTURES/DefaultParamHandler.h>
 #include <OpenMS/CONCEPT/ProgressLogger.h>
@@ -108,7 +107,7 @@ public:
     SavitzkyGolayFilter();
 
     /// Destructor
-    virtual ~SavitzkyGolayFilter();
+    ~SavitzkyGolayFilter() override;
 
     // low level template to filters spectra and chromatograms
     // raw data and meta data needs to be copied to the output container before calling this function
@@ -240,8 +239,7 @@ protected:
     UInt order_;
 
     // Docu in base class
-    virtual void updateMembers_();
+    void updateMembers_() override;
   };
 
 } // namespace OpenMS
-#endif // OPENMS_FILTERING_SMOOTHING_SAVITZKYGOLAYFILTER_H

@@ -40,7 +40,7 @@
 
 #include <OpenMS/KERNEL/MRMTransitionGroup.h>
 #include <OpenMS/ANALYSIS/OPENSWATH/MRMFeatureFinderScoring.h>
-#include <OpenMS/ANALYSIS/OPENSWATH/OPENSWATHALGO/DATAACCESS/SwathMap.h>
+#include <OpenMS/OPENSWATHALGO/DATAACCESS/SwathMap.h>
 #include <OpenMS/ANALYSIS/OPENSWATH/DATAACCESS/SimpleOpenMSSpectraAccessFactory.h>
 
 using namespace OpenMS;
@@ -98,8 +98,8 @@ START_TEST(SwathMapMassCorrection, "$Id$")
 /////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////
 
-SwathMapMassCorrection* ptr = 0;
-SwathMapMassCorrection* nullPointer = 0;
+SwathMapMassCorrection* ptr = nullptr;
+SwathMapMassCorrection* nullPointer = nullptr;
 
 START_SECTION(SwathMapMassCorrection())
   ptr = new SwathMapMassCorrection;

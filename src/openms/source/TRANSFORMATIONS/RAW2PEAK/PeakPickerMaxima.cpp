@@ -38,7 +38,6 @@
 #include <OpenMS/MATH/MISC/CubicSpline2d.h>
 
 #include <cmath>
-#include <limits>
 
 namespace OpenMS
 {
@@ -68,7 +67,7 @@ namespace OpenMS
       noise_estimator = rapid_sne.estimateNoise(mz_array, int_array);
     }
 
-    // find local maxima in raw data
+    // find local maxima in profile data
     for (size_t i = 2; i < mz_array.size() - 2; ++i)
     {
       double central_peak_mz = mz_array[i], central_peak_int = int_array[i];
@@ -296,8 +295,7 @@ namespace OpenMS
         {
           lefthand = mid;
         }
-      }
-      while (std::fabs(lefthand - righthand) > threshold);
+      } while (std::fabs(lefthand - righthand) > threshold);
 
       // sanity check?
       max_peak_mz = (lefthand + righthand) / 2;

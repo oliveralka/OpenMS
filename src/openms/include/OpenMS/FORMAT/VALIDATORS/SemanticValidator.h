@@ -32,8 +32,7 @@
 // $Authors: Marc Sturm, Andreas Bertsch $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_FORMAT_VALIDATORS_SEMANTICVALIDATOR_H
-#define OPENMS_FORMAT_VALIDATORS_SEMANTICVALIDATOR_H
+#pragma once
 
 #include <OpenMS/FORMAT/XMLFile.h>
 #include <OpenMS/FORMAT/HANDLERS/XMLHandler.h>
@@ -67,7 +66,7 @@ public:
       SemanticValidator(const CVMappings & mapping, const ControlledVocabulary & cv);
 
       /// Destructor
-      virtual ~SemanticValidator();
+      ~SemanticValidator() override;
 
       ///Representation of a parsed CV term
       struct CVTerm
@@ -138,13 +137,13 @@ public:
 protected:
 
       // Docu in base class
-      void startElement(const XMLCh * const /*uri*/, const XMLCh * const /*local_name*/, const XMLCh * const qname, const xercesc::Attributes & attributes);
+      void startElement(const XMLCh * const /*uri*/, const XMLCh * const /*local_name*/, const XMLCh * const qname, const xercesc::Attributes & attributes) override;
 
       // Docu in base class
-      void endElement(const XMLCh * const /*uri*/, const XMLCh * const /*local_name*/, const XMLCh * const qname);
+      void endElement(const XMLCh * const /*uri*/, const XMLCh * const /*local_name*/, const XMLCh * const qname) override;
 
       // Docu in base class
-      void characters(const XMLCh * const chars, const XMLSize_t /*length*/);
+      void characters(const XMLCh * const chars, const XMLSize_t /*length*/) override;
 
       /// Returns the current element path
       virtual String getPath_(UInt remove_from_end = 0) const;
@@ -212,5 +211,4 @@ private:
 
 } // namespace OpenMS
 
-#endif // OPENMS_FORMAT_VALIDATORS_SEMANTICVALIDATOR_H
 

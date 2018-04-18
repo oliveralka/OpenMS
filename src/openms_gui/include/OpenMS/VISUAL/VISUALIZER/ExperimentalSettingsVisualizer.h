@@ -32,8 +32,7 @@
 // $Authors: Marc Sturm $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_VISUAL_VISUALIZER_EXPERIMENTALSETTINGSVISUALIZER_H
-#define OPENMS_VISUAL_VISUALIZER_EXPERIMENTALSETTINGSVISUALIZER_H
+#pragma once
 
 // OpenMS_GUI config
 #include <OpenMS/VISUAL/OpenMS_GUIConfig.h>
@@ -62,12 +61,12 @@ namespace OpenMS
 public:
 
     ///Constructor
-    ExperimentalSettingsVisualizer(bool editable = false, QWidget * parent = 0);
+    ExperimentalSettingsVisualizer(bool editable = false, QWidget * parent = nullptr);
 
 public slots:
 
     //Docu in base class
-    void store();
+    void store() override;
 
 protected slots:
 
@@ -83,7 +82,6 @@ protected:
     QLineEdit * fraction_identifier_;
 
     //Docu in base class
-    void update_();
+    void update_() override;
   };
 }
-#endif

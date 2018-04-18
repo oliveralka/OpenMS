@@ -32,8 +32,7 @@
 // $Authors: $
 // --------------------------------------------------------------------------
 //
-#ifndef OPENMS_FILTERING_TRANSFORMERS_FILTERFUNCTOR_H
-#define OPENMS_FILTERING_TRANSFORMERS_FILTERFUNCTOR_H
+#pragma once
 
 #include <OpenMS/DATASTRUCTURES/DefaultParamHandler.h>
 
@@ -54,7 +53,7 @@ public:
     FilterFunctor(const FilterFunctor & source);
 
     /// destructor
-    virtual ~FilterFunctor();
+    ~FilterFunctor() override;
 
     /// assignment operator
     FilterFunctor & operator=(const FilterFunctor & source);
@@ -71,4 +70,3 @@ public:
 
   };
 }
-#endif // OPENMS_FILTERING_TRANSFORMERS_FILTERFUNCTOR_H

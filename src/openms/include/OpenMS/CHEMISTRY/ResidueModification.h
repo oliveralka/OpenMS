@@ -33,8 +33,7 @@
 // --------------------------------------------------------------------------
 //
 
-#ifndef OPENMS_CHEMISTRY_RESIDUEMODIFICATION_H
-#define OPENMS_CHEMISTRY_RESIDUEMODIFICATION_H
+#pragma once
 
 #include <OpenMS/DATASTRUCTURES/String.h>
 #include <OpenMS/CHEMISTRY/EmpiricalFormula.h>
@@ -180,7 +179,7 @@ public:
     /// sets the unimod record id
     void setUniModRecordId(const Int& id);
 
-    /// sets the unimod record id
+    /// gets the unimod record id
     const Int& getUniModRecordId() const;
 
     /// returns the unimod accession if available
@@ -379,4 +378,3 @@ protected:
   };
 }
 
-#endif // OPENMS_CHEMISTRY_RESIDUEMODIFICATION_H

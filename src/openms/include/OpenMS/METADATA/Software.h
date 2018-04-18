@@ -32,8 +32,7 @@
 // $Authors: Marc Sturm $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_METADATA_SOFTWARE_H
-#define OPENMS_METADATA_SOFTWARE_H
+#pragma once
 
 #include <OpenMS/DATASTRUCTURES/String.h>
 #include <OpenMS/METADATA/MetaInfoInterface.h>
@@ -55,7 +54,7 @@ public:
     /// Copy constructor
     Software(const Software & source);
     /// Destructor
-    virtual ~Software();
+    ~Software() override;
 
     /// Assignment operator
     Software & operator=(const Software & source);
@@ -81,4 +80,3 @@ protected:
   };
 } // namespace OpenMS
 
-#endif // OPENMS_METADATA_SOFTWARE_H

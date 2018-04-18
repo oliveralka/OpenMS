@@ -32,8 +32,7 @@
 // $Authors:  Marc Sturm, Clemens Groepl $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_APPLICATIONS_TOPPBASE_H
-#define OPENMS_APPLICATIONS_TOPPBASE_H
+#pragma once
 
 #include <OpenMS/CONCEPT/Exception.h>
 #include <OpenMS/CONCEPT/GlobalExceptionHandler.h>
@@ -75,10 +74,10 @@ namespace OpenMS
   */
   struct Citation
   {
-    std::string authors;    //< list of authors in AMA style, i.e. <surname> <initials>, ...
-    std::string title;      //< title of article
-    std::string when_where; //< suggested format: journal. year; volume, issue: pages
-    std::string doi;        //< plain DOI (no urls), e.g. 10.1021/pr100177k
+    std::string authors;    ///< list of authors in AMA style, i.e. <surname> <initials>, ...
+    std::string title;      ///< title of article
+    std::string when_where; ///< suggested format: journal. year; volume, issue: pages
+    std::string doi;        ///< plain DOI (no urls), e.g. 10.1021/pr100177k
 
                             /// mangle members to string
     std::string toString() const
@@ -946,4 +945,3 @@ private:
 
 } // namespace OpenMS
 
-#endif //OPENMS_APPLICATIONS_TOPPBASE_H

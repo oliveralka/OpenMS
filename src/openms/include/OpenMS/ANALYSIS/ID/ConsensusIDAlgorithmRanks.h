@@ -32,8 +32,7 @@
 // $Authors: Andreas Bertsch, Marc Sturm, Sven Nahnsen, Hendrik Weisser $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_ANALYSIS_ID_CONSENSUSIDALGORITHMRANKS_H
-#define OPENMS_ANALYSIS_ID_CONSENSUSIDALGORITHMRANKS_H
+#pragma once
 
 #include <OpenMS/ANALYSIS/ID/ConsensusIDAlgorithmIdentity.h>
 
@@ -67,13 +66,12 @@ namespace OpenMS
     ConsensusIDAlgorithmRanks& operator=(const ConsensusIDAlgorithmRanks&);
 
     /// Assign peptide scores based on search ranks
-    virtual void preprocess_(std::vector<PeptideIdentification>& ids);
+    void preprocess_(std::vector<PeptideIdentification>& ids) override;
 
     /// Aggregate peptide scores into one final score (by averaging ranks)
-    virtual double getAggregateScore_(std::vector<double>& scores,
-                                      bool higher_better);
+    double getAggregateScore_(std::vector<double>& scores,
+                                      bool higher_better) override;
    };
 
 } // namespace OpenMS
 
-#endif // OPENMS_ANALYSIS_ID_CONSENSUSIDALGORITHMRANKS_H

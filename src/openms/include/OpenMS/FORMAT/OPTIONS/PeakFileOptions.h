@@ -32,8 +32,7 @@
 // $Authors: Marc Sturm $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_FORMAT_OPTIONS_PEAKFILEOPTIONS_H
-#define OPENMS_FORMAT_OPTIONS_PEAKFILEOPTIONS_H
+#pragma once
 
 #include <OpenMS/DATASTRUCTURES/DRange.h>
 #include <OpenMS/FORMAT/MSNumpressCoder.h>
@@ -224,8 +223,8 @@ public:
 
 private:
     bool metadata_only_;
-    bool force_maxquant_compatibility_; //< for mzXML-writing only: set a fixed vendor (Thermo Scientific), mass analyzer (FTMS)
-    bool force_tpp_compatibility_; //< for mzML-writing only: work around some bugs in TPP file parsers
+    bool force_maxquant_compatibility_; ///< for mzXML-writing only: set a fixed vendor (Thermo Scientific), mass analyzer (FTMS)
+    bool force_tpp_compatibility_; ///< for mzML-writing only: work around some bugs in TPP file parsers
     bool write_supplemental_data_;
     bool has_rt_range_;
     bool has_mz_range_;
@@ -252,4 +251,3 @@ private:
 
 } // namespace OpenMS
 
-#endif // OPENMS_FORMAT_OPTIONS_PEAKFILEOPTIONS_H

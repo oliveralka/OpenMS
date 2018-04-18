@@ -32,8 +32,7 @@
 // $Authors: Mathias Walzer $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_FORMAT_MZQUANTMLFILE_H
-#define OPENMS_FORMAT_MZQUANTMLFILE_H
+#pragma once
 
 #include <OpenMS/FORMAT/XMLFile.h>
 #include <OpenMS/CONCEPT/ProgressLogger.h>
@@ -57,7 +56,7 @@ public:
     ///Default constructor
     MzQuantMLFile();
     ///Destructor
-    virtual ~MzQuantMLFile();
+    ~MzQuantMLFile() override;
 
     /**
         @brief Loads a map from a MzQuantML file.
@@ -94,4 +93,3 @@ private:
 
 } // namespace OpenMS
 
-#endif // OPENMS_FORMAT_MZQUANTMLFILE_H

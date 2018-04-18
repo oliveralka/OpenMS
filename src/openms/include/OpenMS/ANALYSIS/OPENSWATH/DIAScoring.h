@@ -32,17 +32,16 @@
 // $Authors: Hannes Roest, Witold Wolski $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_ANALYSIS_OPENSWATH_DIASCORING_H
-#define OPENMS_ANALYSIS_OPENSWATH_DIASCORING_H
+#pragma once
 
 #include <boost/math/special_functions/fpclassify.hpp> // for isnan
 #include <OpenMS/CHEMISTRY/AASequence.h>
 #include <OpenMS/DATASTRUCTURES/DefaultParamHandler.h>
 
-#include <OpenMS/ANALYSIS/OPENSWATH/OPENSWATHALGO/DATAACCESS/ISpectrumAccess.h>
-#include <OpenMS/ANALYSIS/OPENSWATH/OPENSWATHALGO/DATAACCESS/DataStructures.h>
-#include <OpenMS/ANALYSIS/OPENSWATH/OPENSWATHALGO/DATAACCESS/ITransition.h>
-#include <OpenMS/ANALYSIS/OPENSWATH/OPENSWATHALGO/DATAACCESS/TransitionExperiment.h>
+#include <OpenMS/OPENSWATHALGO/DATAACCESS/ISpectrumAccess.h>
+#include <OpenMS/OPENSWATHALGO/DATAACCESS/DataStructures.h>
+#include <OpenMS/OPENSWATHALGO/DATAACCESS/ITransition.h>
+#include <OpenMS/OPENSWATHALGO/DATAACCESS/TransitionExperiment.h>
 
 namespace OpenMS
 {
@@ -100,7 +99,7 @@ public:
     DIAScoring();
 
     /// Destructor
-    virtual ~DIAScoring();
+    ~DIAScoring() override;
     //@}
 
     ///////////////////////////////////////////////////////////////////////////
@@ -151,7 +150,7 @@ private:
     DIAScoring& operator=(const DIAScoring& rhs);
 
     /// Synchronize members with param class
-    void updateMembers_();
+    void updateMembers_() override;
 
     /// Subfunction of dia_isotope_scores
     void diaIsotopeScoresSub_(const std::vector<TransitionType>& transitions,
@@ -209,5 +208,4 @@ private:
   };
 }
 
-#endif // OPENMS_ANALYSIS_OPENSWATH_DIASCORING_H
 

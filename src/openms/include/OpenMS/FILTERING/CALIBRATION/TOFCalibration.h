@@ -32,8 +32,7 @@
 // $Authors: $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_FILTERING_CALIBRATION_TOFCALIBRATION_H
-#define OPENMS_FILTERING_CALIBRATION_TOFCALIBRATION_H
+#pragma once
 
 #include <OpenMS/KERNEL/StandardTypes.h>
 #include <OpenMS/CONCEPT/ProgressLogger.h>
@@ -74,7 +73,7 @@ public:
     TOFCalibration();
 
     /// Destructor
-    ~TOFCalibration();
+    ~TOFCalibration() override;
 
 
     /*
@@ -193,4 +192,3 @@ private:
 
 } // namespace OpenMS
 
-#endif // OPENMS_FILTERING_CALIBRATION_TOFCALIBRATION_H

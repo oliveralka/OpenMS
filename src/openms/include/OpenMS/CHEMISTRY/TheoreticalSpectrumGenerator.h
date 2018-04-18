@@ -32,8 +32,7 @@
 // $Authors: Andreas Bertsch $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_CHEMISTRY_THEORETICALSPECTRUMGENERATOR_H
-#define OPENMS_CHEMISTRY_THEORETICALSPECTRUMGENERATOR_H
+#pragma once
 
 #include <OpenMS/CHEMISTRY/Residue.h>
 #include <OpenMS/DATASTRUCTURES/DefaultParamHandler.h>
@@ -76,7 +75,7 @@ namespace OpenMS
     TheoreticalSpectrumGenerator(const TheoreticalSpectrumGenerator & source);
 
     /// destructor
-    virtual ~TheoreticalSpectrumGenerator();
+    ~TheoreticalSpectrumGenerator() override;
     //@}
 
     /// assignment operator
@@ -89,7 +88,7 @@ namespace OpenMS
     virtual void getSpectrum(PeakSpectrum & spec, const AASequence & peptide, Int min_charge, Int max_charge) const;
 
     /// overwrite
-    void updateMembers_();
+    void updateMembers_() override;
 
     //@}
 
@@ -138,4 +137,3 @@ namespace OpenMS
       double pre_int_NH3_;
   };
 }
-#endif // THEORETICALSPECTRUMGENERATORRPLESS_H

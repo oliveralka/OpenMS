@@ -32,8 +32,7 @@
 // $Authors: Stephan Aiche, Chris Bielow, Sandro Andreotti $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_SIMULATION_RAWTANDEMMSSIGNALSIMULATION_H
-#define OPENMS_SIMULATION_RAWTANDEMMSSIGNALSIMULATION_H
+#pragma once
 
 #include <OpenMS/DATASTRUCTURES/DefaultParamHandler.h>
 #include <OpenMS/SIMULATION/SimTypes.h>
@@ -70,7 +69,7 @@ public:
     RawTandemMSSignalSimulation(const RawTandemMSSignalSimulation& source);
 
     /// Destructor
-    virtual ~RawTandemMSSignalSimulation();
+    ~RawTandemMSSignalSimulation() override;
     //@}
 
     RawTandemMSSignalSimulation& operator=(const RawTandemMSSignalSimulation& source);
@@ -97,4 +96,3 @@ protected:
 
 }
 
-#endif

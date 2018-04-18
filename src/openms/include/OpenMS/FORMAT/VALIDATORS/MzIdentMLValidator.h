@@ -32,8 +32,7 @@
 // $Authors: Andreas Bertsch $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_FORMAT_VALIDATORS_MZIDENTMLVALIDATOR_H
-#define OPENMS_FORMAT_VALIDATORS_MZIDENTMLVALIDATOR_H
+#pragma once
 
 #include <OpenMS/FORMAT/VALIDATORS/SemanticValidator.h>
 
@@ -59,7 +58,7 @@ public:
       MzIdentMLValidator(const CVMappings & mapping, const ControlledVocabulary & cv);
 
       /// Destructor
-      virtual ~MzIdentMLValidator();
+      ~MzIdentMLValidator() override;
 
 private:
 
@@ -78,4 +77,3 @@ private:
 
 } // namespace OpenMS
 
-#endif

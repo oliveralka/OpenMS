@@ -33,8 +33,7 @@
 // --------------------------------------------------------------------------
 //
 
-#ifndef OPENMS_FILTERING_TRANSFORMERS_GOODDIFFFILTER_H
-#define OPENMS_FILTERING_TRANSFORMERS_GOODDIFFFILTER_H
+#pragma once
 
 #include <OpenMS/FILTERING/TRANSFORMERS/FilterFunctor.h>
 
@@ -65,7 +64,7 @@ public:
     GoodDiffFilter(const GoodDiffFilter & source);
 
     /// destructor
-    virtual ~GoodDiffFilter();
+    ~GoodDiffFilter() override;
     // @}
 
     // @name Operators
@@ -146,4 +145,3 @@ private:
   };
 }
 
-#endif // OPENMS_FILTERING_TRANSFORMERS_GOODDIFFFILTER_H

@@ -76,6 +76,7 @@ option(MT_ENABLE_TBB "Enable Intel TBB support" OFF)
 option(MT_ENABLE_OPENMP "Enable OpenMP support" ON)
 option(BOOST_USE_STATIC "Use Boost static libraries." ON)
 option(HAS_XSERVER "Indicates if an X server is available. If set to Off it will disable certain tests and the doc target." ON)
+option(ENABLE_DOCS "Indicates whether documentation should be built." ON)
 option(ENABLE_TUTORIALS "Indicates whether tutorials should be build. Note that this also depends on the availability of (pdf)latex." ON)
 option(WITH_GUI "Build GUI parts of OpenMS (TOPPView&Co). This requires QtGui." ON)
 
@@ -253,7 +254,7 @@ if("${PACKAGE_TYPE}" STREQUAL "dmg")
                          "This disables codesigning and might lead to problems with Gatekeeper on target machines.")
   else()
     ## CPack has a special variable for it.
-    set(CPACK_BUNDLE_APPLE_CERT_APP ${SIGNING_IDENTITY})
+    set(CPACK_BUNDLE_APPLE_CERT_APP "${SIGNING_IDENTITY}")
   endif()
 endif()
 
@@ -261,6 +262,7 @@ endif()
 # Output directories
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${OPENMS_HOST_BINARY_DIRECTORY}/lib")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${OPENMS_HOST_BINARY_DIRECTORY}/bin")
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${OPENMS_HOST_BINARY_DIRECTORY}/lib")
 set(OPENMS_BINARY_DIR "${OPENMS_HOST_BINARY_DIRECTORY}/bin")
 set(OPENMS_WIN32_DLL_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
@@ -268,9 +270,9 @@ set(OPENMS_WIN32_DLL_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 # define installation subdirectories to allow for custom installations
 # note that all those directories are below CMAKE_INSTALL_PREFIX
 set(INSTALL_BIN_DIR bin CACHE PATH "Installation directory for executables")
-set(INSTALL_INCLUDE_DIR include CACHE PATH "Installation directory for header files")
-set(INSTALL_DOC_DIR share/doc CACHE PATH "Installation directory for documentation")
 set(INSTALL_SHARE_DIR share/OpenMS CACHE PATH "Installation directory for shared data")
+set(INSTALL_DOC_DIR share/doc CACHE PATH "Installation directory for documentation")
+set(INSTALL_INCLUDE_DIR include CACHE PATH "Installation directory for header files")
 
 if(WIN32)
   set(DEF_INSTALL_CMAKE_DIR CMake)
@@ -279,13 +281,18 @@ else()
   set(DEF_INSTALL_CMAKE_DIR lib/cmake/OpenMS)
   set(DEF_INSTALL_LIB_DIR lib)
 endif()
+
 set(INSTALL_CMAKE_DIR ${DEF_INSTALL_CMAKE_DIR} CACHE PATH "Installation directory for CMake files")
 set(INSTALL_LIB_DIR ${DEF_INSTALL_LIB_DIR} CACHE PATH "Installation directory for libraries")
+set(INSTALL_PLUGIN_SUBDIR plugins CACHE PATH "Installation subdirectory under the lib dir for QT plugins")
+set(INSTALL_PLUGIN_DIR ${INSTALL_LIB_DIR}/${INSTALL_PLUGIN_SUBDIR})
+file(RELATIVE_PATH INSTALL_LIB_PATH_REL_TO_BIN /${INSTALL_BIN_DIR} /${INSTALL_LIB_DIR})
+set(QT_PLUGIN_PATH_REL_TO_BIN ${INSTALL_LIB_PATH_REL_TO_BIN}/${INSTALL_PLUGIN_SUBDIR})
 
 # Never use RPATH. We have other means on every platform.
 # E.g. not yet compatible with our fix_mac_dependencies script.
 SET(CMAKE_MACOSX_RPATH FALSE)
-# macOS-specific variable used when installing own libraries/bins. Use relative paths here.
+# macOS-specific variable used when installing own libraries/bins. Use relative path to bin here.
 SET(CMAKE_INSTALL_NAME_DIR "@executable_path/../${INSTALL_LIB_DIR}")
 
 #------------------------------------------------------------------------------

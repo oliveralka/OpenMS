@@ -32,8 +32,7 @@
 // $Authors: $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_DATASTRUCTURES_CONSTREFVECTOR_H
-#define OPENMS_DATASTRUCTURES_CONSTREFVECTOR_H
+#pragma once
 
 #include <OpenMS/CONCEPT/Types.h>
 #include <OpenMS/KERNEL/ComparatorUtils.h>
@@ -639,7 +638,7 @@ public:
     /// See std::vector documentation.
     ConstRefVector() :
       capacity_(0),
-      base_container_ptr_(0)
+      base_container_ptr_(nullptr)
     {
     }
 
@@ -676,7 +675,7 @@ public:
     template <class InputIterator>
     ConstRefVector(InputIterator f, InputIterator l) :
       capacity_(0),
-      base_container_ptr_(0)
+      base_container_ptr_(nullptr)
     {
       const ValueType* pointer;
       for (InputIterator it = f; it != l; ++it)
@@ -804,4 +803,3 @@ protected:
 
 } // namespace OpenMS
 
-#endif // OPENMS_DATASTRUCTURES_CONSTREFVECTOR_H

@@ -32,8 +32,7 @@
 // $Authors: Hannes Roest $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_ANALYSIS_OPENSWATH_MASSTRACECORRELATOR_H 
-#define OPENMS_ANALYSIS_OPENSWATH_MASSTRACECORRELATOR_H 
+#pragma once
 
 #include <OpenMS/DATASTRUCTURES/DefaultParamHandler.h>
 #include <OpenMS/CONCEPT/ProgressLogger.h>
@@ -60,7 +59,7 @@ namespace OpenMS
 
     MasstraceCorrelator();
 
-    ~MasstraceCorrelator();
+    ~MasstraceCorrelator() override;
 
     // a mass trace is a vector of pairs in (RT, Intensity)
     typedef std::vector<std::pair<double, double> > MasstracePointsType;
@@ -154,4 +153,3 @@ namespace OpenMS
   };
 }
 
-#endif

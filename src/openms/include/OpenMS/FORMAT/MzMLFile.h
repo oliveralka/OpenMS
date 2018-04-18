@@ -32,8 +32,7 @@
 // $Authors: Marc Sturm $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_FORMAT_MZMLFILE_H
-#define OPENMS_FORMAT_MZMLFILE_H
+#pragma once
 
 #include <OpenMS/KERNEL/StandardTypes.h>
 #include <OpenMS/FORMAT/XMLFile.h>
@@ -61,7 +60,7 @@ public:
     ///Default constructor
     MzMLFile();
     ///Destructor
-    ~MzMLFile();
+    ~MzMLFile() override;
 
     /// Mutable access to the options for loading/storing
     PeakFileOptions& getOptions();
@@ -188,5 +187,4 @@ private:
 
 } // namespace OpenMS
 
-#endif // OPENMS_FORMAT_MZMLFILE_H
 

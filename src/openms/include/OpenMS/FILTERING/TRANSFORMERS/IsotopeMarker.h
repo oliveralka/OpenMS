@@ -32,8 +32,7 @@
 // $Authors: $
 // --------------------------------------------------------------------------
 //
-#ifndef OPENMS_FILTERING_TRANSFORMERS_ISOTOPEMARKER_H
-#define OPENMS_FILTERING_TRANSFORMERS_ISOTOPEMARKER_H
+#pragma once
 
 #include <OpenMS/FILTERING/TRANSFORMERS/PeakMarker.h>
 #include <OpenMS/CHEMISTRY/IsotopeDistribution.h>
@@ -69,7 +68,7 @@ public:
     IsotopeMarker(const IsotopeMarker & source);
 
     /// destructor
-    virtual ~IsotopeMarker();
+    ~IsotopeMarker() override;
     // @}
 
     // @name Operators
@@ -146,4 +145,3 @@ public:
 
 }
 
-#endif //OPENMS_FILTERING_TRANSFORMERS_ISOTOPEMARKER_H

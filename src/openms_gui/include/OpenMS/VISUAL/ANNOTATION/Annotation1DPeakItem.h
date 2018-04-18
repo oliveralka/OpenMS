@@ -32,8 +32,7 @@
 // $Authors: Johannes Junker $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_VISUAL_ANNOTATION_ANNOTATION1DPEAKITEM_H
-#define OPENMS_VISUAL_ANNOTATION_ANNOTATION1DPEAKITEM_H
+#pragma once
 
 #include <OpenMS/VISUAL/ANNOTATION/Annotation1DItem.h>
 
@@ -55,16 +54,16 @@ public:
     Annotation1DPeakItem(const Annotation1DPeakItem& rhs);
 
     /// Destructor
-    virtual ~Annotation1DPeakItem();
+    ~Annotation1DPeakItem() override;
 
     /// Docu in base class
-    virtual void ensureWithinDataRange(Spectrum1DCanvas* const canvas);
+    void ensureWithinDataRange(Spectrum1DCanvas* const canvas) override;
 
     /// Docu in base class
-    virtual void draw(Spectrum1DCanvas* const canvas, QPainter& painter, bool flipped = false);
+    void draw(Spectrum1DCanvas* const canvas, QPainter& painter, bool flipped = false) override;
 
     /// Docu in base class
-    virtual void move(const PointType& /*delta*/);
+    void move(const PointType& /*delta*/) override;
 
     /// Returns the position of the label (peak) (in MZ/intensity coordinates)
     const PointType& getPeakPosition() const;
@@ -92,4 +91,3 @@ protected:
   };
 } // namespace OpenMS
 
-#endif

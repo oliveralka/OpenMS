@@ -32,8 +32,7 @@
 // $Authors: Andreas Bertsch $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_KERNEL_CHROMATOGRAMPEAK_H
-#define OPENMS_KERNEL_CHROMATOGRAMPEAK_H
+#pragma once
 
 #include <OpenMS/CONCEPT/Types.h>
 #include <OpenMS/DATASTRUCTURES/DPosition.h>
@@ -83,6 +82,12 @@ public:
     inline ChromatogramPeak(const ChromatogramPeak & p) :
       position_(p.position_),
       intensity_(p.intensity_)
+    {}
+
+    /// Constructor with position and intensity
+    inline ChromatogramPeak(const PositionType retention_time, const IntensityType intensity) :
+      position_(retention_time),
+      intensity_(intensity)
     {}
 
     /**
@@ -285,4 +290,3 @@ protected:
 
 } // namespace OpenMS
 
-#endif // OPENMS_KERNEL_CHROMATOGRAMPEAK_H

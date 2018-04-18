@@ -32,8 +32,7 @@
 // $Authors: Andreas Bertsch $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_ANALYSIS_MRM_MRMFRAGMENTSELECTION_H
-#define OPENMS_ANALYSIS_MRM_MRMFRAGMENTSELECTION_H
+#pragma once
 
 #include <OpenMS/DATASTRUCTURES/DefaultParamHandler.h>
 #include <OpenMS/KERNEL/StandardTypes.h>
@@ -72,7 +71,7 @@ public:
     MRMFragmentSelection(const MRMFragmentSelection & rhs);
 
     /// destructor
-    virtual ~MRMFragmentSelection();
+    ~MRMFragmentSelection() override;
     //@}
 
     /// assignment operator
@@ -88,4 +87,3 @@ protected:
   };
 }
 
-#endif

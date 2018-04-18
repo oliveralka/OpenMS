@@ -32,8 +32,7 @@
 // $Authors: Marc Sturm $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_METADATA_SPECTRUMSETTINGS_H
-#define OPENMS_METADATA_SPECTRUMSETTINGS_H
+#pragma once
 
 #include <OpenMS/DATASTRUCTURES/String.h>
 #include <OpenMS/METADATA/InstrumentSettings.h>
@@ -71,8 +70,8 @@ public:
     enum SpectrumType
     {
       UNKNOWN,          ///< Unknown spectrum type
-      PEAKS,            ///< Peak data (also called centroided data or stick data)
-      RAWDATA,          ///< Raw data (also called profile data)
+      CENTROID,         ///< centroid data or stick data
+      PROFILE,          ///< profile data
       SIZE_OF_SPECTRUMTYPE
     };
     /// Names of spectrum types
@@ -96,7 +95,7 @@ public:
     /// merge another spectrum setting into this one (data is usually appended, except for spectrum type which needs to be unambiguous to be kept)
     void unify(const SpectrumSettings & rhs);
 
-    ///returns the spectrum type
+    ///returns the spectrum type (centroided (PEAKS) or profile data (RAW))
     SpectrumType getType() const;
     ///sets the spectrum type
     void setType(SpectrumType type);
@@ -181,4 +180,3 @@ protected:
 
 } // namespace OpenMS
 
-#endif // OPENMS_METADATA_SPECTRUMSETTINGS_H

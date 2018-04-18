@@ -32,8 +32,7 @@
 // $Authors: $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_ANALYSIS_TARGETED_PSLPFORMULATION_H
-#define OPENMS_ANALYSIS_TARGETED_PSLPFORMULATION_H
+#pragma once
 
 #include <OpenMS/KERNEL/StandardTypes.h>
 #include <OpenMS/KERNEL/FeatureMap.h>
@@ -63,7 +62,7 @@ public:
 
     PSLPFormulation();
 
-    virtual ~PSLPFormulation();
+    ~PSLPFormulation() override;
 
     /**
       @brief Struct that holds the indices of the precursors in the feature map and the ilp formulation.
@@ -240,4 +239,3 @@ protected:
 
 } // namespace
 
-#endif // OPENMS_ANALYSIS_ID_PSLPFORMULATION_H

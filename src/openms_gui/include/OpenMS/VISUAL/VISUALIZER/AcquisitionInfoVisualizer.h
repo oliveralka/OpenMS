@@ -32,8 +32,7 @@
 // $Authors: Marc Sturm $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_VISUAL_VISUALIZER_ACQUISITIONINFOVISUALIZER_H
-#define OPENMS_VISUAL_VISUALIZER_ACQUISITIONINFOVISUALIZER_H
+#pragma once
 
 // OpenMS_GUI config
 #include <OpenMS/VISUAL/OpenMS_GUIConfig.h>
@@ -61,12 +60,12 @@ namespace OpenMS
 public:
 
     ///Constructor
-    AcquisitionInfoVisualizer(bool editable = false, QWidget * parent = 0);
+    AcquisitionInfoVisualizer(bool editable = false, QWidget * parent = nullptr);
 
 public slots:
 
     //Docu in base class
-    void store();
+    void store() override;
 
 protected slots:
 
@@ -79,8 +78,7 @@ protected:
     QLineEdit * acquisitioninfo_method_;
 
     //Docu in base class
-    void update_();
+    void update_() override;
   };
 
 }
-#endif

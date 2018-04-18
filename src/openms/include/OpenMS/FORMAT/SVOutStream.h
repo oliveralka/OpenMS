@@ -32,8 +32,7 @@
 // $Authors: Hendrik Weisser $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_FORMAT_SVOUTSTREAM_H
-#define OPENMS_FORMAT_SVOUTSTREAM_H
+#pragma once
 
 #include <OpenMS/DATASTRUCTURES/String.h>
 #include <ostream>
@@ -89,7 +88,7 @@ public:
       Frees ofstream_* if filename c'tor was used.
 
     */
-    ~SVOutStream();
+    ~SVOutStream() override;
 
     /**
          @brief Stream output operator for @p String
@@ -199,4 +198,3 @@ protected:
 
 }
 
-#endif

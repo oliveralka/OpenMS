@@ -32,8 +32,7 @@
 // $Authors: Marc Sturm, Mathias Walzer $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_METADATA_PRECURSOR_H
-#define OPENMS_METADATA_PRECURSOR_H
+#pragma once
 
 #include <OpenMS/KERNEL/Peak1D.h>
 #include <OpenMS/METADATA/CVTermList.h>
@@ -90,7 +89,7 @@ public:
     /// Copy constructor
     Precursor(const Precursor & source);
     /// Destructor
-    virtual ~Precursor();
+    ~Precursor() override;
 
     /// Assignment operator
     Precursor & operator=(const Precursor & source);
@@ -181,4 +180,3 @@ protected:
   };
 } // namespace OpenMS
 
-#endif // OPENMS_METADATA_PRECURSOR_H

@@ -32,8 +32,7 @@
 // $Authors: Andreas Bertsch, Mathias Walzer $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_FORMAT_MZIDENTMLFILE_H
-#define OPENMS_FORMAT_MZIDENTMLFILE_H
+#pragma once
 
 #include <OpenMS/FORMAT/XMLFile.h>
 #include <OpenMS/CONCEPT/ProgressLogger.h>
@@ -73,7 +72,7 @@ public:
     ///Default constructor
     MzIdentMLFile();
     ///Destructor
-    virtual ~MzIdentMLFile();
+    ~MzIdentMLFile() override;
 
     /**
         @brief Loads the identifications from a MzIdentML file.
@@ -122,4 +121,3 @@ private:
 
 } // namespace OpenMS
 
-#endif // OPENMS_FORMAT_MZIDENTMLFILE_H

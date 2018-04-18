@@ -32,8 +32,7 @@
 // $Authors: Marc Sturm, Clemens Groepl, Chris Bielow $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_ANALYSIS_MAPMATCHING_FEATUREGROUPINGALGORITHM_H
-#define OPENMS_ANALYSIS_MAPMATCHING_FEATUREGROUPINGALGORITHM_H
+#pragma once
 
 #include <OpenMS/DATASTRUCTURES/DefaultParamHandler.h>
 #include <OpenMS/KERNEL/FeatureMap.h>
@@ -55,7 +54,7 @@ public:
     FeatureGroupingAlgorithm();
 
     /// Destructor
-    virtual ~FeatureGroupingAlgorithm();
+    ~FeatureGroupingAlgorithm() override;
 
     ///Applies the algorithm. The features in the input @p maps are grouped and the output is written to the consensus map @p out
     virtual void group(const std::vector<FeatureMap > & maps, ConsensusMap & out) = 0;
@@ -81,4 +80,3 @@ private:
 
 } // namespace OpenMS
 
-#endif // OPENMS_ANALYSIS_MAPMATCHING_FEATUREGROUPINGALGORITHM_H

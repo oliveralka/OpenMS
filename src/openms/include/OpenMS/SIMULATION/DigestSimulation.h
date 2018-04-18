@@ -32,8 +32,7 @@
 // $Authors: Stephan Aiche, Chris Bielow$
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_SIMULATION_DIGESTSIMULATION_H
-#define OPENMS_SIMULATION_DIGESTSIMULATION_H
+#pragma once
 
 #include <OpenMS/DATASTRUCTURES/DefaultParamHandler.h>
 #include <OpenMS/SIMULATION/SimTypes.h>
@@ -68,7 +67,7 @@ public:
     DigestSimulation(const DigestSimulation& source);
 
     /// Destructor
-    virtual ~DigestSimulation();
+    ~DigestSimulation() override;
     //@}
 
     /// Assignment operator
@@ -94,4 +93,3 @@ private:
 
 }
 
-#endif

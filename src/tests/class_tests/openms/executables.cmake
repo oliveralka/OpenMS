@@ -1,5 +1,4 @@
 set(concept_executables_list
-  BinaryComposeFunctionAdapter_test
   ClassTest_test
   Exception_Base_test
   FactoryBase_test
@@ -11,7 +10,6 @@ set(concept_executables_list
   VersionInfo_test
   LogConfigHandler_test
   LogStream_test
-  UnaryComposeFunctionAdapter_test
   UniqueIdGenerator_test
   UniqueIdIndexer_test
   UniqueIdInterface_test
@@ -54,7 +52,6 @@ set(datastructures_executables_list
   Param_test
   QTCluster_test
   RangeManager_test
-  SparseVector_test
   StringListUtils_test
   StringUtils_test
   String_test
@@ -147,11 +144,12 @@ set(kernel_executables_list
 )
 
 set(format_executables_list
+  AbsoluteQuantitationStandardsFile_test
   Base64_test
   MSNumpressCoder_test
-  BigString_test
   Bzip2Ifstream_test
   Bzip2InputStream_test
+  ChromeleonFile_test
   CVMappingFile_test
   CompressedInputSource_test
   ConsensusXMLFile_test
@@ -184,6 +182,7 @@ set(format_executables_list
   MascotRemoteQuery_test
   MascotXMLFile_test
   #MSDataWritingConsumer_test
+  MRMFeaturePickerFile_test
   MsInspectFile_test
   MzDataFile_test
   MzIdentMLFile_test
@@ -362,15 +361,11 @@ set(chemistry_executables_list
   EmpiricalFormula_test
   EnzymaticDigestionLogModel_test
   EnzymaticDigestion_test
-  FastaIteratorIntern_test
-  FastaIterator_test
   IsotopeDistribution_test
   ModificationDefinition_test
   ModificationDefinitionsSet_test
   ModificationsDB_test
   CrossLinksDB_test
-  ModifierRep_test
-  PepIterator_test
   ProteaseDB_test
   ProteaseDigestion_test
   ResidueDB_test
@@ -382,7 +377,6 @@ set(chemistry_executables_list
   SvmTheoreticalSpectrumGeneratorSet_test
   TheoreticalSpectrumGenerator_test
   TheoreticalSpectrumGeneratorXLMS_test
-  TrypticIterator_test
   WeightWrapper_test
   IMSAlphabetTextParser_test
   IMSElement_test
@@ -402,6 +396,7 @@ set(analysis_executables_list
   AbsoluteQuantitationMethodFile_test
   AbsoluteQuantitationStandards_test
   AccurateMassSearchEngine_test
+  AhoCorasickAmbiguous_test
   AScore_test
   BaseGroupFinder_test
   BaseSuperimposer_test
@@ -458,6 +453,8 @@ set(analysis_executables_list
   LabeledPairFinder_test
   LocalLinearMap_test
   TargetedExperiment_test
+  TargetedExperimentHelper_test
+  MRMFeaturePicker_test
   MRMFragmentSelection_test
   MRMMapping_test
   MapAlignmentAlgorithmIdentification_test
@@ -478,6 +475,7 @@ set(analysis_executables_list
   PeakIntensityPredictor_test
   PScore_test
   HyperScore_test
+  MorpheusScore_test
   OPXLHelper_test
   OPXLSpectrumProcessingAlgorithms_test
   PoseClusteringAffineSuperimposer_test
@@ -497,7 +495,6 @@ set(analysis_executables_list
   SimplePairFinder_test
   SimpleSVM_test
   StablePairFinder_test
-  #TargetedExperimentHelper_test
   PercolatorFeatureSetHelper_test
   TransformationDescription_test
   TransformationModel_test
@@ -529,12 +526,12 @@ set(transformations_executables_list
   EmgModel_test
   ExtendedIsotopeFitter1D_test
   ExtendedIsotopeModel_test
-  FeaFiModule_test
   FeatureFinderAlgorithmIsotopeWavelet_test
   FeatureFinderAlgorithmMRM_test
   FeatureFinderAlgorithmPickedHelperStructs_test
   FeatureFinderAlgorithmPicked_test
   FeatureFinderAlgorithm_test
+  FeatureFinderIdentificationAlgorithm_test
   FeatureFinderDefs_test
   FeatureFinder_test
   Fitter1D_test
@@ -594,12 +591,13 @@ if(NOT DISABLE_OPENSWATH)
     MRMDecoy_test
     MRMIonSeries_test
     MRMRTNormalizer_test
-    TransitionTSVReader_test
-    TransitionPQPReader_test
+    TransitionTSVFile_test
+    TransitionPQPFile_test
     ChromatogramExtractor_test
     ChromatogramExtractorAlgorithm_test
     OpenSwathHelper_test
     OpenSwathScoring_test
+    PeakIntegrator_test
     PeakPickerMRM_test
     MRMTransitionGroupPicker_test
     DIAHelper_test
@@ -607,6 +605,7 @@ if(NOT DISABLE_OPENSWATH)
     DIAPrescoring_test
     OpenSwathMRMFeatureAccessOpenMS_test
     SpectrumAddition_test
+    TargetedSpectraExtractor_test
     OpenSwathSpectrumAccessOpenMS_test
     OpenSwathDataAccessHelper_test
     MasstraceCorrelator_test
@@ -633,8 +632,8 @@ set(Boost_dependent_tests
   PeakPickerMRM_test
   StatisticFunctions_test
   String_test
-  TransitionTSVReader_test
-  TransitionPQPReader_test
+  TransitionTSVFile_test
+  TransitionPQPFile_test
 )
 
 ### collect test executables

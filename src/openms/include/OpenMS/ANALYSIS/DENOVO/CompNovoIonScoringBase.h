@@ -33,8 +33,7 @@
 // --------------------------------------------------------------------------
 
 
-#ifndef OPENMS_ANALYSIS_DENOVO_COMPNOVOIONSCORINGBASE_H
-#define OPENMS_ANALYSIS_DENOVO_COMPNOVOIONSCORINGBASE_H
+#pragma once
 
 // OpenMS includes
 #include <OpenMS/KERNEL/StandardTypes.h>
@@ -96,7 +95,7 @@ public:
     CompNovoIonScoringBase(const CompNovoIonScoringBase & source);
 
     /// destructor
-    virtual ~CompNovoIonScoringBase();
+    ~CompNovoIonScoringBase() override;
     //@}
 
     ///
@@ -111,7 +110,7 @@ public:
 protected:
 
     /// update members method from DefaultParamHandler to update the members
-    void updateMembers_();
+    void updateMembers_() override;
 
 
     IsotopeType classifyIsotopes_(const PeakSpectrum & spec, PeakSpectrum::ConstIterator it);
@@ -135,4 +134,3 @@ public:
 
 }
 
-#endif

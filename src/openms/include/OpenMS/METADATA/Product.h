@@ -32,8 +32,7 @@
 // $Authors: Marc Sturm $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_METADATA_PRODUCT_H
-#define OPENMS_METADATA_PRODUCT_H
+#pragma once
 
 #include <OpenMS/METADATA/CVTermList.h>
 
@@ -57,7 +56,7 @@ public:
     /// Copy constructor
     Product(const Product & source);
     /// Destructor
-    ~Product();
+    ~Product() override;
 
     /// Assignment operator
     Product & operator=(const Product & source);
@@ -90,4 +89,3 @@ protected:
   };
 } // namespace OpenMS
 
-#endif // OPENMS_METADATA_PRODUCT_H

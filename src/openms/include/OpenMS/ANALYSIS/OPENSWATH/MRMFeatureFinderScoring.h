@@ -32,8 +32,7 @@
 // $Authors: Hannes Roest $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_ANALYSIS_OPENSWATH_MRMFEATUREFINDERSCORING_H
-#define OPENMS_ANALYSIS_OPENSWATH_MRMFEATUREFINDERSCORING_H
+#pragma once
 
 #define USE_SP_INTERFACE
 
@@ -54,7 +53,7 @@
 #include <OpenMS/KERNEL/MSChromatogram.h>
 #include <OpenMS/ANALYSIS/TARGETED/TargetedExperiment.h>
 
-#include <OpenMS/ANALYSIS/OPENSWATH/OPENSWATHALGO/DATAACCESS/SwathMap.h>
+#include <OpenMS/OPENSWATHALGO/DATAACCESS/SwathMap.h>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/make_shared.hpp>
@@ -115,7 +114,7 @@ public:
     MRMFeatureFinderScoring();
 
     /// Destructor
-    ~MRMFeatureFinderScoring();
+    ~MRMFeatureFinderScoring() override;
 
     /// Picker and prepare functions
     //@{
@@ -267,14 +266,14 @@ private:
     OpenSwath_Scores scoreIdentification_(MRMTransitionGroupType& transition_group_identification,
                                           OpenSwathScoring& scorer,
                                           const size_t feature_idx,
-                                          const std::vector<std::string> native_ids_detection,
+                                          const std::vector<std::string> & native_ids_detection,
                                           const double sn_win_len_,
                                           const unsigned int sn_bin_count_,
                                           bool write_log_messages,
                                           std::vector<OpenSwath::SwathMap> swath_maps);
 
     /// Synchronize members with param class
-    void updateMembers_();
+    void updateMembers_() override;
 
     // parameters
     double rt_extraction_window_;
@@ -282,6 +281,7 @@ private:
     int stop_report_after_feature_;
     bool write_convex_hull_;
     bool strict_;
+    String scoring_model_;
 
     // scoring parameters
     double rt_normalization_factor_;
@@ -304,5 +304,4 @@ private:
 }
 
 #undef run_identifier
-#endif // OPENMS_ANALYSIS_OPENSWATH_MRMFEATUREFINDERSCORING_H
 

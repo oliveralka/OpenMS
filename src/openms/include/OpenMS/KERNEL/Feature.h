@@ -32,8 +32,7 @@
 // $Authors: $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_KERNEL_FEATURE_H
-#define OPENMS_KERNEL_FEATURE_H
+#pragma once
 
 #include <OpenMS/DATASTRUCTURES/ConvexHull2D.h>
 #include <OpenMS/KERNEL/BaseFeature.h>
@@ -81,7 +80,7 @@ public:
     Feature(const Feature& feature);
 
     /// Destructor
-    ~Feature();
+    ~Feature() override;
     //@}
 
     /// @name Model and quality methods
@@ -195,4 +194,3 @@ protected:
 
 } // namespace OpenMS
 
-#endif // OPENMS_KERNEL_FEATURE_H

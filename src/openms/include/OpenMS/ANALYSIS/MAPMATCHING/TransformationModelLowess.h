@@ -32,8 +32,7 @@
 // $Authors: Hannes Roest $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_ANALYSIS_MAPMATCHING_TRANSFORMATIONMODELLOWESS_H
-#define OPENMS_ANALYSIS_MAPMATCHING_TRANSFORMATIONMODELLOWESS_H
+#pragma once
 
 #include <OpenMS/config.h> // is this needed?
 #include <OpenMS/ANALYSIS/MAPMATCHING/TransformationModel.h>
@@ -59,10 +58,10 @@ public:
     TransformationModelLowess(const DataPoints& data, const Param& params);
 
     /// Destructor
-    ~TransformationModelLowess();
+    ~TransformationModelLowess() override;
 
     /// Evaluates the model at the given value
-    virtual double evaluate(double value) const
+    double evaluate(double value) const override
     {
       return model_->evaluate(value);
     }
@@ -79,4 +78,3 @@ protected:
   };
 } // namespace
 
-#endif // OPENMS_ANALYSIS_MAPMATCHING_TRANSFORMATIONMODELLOWESS_H

@@ -32,8 +32,7 @@
 // $Authors: Hannes Roest $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_ANALYSIS_TARGETED_MRMMAPPING_H
-#define OPENMS_ANALYSIS_TARGETED_MRMMAPPING_H
+#pragma once
 
 #include <OpenMS/DATASTRUCTURES/DefaultParamHandler.h>
 
@@ -59,7 +58,7 @@ public:
     MRMMapping();
 
     /// destructor
-    virtual ~MRMMapping() {};
+    ~MRMMapping() override {}
     //@}
 
     /**
@@ -96,7 +95,7 @@ protected:
     MRMMapping & operator=(const MRMMapping & rhs);
 
     /// Synchronize members with param class
-    void updateMembers_();
+    void updateMembers_() override;
 
     double precursor_tol_;
     double product_tol_;
@@ -106,4 +105,3 @@ protected:
   };
 }
 
-#endif // OPENMS_ANALYSIS_TARGETED_MRMMAPPING_H

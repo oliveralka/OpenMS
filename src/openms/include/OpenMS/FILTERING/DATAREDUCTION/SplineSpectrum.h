@@ -32,8 +32,7 @@
 // $Authors: Lars Nilse $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_FILTERING_DATAREDUCTION_SPLINESPECTRUM_H
-#define OPENMS_FILTERING_DATAREDUCTION_SPLINESPECTRUM_H
+#pragma once
 
 #include <OpenMS/KERNEL/StandardTypes.h>
 #include <OpenMS/DATASTRUCTURES/DRange.h>
@@ -106,6 +105,11 @@ class OPENMS_DLLAPI SplineSpectrum
         * @brief constructor of iterator
         */
         Navigator(const std::vector<SplinePackage> * packages, double mzMin, double mzMax);
+
+        /**
+        * @brief constructor (for pyOpenMS)
+        */
+        Navigator();
 
         /**
         * @brief destructor
@@ -183,4 +187,3 @@ class OPENMS_DLLAPI SplineSpectrum
 
 }
 
-#endif /* SPLINESPECTRUM_H_ */

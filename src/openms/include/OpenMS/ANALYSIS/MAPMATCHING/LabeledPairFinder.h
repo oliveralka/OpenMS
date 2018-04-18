@@ -32,8 +32,7 @@
 // $Authors: Marc Sturm $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_ANALYSIS_MAPMATCHING_LABELEDPAIRFINDER_H
-#define OPENMS_ANALYSIS_MAPMATCHING_LABELEDPAIRFINDER_H
+#pragma once
 
 #include <OpenMS/ANALYSIS/MAPMATCHING/BaseGroupFinder.h>
 
@@ -64,7 +63,7 @@ public:
     LabeledPairFinder();
 
     /// Destructor
-    inline virtual ~LabeledPairFinder()
+    inline ~LabeledPairFinder() override
     {
     }
 
@@ -90,7 +89,7 @@ public:
 
       @exception Exception::IllegalArgument is thrown if the input data is not valid.
     */
-    virtual void run(const std::vector<ConsensusMap> & input_maps, ConsensusMap & result_map);
+    void run(const std::vector<ConsensusMap> & input_maps, ConsensusMap & result_map) override;
 
 protected:
 
@@ -119,4 +118,3 @@ private:
 
 } // end of namespace OpenMS
 
-#endif  // OPENMS_ANALYSIS_MAPMATCHER_LABELEDPAIRFINDER_H

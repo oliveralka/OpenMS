@@ -32,8 +32,7 @@
 // $Authors: Mathias Walzer $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_FORMAT_VALIDATORS_MZQUANTMLVALIDATOR_H
-#define OPENMS_FORMAT_VALIDATORS_MZQUANTMLVALIDATOR_H
+#pragma once
 
 
 #include <OpenMS/FORMAT/VALIDATORS/SemanticValidator.h>
@@ -62,7 +61,7 @@ public:
       MzQuantMLValidator(const CVMappings & mapping, const ControlledVocabulary & cv);
 
       /// Destructor
-      virtual ~MzQuantMLValidator();
+      ~MzQuantMLValidator() override;
 
 protected:
       ///CV terms which can have a value (term => value type) - see MzMLValidator impl.
@@ -85,4 +84,3 @@ private:
 
 } // namespace OpenMS
 
-#endif

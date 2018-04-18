@@ -32,8 +32,7 @@
 // $Authors: Florian Zeller $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_TRANSFORMATIONS_FEATUREFINDER_FEATUREFINDERALGORITHMSH_H
-#define OPENMS_TRANSFORMATIONS_FEATUREFINDER_FEATUREFINDERALGORITHMSH_H
+#pragma once
 
 #include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/SUPERHIRN/SuperHirnConfig.h>
 
@@ -111,7 +110,7 @@ public:
 
     unsigned int getNativeScanId(String native_id);
 
-    virtual void run();
+    void run() override;
 
     static FeatureFinderAlgorithm* create();
 
@@ -125,4 +124,3 @@ protected:
 
 }
 
-#endif

@@ -32,8 +32,7 @@
 // $Authors: Marc Sturm, Chris Bielow, Clemens Groepl $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_KERNEL_FEATUREMAP_H
-#define OPENMS_KERNEL_FEATUREMAP_H
+#pragma once
 
 #include <OpenMS/KERNEL/Feature.h>
 #include <OpenMS/KERNEL/RangeManager.h>
@@ -60,7 +59,7 @@ namespace OpenMS
   /// Each feature contributes one vote (=state)
   struct OPENMS_DLLAPI AnnotationStatistics
   {
-    std::vector<Size> states; //< count each state, indexing by BaseFeature::AnnotationState
+    std::vector<Size> states; ///< count each state, indexing by BaseFeature::AnnotationState
 
     AnnotationStatistics();
 
@@ -155,7 +154,7 @@ public:
     OPENMS_DLLAPI FeatureMap(const FeatureMap& source);
 
     /// Destructor
-    OPENMS_DLLAPI virtual ~FeatureMap();
+    OPENMS_DLLAPI ~FeatureMap() override;
     //@}
 
     /// Assignment operator
@@ -212,7 +211,7 @@ public:
     //@}
 
     // Docu in base class
-    OPENMS_DLLAPI void updateRanges();
+    OPENMS_DLLAPI void updateRanges() override;
 
     /// Swaps the feature content (plus its range information) of this map with the content of @p from
     OPENMS_DLLAPI void swapFeaturesOnly(FeatureMap& from);
@@ -314,4 +313,3 @@ protected:
 
 } // namespace OpenMS
 
-#endif // OPENMS_KERNEL_DFEATUREMAP_H

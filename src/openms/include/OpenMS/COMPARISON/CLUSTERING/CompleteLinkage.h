@@ -32,8 +32,7 @@
 // $Authors: $
 // --------------------------------------------------------------------------
 //
-#ifndef OPENMS_COMPARISON_CLUSTERING_COMPLETELINKAGE_H
-#define OPENMS_COMPARISON_CLUSTERING_COMPLETELINKAGE_H
+#pragma once
 
 #include <vector>
 #include <set>
@@ -67,7 +66,7 @@ public:
     CompleteLinkage(const CompleteLinkage & source);
 
     /// destructor
-    virtual ~CompleteLinkage();
+    ~CompleteLinkage() override;
 
     /// assignment operator
     CompleteLinkage & operator=(const CompleteLinkage & source);
@@ -82,7 +81,7 @@ public:
         The clustering method is complete linkage, where the updated distances after merging two clusters are each the maximal distance between the elements of their clusters. After @p threshold is exceeded, @p cluster_tree is filled with dummy clusteringsteps (children: (0,1), distance:-1) to the root.
     @see ClusterFunctor , BinaryTreeNode
     */
-    void operator()(DistanceMatrix<float> & original_distance, std::vector<BinaryTreeNode> & cluster_tree, const float threshold = 1) const;
+    void operator()(DistanceMatrix<float> & original_distance, std::vector<BinaryTreeNode> & cluster_tree, const float threshold = 1) const override;
 
     /// creates a new instance of a CompleteLinkage object
     static ClusterFunctor * create();
@@ -93,4 +92,3 @@ public:
   };
 
 }
-#endif //OPENMS_COMPARISON_CLUSTERING_COMPLETELINKAGE_H

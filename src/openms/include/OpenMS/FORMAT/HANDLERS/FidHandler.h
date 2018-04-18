@@ -32,8 +32,7 @@
 // $Authors: Guillaume Belz $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_FORMAT_HANDLERS_FIDHANDLER_H
-#define OPENMS_FORMAT_HANDLERS_FIDHANDLER_H
+#pragma once
 
 #include <OpenMS/DATASTRUCTURES/String.h>
 #include <fstream>
@@ -63,7 +62,7 @@ public:
       explicit FidHandler(const String & filename);
 
       /// Destructor
-      virtual ~FidHandler();
+      ~FidHandler() override;
 
       /// Get index of current position (without position moving).
       Size getIndex();
@@ -82,4 +81,3 @@ private:
   }   // namespace Internal
 } // namespace OpenMS
 
-#endif // OPENMS_FORMAT_HANDLERS_FIDHANDLER_H

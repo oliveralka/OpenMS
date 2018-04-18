@@ -32,8 +32,7 @@
 // $Authors: Katharina Albers $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_ANALYSIS_MAPMATCHING_MAPALIGNMENTEVALUATIONALGORITHMRECALL_H
-#define OPENMS_ANALYSIS_MAPMATCHING_MAPALIGNMENTEVALUATIONALGORITHMRECALL_H
+#pragma once
 
 #include <OpenMS/ANALYSIS/MAPMATCHING/MapAlignmentEvaluationAlgorithm.h>
 
@@ -54,12 +53,12 @@ public:
     MapAlignmentEvaluationAlgorithmRecall();
 
     /// Destructor
-    virtual ~MapAlignmentEvaluationAlgorithmRecall();
+    ~MapAlignmentEvaluationAlgorithmRecall() override;
 
     /**
         @brief Applies the algorithm
     */
-    virtual void evaluate(const ConsensusMap & consensus_map_in, const ConsensusMap & consensus_map_gt, const double & rt_dev, const double & mz_dev, const Peak2D::IntensityType & int_dev, const bool use_charge, double & out);
+    void evaluate(const ConsensusMap & consensus_map_in, const ConsensusMap & consensus_map_gt, const double & rt_dev, const double & mz_dev, const Peak2D::IntensityType & int_dev, const bool use_charge, double & out) override;
 
     /// Creates a new instance of this class (for Factory)
     static MapAlignmentEvaluationAlgorithm * create()
@@ -84,4 +83,3 @@ private:
 
 } // namespace OpenMS
 
-#endif // OPENMS_ANALYSIS_MAPMATCHING_MAPALIGNMENTEVALUATIONALGORITHMRECALL_H

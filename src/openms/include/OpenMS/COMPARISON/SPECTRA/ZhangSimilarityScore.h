@@ -32,8 +32,7 @@
 // $Authors: $
 // --------------------------------------------------------------------------
 //
-#ifndef OPENMS_COMPARISON_SPECTRA_ZHANGSIMILARITYSCORE_H
-#define OPENMS_COMPARISON_SPECTRA_ZHANGSIMILARITYSCORE_H
+#pragma once
 
 #include <OpenMS/COMPARISON/SPECTRA/PeakSpectrumCompareFunctor.h>
 
@@ -66,7 +65,7 @@ public:
     ZhangSimilarityScore(const ZhangSimilarityScore & source);
 
     /// destructor
-    virtual ~ZhangSimilarityScore();
+    ~ZhangSimilarityScore() override;
     // @}
 
     // @name Operators
@@ -75,9 +74,9 @@ public:
     ZhangSimilarityScore & operator=(const ZhangSimilarityScore & source);
 
     ///
-    double operator()(const PeakSpectrum & spec1, const PeakSpectrum & spec2) const;
+    double operator()(const PeakSpectrum & spec1, const PeakSpectrum & spec2) const override;
 
-    double operator()(const PeakSpectrum & spec) const;
+    double operator()(const PeakSpectrum & spec) const override;
     // @}
 
     // @name Accessors
@@ -102,4 +101,3 @@ protected:
   };
 
 }
-#endif //OPENMS_COMPARISON_SPECTRA_ZHANGSIMILARTIYSCORE_H

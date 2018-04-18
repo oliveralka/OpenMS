@@ -32,8 +32,7 @@
 // $Authors: $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_TRANSFORMATIONS_RAW2PEAK_TWODOPTIMIZATION_H
-#define OPENMS_TRANSFORMATIONS_RAW2PEAK_TWODOPTIMIZATION_H
+#pragma once
 
 //#define DEBUG_2D
 #undef DEBUG_2D
@@ -98,7 +97,7 @@ public:
     TwoDOptimization(const TwoDOptimization& opt);
 
     /// Destructor
-    virtual ~TwoDOptimization(){}
+    ~TwoDOptimization() override{}
 
     /// Assignment operator
     TwoDOptimization& operator=(const TwoDOptimization& opt);
@@ -264,7 +263,7 @@ protected:
     //@}
 
     /// update members method from DefaultParamHandler to update the members
-    void updateMembers_();
+    void updateMembers_() override;
   };
 
 
@@ -1053,4 +1052,3 @@ protected:
 
 }
 
-#endif //OPENMS_TRANSFORMATIONS_RAW2PEAK_TWODOPTIMIZATION_H

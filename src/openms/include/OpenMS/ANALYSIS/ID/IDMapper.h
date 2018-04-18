@@ -32,8 +32,7 @@
 // $Authors: Marc Sturm, Hendrik Weisser, Chris Bielow $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_ANALYSIS_ID_IDMAPPER_H
-#define OPENMS_ANALYSIS_ID_IDMAPPER_H
+#pragma once
 
 #include <OpenMS/KERNEL/StandardTypes.h>
 #include <OpenMS/KERNEL/MSExperiment.h>
@@ -354,7 +353,7 @@ public:
 
 
 protected:
-    void updateMembers_();
+    void updateMembers_() override;
 
     /// Allowed RT deviation
     double rt_tolerance_;
@@ -392,4 +391,3 @@ protected:
 
 } // namespace OpenMS
 
-#endif // OPENMS_ANALYSIS_ID_IDMAPPER_H

@@ -32,8 +32,7 @@
 // $Authors: Marc Sturm $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_FORMAT_HANDLERS_MZMLHANDLER_H
-#define OPENMS_FORMAT_HANDLERS_MZMLHANDLER_H
+#pragma once
 
 #include <OpenMS/CONCEPT/Exception.h>
 #include <OpenMS/CONCEPT/ProgressLogger.h>
@@ -125,23 +124,23 @@ public:
       MzMLHandler(const MapType& exp, const String& filename, const String& version, const ProgressLogger& logger);
 
       /// Destructor
-      virtual ~MzMLHandler();
+      ~MzMLHandler() override;
       //@}
 
       /**@name XML Handling functions and output writing */
       //@{
 
       // Docu in base class
-      virtual void endElement(const XMLCh* const /*uri*/, const XMLCh* const /*local_name*/, const XMLCh* const qname);
+      void endElement(const XMLCh* const /*uri*/, const XMLCh* const /*local_name*/, const XMLCh* const qname) override;
 
       // Docu in base class
-      virtual void startElement(const XMLCh* const /*uri*/, const XMLCh* const /*local_name*/, const XMLCh* const qname, const xercesc::Attributes& attributes);
+      void startElement(const XMLCh* const /*uri*/, const XMLCh* const /*local_name*/, const XMLCh* const qname, const xercesc::Attributes& attributes) override;
 
       // Docu in base class
-      virtual void characters(const XMLCh* const chars, const XMLSize_t length);
+      void characters(const XMLCh* const chars, const XMLSize_t length) override;
 
       //Docu in base class
-      virtual void writeTo(std::ostream& os);
+      void writeTo(std::ostream& os) override;
 
       //@}
 
@@ -410,4 +409,3 @@ protected:
   } // namespace Internal
 } // namespace OpenMS
 
-#endif

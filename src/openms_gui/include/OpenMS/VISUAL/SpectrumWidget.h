@@ -32,8 +32,7 @@
 // $Authors: Marc Sturm $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_VISUAL_SPECTRUMWIDGET_H
-#define OPENMS_VISUAL_SPECTRUMWIDGET_H
+#pragma once
 
 // OpenMS_GUI config
 #include <OpenMS/VISUAL/OpenMS_GUIConfig.h>
@@ -90,9 +89,9 @@ public:
     //@}
 
     /// Default constructor
-    SpectrumWidget(const Param & preferences, QWidget * parent = 0);
+    SpectrumWidget(const Param & preferences, QWidget * parent = nullptr);
     /// Destructor
-    virtual ~SpectrumWidget();
+    ~SpectrumWidget() override;
 
     /**
         @brief Returns a pointer to canvas object
@@ -141,10 +140,10 @@ public:
     virtual void saveAsImage();
 
     /// getter for the EnhancedTabBar window id as defined in the interface
-    virtual Int getWindowId();
+    Int getWindowId() override;
 
     /// setter for the EnhancedTabBar window id as defined in the interface
-    virtual void setWindowId(Int window_id);
+    void setWindowId(Int window_id) override;
 signals:
     /// Emits a status message that should be displayed for @p time ms. If @p time is 0 the message should be displayed until the next message is emitted.
     void sendStatusMessage(std::string, OpenMS::UInt);
@@ -192,7 +191,7 @@ public slots:
 protected:
     /// @name Reimplemented Qt events
     //@{
-    void closeEvent(QCloseEvent * e);
+    void closeEvent(QCloseEvent * e) override;
     //@}
 
     /**
@@ -215,9 +214,9 @@ protected:
 
     ///@name reimplemented Qt events
     //@{
-    void dragEnterEvent(QDragEnterEvent * event);
-    void dragMoveEvent(QDragMoveEvent * event);
-    void dropEvent(QDropEvent * event);
+    void dragEnterEvent(QDragEnterEvent * event) override;
+    void dragMoveEvent(QDragMoveEvent * event) override;
+    void dropEvent(QDropEvent * event) override;
     //@}
 
     /// Pointer to the canvas widget
@@ -237,4 +236,3 @@ protected:
   };
 }
 
-#endif

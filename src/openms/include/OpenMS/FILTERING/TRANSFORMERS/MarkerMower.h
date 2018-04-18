@@ -32,8 +32,7 @@
 // $Authors: $
 // --------------------------------------------------------------------------
 //
-#ifndef OPENMS_FILTERING_TRANSFORMERS_MARKERMOWER_H
-#define OPENMS_FILTERING_TRANSFORMERS_MARKERMOWER_H
+#pragma once
 
 #include <OpenMS/KERNEL/StandardTypes.h>
 #include <OpenMS/DATASTRUCTURES/DefaultParamHandler.h>
@@ -62,7 +61,7 @@ public:
     /// default constructor
     MarkerMower();
     /// destructor
-    virtual ~MarkerMower();
+    ~MarkerMower() override;
 
     /// copy constructor
     MarkerMower(const MarkerMower & source);
@@ -127,4 +126,3 @@ private:
 
   };
 }
-#endif // OPENMS_COMPARISON_CLUSTERING_MARKERMOWER_H

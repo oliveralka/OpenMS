@@ -32,8 +32,7 @@
 // $Authors: Johannes Junker $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_VISUAL_TOPPASRESOURCE_H
-#define OPENMS_VISUAL_TOPPASRESOURCE_H
+#pragma once
 
 // OpenMS_GUI config
 #include <OpenMS/VISUAL/OpenMS_GUIConfig.h>
@@ -66,7 +65,7 @@ public:
     /// Copy constructor
     TOPPASResource(const TOPPASResource & rhs);
     /// Destructor
-    virtual ~TOPPASResource();
+    ~TOPPASResource() override;
     /// Assignment operator
     TOPPASResource & operator=(const TOPPASResource & rhs);
     /// Writes this resource to the local file @p file
@@ -90,4 +89,3 @@ protected:
   };
 }
 
-#endif

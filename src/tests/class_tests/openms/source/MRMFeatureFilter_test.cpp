@@ -28,8 +28,8 @@
 // ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // 
 // --------------------------------------------------------------------------
-// $Maintainer: Douglas McCloskey $
-// $Authors: Douglas McCloskey $
+// $Maintainer: Douglas McCloskey, Pasquale Domenico Colaianni $
+// $Authors: Douglas McCloskey, Pasquale Domenico Colaianni $
 // --------------------------------------------------------------------------
 #include <OpenMS/CONCEPT/ClassTest.h>
 #include <OpenMS/test_config.h>
@@ -49,8 +49,8 @@ START_TEST(MRMFeatureFilter, "$Id$")
 /////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////
 
-MRMFeatureFilter* ptr = 0;
-MRMFeatureFilter* nullPointer = 0;
+MRMFeatureFilter* ptr = nullptr;
+MRMFeatureFilter* nullPointer = nullptr;
 
 START_SECTION(MRMFeatureFilter())
 {
@@ -80,11 +80,26 @@ END_SECTION
 // }
 // END_SECTION
 
+START_SECTION(String uniqueJoin(std::vector<String>& str_vec, const String& delim))
+{
+  MRMFeatureFilter mrmff;
+  const String str_vec_c[] = {"hello", "hello", "bye", "bye"};
+  std::vector<String> str_vec(str_vec_c, str_vec_c + sizeof(str_vec_c) / sizeof(str_vec_c[0]));
+
+  // tests
+  String delim = ";";
+  TEST_EQUAL(mrmff.uniqueJoin(str_vec, delim), "bye;hello");
+  delim = "||";
+  TEST_EQUAL(mrmff.uniqueJoin(str_vec, delim), "bye||hello");
+
+}
+END_SECTION
+
 START_SECTION(double calculateIonRatio(const Feature & component_1, const Feature & component_2, const String & feature_name))
 {
   MRMFeatureFilter mrmff;
   String feature_name = "peak_apex_int";
-  double inf = 1.0/0.0;
+  double inf = std::numeric_limits<double>::infinity();
   // dummy features
   OpenMS::Feature component_1, component_2;
   component_1.setMetaValue(feature_name, 5.0);
@@ -103,13 +118,32 @@ START_SECTION(double calculateIonRatio(const Feature & component_1, const Featur
   component_4.setMetaValue("native_id","component4");
   TEST_REAL_SIMILAR(mrmff.calculateIonRatio(component_1,component_4,feature_name),5.0);
   TEST_REAL_SIMILAR(mrmff.calculateIonRatio(component_3,component_4,feature_name),0.0);
-
+  // feature_name == "intensity"
+  // feature_name == "intensity"
+  Feature component_5, component_6, component_7, component_8;
+  feature_name = "intensity";
+  component_5.setMetaValue("native_id", "component5");
+  component_6.setMetaValue("native_id", "component6");
+  component_5.setIntensity(3.0);
+  component_6.setIntensity(4.0);
+  TEST_REAL_SIMILAR(mrmff.calculateIonRatio(component_5, component_6, feature_name), 0.75);
+  TEST_REAL_SIMILAR(mrmff.calculateIonRatio(component_6, component_5, feature_name), 1.33333333333333);
+  component_7.setMetaValue("native_id", "component7");
+  TEST_REAL_SIMILAR(mrmff.calculateIonRatio(component_5, component_7, feature_name), inf);
+  TEST_REAL_SIMILAR(mrmff.calculateIonRatio(component_5, component_8, feature_name), 3.0);
 }
 END_SECTION
 
-START_SECTION(bool checkMetaValue(const Feature & component, const String & meta_value_key, const double & meta_value_l, const double & meta_value_u))
+START_SECTION(bool checkMetaValue(
+  const Feature & component,
+  const String & meta_value_key,
+  const double & meta_value_l,
+  const double & meta_value_u,
+  bool & key_exists
+) const)
 {
   MRMFeatureFilter mrmff;
+  bool metavalue_exists;
 
   //make test feature
   String feature_name = "peak_apex_int";
@@ -119,13 +153,16 @@ START_SECTION(bool checkMetaValue(const Feature & component, const String & meta
 
   // test parameters
   double meta_value_l(4.0), meta_value_u(6.0);
-  TEST_EQUAL(mrmff.checkMetaValue(component_1, feature_name, meta_value_l, meta_value_u), true); // pass case
+  TEST_EQUAL(mrmff.checkMetaValue(component_1, feature_name, meta_value_l, meta_value_u, metavalue_exists), true); // pass case
+  TEST_EQUAL(metavalue_exists, true);
   component_1.setMetaValue(feature_name, 6.0);
-  TEST_EQUAL(mrmff.checkMetaValue(component_1, feature_name, meta_value_l, meta_value_u), true); // edge pass case
+  TEST_EQUAL(mrmff.checkMetaValue(component_1, feature_name, meta_value_l, meta_value_u,metavalue_exists), true); // edge pass case
+  TEST_EQUAL(metavalue_exists, true);
   component_1.setMetaValue(feature_name, 3.0);
-  TEST_EQUAL(mrmff.checkMetaValue(component_1, feature_name, meta_value_l, meta_value_u), false); // fail case
-  TEST_EQUAL(mrmff.checkMetaValue(component_1, "peak_area", meta_value_l, meta_value_u), true);  // not found case
-
+  TEST_EQUAL(mrmff.checkMetaValue(component_1, feature_name, meta_value_l, meta_value_u, metavalue_exists), false); // fail case
+  TEST_EQUAL(metavalue_exists, true);
+  TEST_EQUAL(mrmff.checkMetaValue(component_1, "peak_area", meta_value_l, meta_value_u, metavalue_exists), true); // not found case
+  TEST_EQUAL(metavalue_exists, false);
 }
 END_SECTION
 
@@ -419,9 +456,18 @@ START_SECTION(void FilterFeatureMap(FeatureMap& features, MRMFeatureQC& filter_c
   TEST_EQUAL(components[0].getSubordinates()[0].getMetaValue("QC_transition_pass"), true);
   TEST_EQUAL(components[0].getSubordinates()[1].getMetaValue("QC_transition_pass"), true);
   TEST_EQUAL(components[0].getSubordinates()[2].getMetaValue("QC_transition_pass"), false);
+  TEST_EQUAL(components[0].getSubordinates()[2].getMetaValue("QC_transition_message"), "metaValue[peak_apex_int]");
   TEST_EQUAL(components[1].getMetaValue("QC_transition_group_pass"), false);
+  TEST_EQUAL(components[1].getMetaValue("QC_transition_group_message"), "n_light;n_transitions");
   TEST_EQUAL(components[1].getSubordinates()[0].getMetaValue("QC_transition_pass"), true);
   TEST_EQUAL(components[1].getSubordinates()[1].getMetaValue("QC_transition_pass"), true);
+  TEST_REAL_SIMILAR(components[0].getMetaValue("QC_transition_group_score"), 1.0);
+  TEST_REAL_SIMILAR(components[0].getSubordinates()[0].getMetaValue("QC_transition_score"), 1.0);
+  TEST_REAL_SIMILAR(components[0].getSubordinates()[1].getMetaValue("QC_transition_score"), 1.0);
+  TEST_REAL_SIMILAR(components[0].getSubordinates()[2].getMetaValue("QC_transition_score"), 0.75);
+  TEST_REAL_SIMILAR(components[1].getMetaValue("QC_transition_group_score"), 0.777777777777778);
+  TEST_REAL_SIMILAR(components[1].getSubordinates()[0].getMetaValue("QC_transition_score"), 1.0);
+  TEST_REAL_SIMILAR(components[1].getSubordinates()[1].getMetaValue("QC_transition_score"), 1.0);
   
   //test filter mode
   params.setValue("flag_or_filter", "filter");
@@ -533,6 +579,7 @@ START_SECTION(void FilterFeatureMap(FeatureMap& features, MRMFeatureQC& filter_c
   cqcs.overall_quality_l = 100;
   cqcs.overall_quality_u = 500;
   cqcs.meta_value_qc["peak_apex_int"] = lbub;
+  cqcs.meta_value_qc["peak_area"] = lbub;
   // transition 2
   cqcs.component_name = "component1.1.Light";   
   cqcs.retention_time_l = 2.0;
@@ -565,6 +612,10 @@ START_SECTION(void FilterFeatureMap(FeatureMap& features, MRMFeatureQC& filter_c
   TEST_EQUAL(components[0].getSubordinates()[0].getMetaValue("QC_transition_pass"), true);
   TEST_EQUAL(components[0].getSubordinates()[1].getMetaValue("QC_transition_pass"), true);
   TEST_EQUAL(components[0].getSubordinates()[2].getMetaValue("QC_transition_pass"), true);
+  TEST_REAL_SIMILAR(components[0].getMetaValue("QC_transition_group_score"), 1.0);
+  TEST_REAL_SIMILAR(components[0].getSubordinates()[0].getMetaValue("QC_transition_score"), 1.0);
+  TEST_REAL_SIMILAR(components[0].getSubordinates()[1].getMetaValue("QC_transition_score"), 1.0);
+  TEST_REAL_SIMILAR(components[0].getSubordinates()[2].getMetaValue("QC_transition_score"), 1.0);
   components.clear();
   
   // RT
@@ -588,7 +639,7 @@ START_SECTION(void FilterFeatureMap(FeatureMap& features, MRMFeatureQC& filter_c
   // transition 3
   subordinate.setMetaValue("native_id","component1.2.Light");
   subordinate.setRT(6.0); // should fail
-  subordinate.setIntensity(0.0);
+  subordinate.setIntensity(5000);
   subordinate.setOverallQuality(100);
   subordinate.setMetaValue("LabelType","Light");
   subordinate.setMetaValue("peak_apex_int",5000);
@@ -602,6 +653,8 @@ START_SECTION(void FilterFeatureMap(FeatureMap& features, MRMFeatureQC& filter_c
   TEST_EQUAL(components[0].getSubordinates()[0].getMetaValue("QC_transition_pass"), true);
   TEST_EQUAL(components[0].getSubordinates()[1].getMetaValue("QC_transition_pass"), true);
   TEST_EQUAL(components[0].getSubordinates()[2].getMetaValue("QC_transition_pass"), false);
+  TEST_EQUAL(components[0].getSubordinates()[2].getMetaValue("QC_transition_message"), "retention_time");
+
   components.clear();
   
   // Intensity
@@ -639,6 +692,11 @@ START_SECTION(void FilterFeatureMap(FeatureMap& features, MRMFeatureQC& filter_c
   TEST_EQUAL(components[0].getSubordinates()[0].getMetaValue("QC_transition_pass"), true);
   TEST_EQUAL(components[0].getSubordinates()[1].getMetaValue("QC_transition_pass"), true);
   TEST_EQUAL(components[0].getSubordinates()[2].getMetaValue("QC_transition_pass"), false);
+  TEST_EQUAL(components[0].getSubordinates()[2].getMetaValue("QC_transition_message"), "intensity");
+  TEST_REAL_SIMILAR(components[0].getMetaValue("QC_transition_group_score"), 1.0);
+  TEST_REAL_SIMILAR(components[0].getSubordinates()[0].getMetaValue("QC_transition_score"), 1.0);
+  TEST_REAL_SIMILAR(components[0].getSubordinates()[1].getMetaValue("QC_transition_score"), 1.0);
+  TEST_REAL_SIMILAR(components[0].getSubordinates()[2].getMetaValue("QC_transition_score"), 0.75);
   components.clear();
   
   // OverallQuality
@@ -676,6 +734,11 @@ START_SECTION(void FilterFeatureMap(FeatureMap& features, MRMFeatureQC& filter_c
   TEST_EQUAL(components[0].getSubordinates()[0].getMetaValue("QC_transition_pass"), true);
   TEST_EQUAL(components[0].getSubordinates()[1].getMetaValue("QC_transition_pass"), true);
   TEST_EQUAL(components[0].getSubordinates()[2].getMetaValue("QC_transition_pass"), false);
+  TEST_EQUAL(components[0].getSubordinates()[2].getMetaValue("QC_transition_message"), "overall_quality");
+  TEST_REAL_SIMILAR(components[0].getMetaValue("QC_transition_group_score"), 1.0);
+  TEST_REAL_SIMILAR(components[0].getSubordinates()[0].getMetaValue("QC_transition_score"), 1.0);
+  TEST_REAL_SIMILAR(components[0].getSubordinates()[1].getMetaValue("QC_transition_score"), 1.0);
+  TEST_REAL_SIMILAR(components[0].getSubordinates()[2].getMetaValue("QC_transition_score"), 0.75);
   components.clear();
   
   // MetaValue
@@ -713,6 +776,11 @@ START_SECTION(void FilterFeatureMap(FeatureMap& features, MRMFeatureQC& filter_c
   TEST_EQUAL(components[0].getSubordinates()[0].getMetaValue("QC_transition_pass"), true);
   TEST_EQUAL(components[0].getSubordinates()[1].getMetaValue("QC_transition_pass"), true);
   TEST_EQUAL(components[0].getSubordinates()[2].getMetaValue("QC_transition_pass"), false);
+  TEST_EQUAL(components[0].getSubordinates()[2].getMetaValue("QC_transition_message"), "metaValue[peak_apex_int]");
+  TEST_REAL_SIMILAR(components[0].getMetaValue("QC_transition_group_score"), 1.0);
+  TEST_REAL_SIMILAR(components[0].getSubordinates()[0].getMetaValue("QC_transition_score"), 1.0);
+  TEST_REAL_SIMILAR(components[0].getSubordinates()[1].getMetaValue("QC_transition_score"), 1.0);
+  TEST_REAL_SIMILAR(components[0].getSubordinates()[2].getMetaValue("QC_transition_score"), 0.75);
   components.clear();
   
   // n_heavy
@@ -744,9 +812,14 @@ START_SECTION(void FilterFeatureMap(FeatureMap& features, MRMFeatureQC& filter_c
   subordinates.clear();
   mrmff.FilterFeatureMap(components, qc_criteria, transitions);
   TEST_EQUAL(components[0].getMetaValue("QC_transition_group_pass"), false);
+  TEST_EQUAL(components[0].getMetaValue("QC_transition_group_message"), "n_heavy");
   TEST_EQUAL(components[0].getSubordinates()[0].getMetaValue("QC_transition_pass"), true);
   TEST_EQUAL(components[0].getSubordinates()[1].getMetaValue("QC_transition_pass"), true);
   TEST_EQUAL(components[0].getSubordinates()[2].getMetaValue("QC_transition_pass"), true);
+  TEST_REAL_SIMILAR(components[0].getMetaValue("QC_transition_group_score"), 0.892857142857143);
+  TEST_REAL_SIMILAR(components[0].getSubordinates()[0].getMetaValue("QC_transition_score"), 1.0);
+  TEST_REAL_SIMILAR(components[0].getSubordinates()[1].getMetaValue("QC_transition_score"), 1.0);
+  TEST_REAL_SIMILAR(components[0].getSubordinates()[2].getMetaValue("QC_transition_score"), 1.0);
   components.clear();
   
   // n_light
@@ -781,9 +854,14 @@ START_SECTION(void FilterFeatureMap(FeatureMap& features, MRMFeatureQC& filter_c
   subordinates.clear();
   mrmff.FilterFeatureMap(components, qc_criteria, transitions);
   TEST_EQUAL(components[0].getMetaValue("QC_transition_group_pass"), false);
+  TEST_EQUAL(components[0].getMetaValue("QC_transition_group_message"), "n_light");
   TEST_EQUAL(components[0].getSubordinates()[0].getMetaValue("QC_transition_pass"), true);
   TEST_EQUAL(components[0].getSubordinates()[1].getMetaValue("QC_transition_pass"), true);
   TEST_EQUAL(components[0].getSubordinates()[2].getMetaValue("QC_transition_pass"), true);
+  TEST_REAL_SIMILAR(components[0].getMetaValue("QC_transition_group_score"), 0.892857142857143);
+  TEST_REAL_SIMILAR(components[0].getSubordinates()[0].getMetaValue("QC_transition_score"), 1.0);
+  TEST_REAL_SIMILAR(components[0].getSubordinates()[1].getMetaValue("QC_transition_score"), 1.0);
+  TEST_REAL_SIMILAR(components[0].getSubordinates()[2].getMetaValue("QC_transition_score"), 1.0);
   components.clear();
   
   // n_transitions
@@ -810,8 +888,12 @@ START_SECTION(void FilterFeatureMap(FeatureMap& features, MRMFeatureQC& filter_c
   subordinates.clear();
   mrmff.FilterFeatureMap(components, qc_criteria, transitions);
   TEST_EQUAL(components[0].getMetaValue("QC_transition_group_pass"), false);
+  TEST_EQUAL(components[0].getMetaValue("QC_transition_group_message"), "n_transitions");
   TEST_EQUAL(components[0].getSubordinates()[0].getMetaValue("QC_transition_pass"), true);
   TEST_EQUAL(components[0].getSubordinates()[1].getMetaValue("QC_transition_pass"), true);
+  TEST_REAL_SIMILAR(components[0].getMetaValue("QC_transition_group_score"), 0.888888888888889);
+  TEST_REAL_SIMILAR(components[0].getSubordinates()[0].getMetaValue("QC_transition_score"), 1.0);
+  TEST_REAL_SIMILAR(components[0].getSubordinates()[1].getMetaValue("QC_transition_score"), 1.0);
   components.clear();
   
   // ion_ratio_pair
@@ -846,9 +928,14 @@ START_SECTION(void FilterFeatureMap(FeatureMap& features, MRMFeatureQC& filter_c
   subordinates.clear();
   mrmff.FilterFeatureMap(components, qc_criteria, transitions);
   TEST_EQUAL(components[0].getMetaValue("QC_transition_group_pass"), false);
+  TEST_EQUAL(components[0].getMetaValue("QC_transition_group_message"), "ion_ratio_pair[component1.1.Light/component1.2.Light]");
   TEST_EQUAL(components[0].getSubordinates()[0].getMetaValue("QC_transition_pass"), true);
   TEST_EQUAL(components[0].getSubordinates()[1].getMetaValue("QC_transition_pass"), true);
   TEST_EQUAL(components[0].getSubordinates()[2].getMetaValue("QC_transition_pass"), true);
+  TEST_REAL_SIMILAR(components[0].getMetaValue("QC_transition_group_score"), 0.964285714285714);
+  TEST_REAL_SIMILAR(components[0].getSubordinates()[0].getMetaValue("QC_transition_score"), 1.0);
+  TEST_REAL_SIMILAR(components[0].getSubordinates()[1].getMetaValue("QC_transition_score"), 1.0);
+  TEST_REAL_SIMILAR(components[0].getSubordinates()[2].getMetaValue("QC_transition_score"), 1.0);
   components.clear();
 
 }

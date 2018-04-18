@@ -32,8 +32,7 @@
 // $Authors: Immanuel Luhn$
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_ANALYSIS_QUANTITATION_QUANTITATIVEEXPERIMENTALDESIGN_H
-#define OPENMS_ANALYSIS_QUANTITATION_QUANTITATIVEEXPERIMENTALDESIGN_H
+#pragma once
 
 #include <OpenMS/DATASTRUCTURES/DefaultParamHandler.h>
 #include <OpenMS/METADATA/PeptideIdentification.h>
@@ -63,7 +62,7 @@ public:
     QuantitativeExperimentalDesign();
 
     //Destructor
-    virtual ~QuantitativeExperimentalDesign();
+    ~QuantitativeExperimentalDesign() override;
 
     /**
         @brief xxxxxxx
@@ -109,4 +108,3 @@ private:
 
 } // namespace OpenMS
 
-#endif // OPENMS_ANALYSIS_QUANTITATION_QUANTITATIVEEXPERIMENTALDESIGN_H

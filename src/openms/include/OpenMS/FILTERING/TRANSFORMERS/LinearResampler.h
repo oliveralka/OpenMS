@@ -32,8 +32,7 @@
 // $Authors: Eva Lange $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_FILTERING_TRANSFORMERS_LINEARRESAMPLER_H
-#define OPENMS_FILTERING_TRANSFORMERS_LINEARRESAMPLER_H
+#pragma once
 
 #include <OpenMS/KERNEL/StandardTypes.h>
 #include <OpenMS/KERNEL/MSExperiment.h>
@@ -75,7 +74,7 @@ public:
     }
 
     /// Destructor.
-    ~LinearResampler()
+    ~LinearResampler() override
     {
     }
 
@@ -160,7 +159,7 @@ protected:
     /// Spacing of the resampled data
     double spacing_;
 
-    virtual void updateMembers_()
+    void updateMembers_() override
     {
       spacing_ =  param_.getValue("spacing");
     }
@@ -170,4 +169,3 @@ protected:
 
 } // namespace OpenMS
 
-#endif // OPENMS_FILTERING_TRANSFORMERS_LINEARRESAMPLER_H

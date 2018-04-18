@@ -32,8 +32,7 @@
 // $Authors: Marc Sturm $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_VISUAL_VISUALIZER_METAINFOVISUALIZER_H
-#define OPENMS_VISUAL_VISUALIZER_METAINFOVISUALIZER_H
+#pragma once
 
 // OpenMS_GUI config
 #include <OpenMS/VISUAL/OpenMS_GUIConfig.h>
@@ -65,7 +64,7 @@ namespace OpenMS
 
 public:
     ///Constructor
-    MetaInfoVisualizer(bool editable = false, QWidget * parent = 0);
+    MetaInfoVisualizer(bool editable = false, QWidget * parent = nullptr);
 
     //Docu in base class
     void load(MetaInfoInterface & m);
@@ -73,7 +72,7 @@ public:
 public slots:
 
     //Docu in base class
-    void store();
+    void store() override;
 
 protected slots:
 
@@ -124,4 +123,3 @@ protected:
 
 
 }
-#endif

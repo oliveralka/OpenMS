@@ -32,8 +32,7 @@
 // $Authors: David Wojnar $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_FORMAT_GZIPIFSTREAM_H
-#define OPENMS_FORMAT_GZIPIFSTREAM_H
+#pragma once
 
 #include <OpenMS/config.h>
 
@@ -137,7 +136,7 @@ protected:
 
   inline bool GzipIfstream::isOpen() const
   {
-    return gzfile_ != NULL;
+    return gzfile_ != nullptr;
   }
 
   inline bool GzipIfstream::streamEnd() const
@@ -152,4 +151,3 @@ protected:
     }*/
 
 } //namespace OpenMS
-#endif //OPENMS_FORMAT_GZIPIFSTREAM_H

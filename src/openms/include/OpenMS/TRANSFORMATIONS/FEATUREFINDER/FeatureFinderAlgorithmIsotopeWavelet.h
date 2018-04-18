@@ -32,8 +32,7 @@
 // $Authors: $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_TRANSFORMATIONS_FEATUREFINDER_FEATUREFINDERALGORITHMISOTOPEWAVELET_H
-#define OPENMS_TRANSFORMATIONS_FEATUREFINDER_FEATUREFINDERALGORITHMISOTOPEWAVELET_H
+#pragma once
 
 #include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/FeatureFinderAlgorithm.h>
 
@@ -69,12 +68,12 @@ public:
     FeatureFinderAlgorithmIsotopeWavelet();
 
     /** @brief Destructor. */
-    virtual ~FeatureFinderAlgorithmIsotopeWavelet();
+    ~FeatureFinderAlgorithmIsotopeWavelet() override;
 
     MSSpectrum* createHRData(const UInt i);
 
     /** @brief The working horse of this class. */
-    void run();
+    void run() override;
 
     static const String getProductName();
 
@@ -103,10 +102,9 @@ protected:
 
     Int progress_counter_;
 
-    void updateMembers_();
+    void updateMembers_() override;
 
   };
 
 } //namespace
 
-#endif

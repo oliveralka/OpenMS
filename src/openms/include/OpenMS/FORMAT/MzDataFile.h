@@ -32,8 +32,7 @@
 // $Authors: Marc Sturm $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_FORMAT_MZDATAFILE_H
-#define OPENMS_FORMAT_MZDATAFILE_H
+#pragma once
 
 #include <OpenMS/FORMAT/XMLFile.h>
 #include <OpenMS/FORMAT/OPTIONS/PeakFileOptions.h>
@@ -62,7 +61,7 @@ public:
     ///Default constructor
     MzDataFile();
     ///Destructor
-    ~MzDataFile();
+    ~MzDataFile() override;
 
     /// Mutable access to the options for loading/storing
     PeakFileOptions & getOptions();
@@ -111,5 +110,4 @@ private:
 
 } // namespace OpenMS
 
-#endif // OPENMS_FORMAT_MZXMLFILE_H
 

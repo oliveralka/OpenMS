@@ -32,8 +32,7 @@
 // $Authors: Stephan Aiche, Chris Bielow$
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_SIMULATION_DETECTABILITYSIMULATION_H
-#define OPENMS_SIMULATION_DETECTABILITYSIMULATION_H
+#pragma once
 
 #include <OpenMS/DATASTRUCTURES/DefaultParamHandler.h>
 #include <OpenMS/SIMULATION/SimTypes.h>
@@ -65,7 +64,7 @@ public:
     DetectabilitySimulation(const DetectabilitySimulation& source);
 
     /// Destructor
-    virtual ~DetectabilitySimulation();
+    ~DetectabilitySimulation() override;
     //@}
 
     /// Assignment operator
@@ -89,7 +88,7 @@ private:
     void setDefaultParams_();
 
     /// Synchronize members with param class
-    void updateMembers_();
+    void updateMembers_() override;
 
     /// Minimum allowed detectability likelihood of a peptide
     double min_detect_;
@@ -108,4 +107,3 @@ protected:
 
 }
 
-#endif

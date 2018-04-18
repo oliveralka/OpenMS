@@ -32,8 +32,7 @@
 // $Authors: Marc Sturm $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_VISUAL_SPECTRUMCANVAS_H
-#define OPENMS_VISUAL_SPECTRUMCANVAS_H
+#pragma once
 
 // OpenMS_GUI config
 #include <OpenMS/VISUAL/OpenMS_GUIConfig.h>
@@ -46,8 +45,9 @@
 #include <OpenMS/DATASTRUCTURES/DefaultParamHandler.h>
 
 //QT
-#include <QtGui/QWidget>
-#include <QtGui/QRubberBand>
+#include <QtWidgets>
+#include <QRubberBand>
+
 class QWheelEvent;
 class QKeyEvent;
 class QMouseEvent;
@@ -151,10 +151,10 @@ public:
     //@}
 
     /// Default constructor
-    SpectrumCanvas(const Param & preferences, QWidget * parent = 0);
+    SpectrumCanvas(const Param & preferences, QWidget * parent = nullptr);
 
     /// Destructor
-    virtual ~SpectrumCanvas();
+    ~SpectrumCanvas() override;
 
     /**
         @brief Sets the spectrum widget.
@@ -681,13 +681,13 @@ protected:
 
     ///@name reimplemented QT events
     //@{
-    void resizeEvent(QResizeEvent * e);
-    void wheelEvent(QWheelEvent * e);
-    void keyPressEvent(QKeyEvent * e);
-    void keyReleaseEvent(QKeyEvent * e);
-    void focusOutEvent(QFocusEvent * e);
-    void leaveEvent(QEvent * e);
-    void enterEvent(QEvent * e);
+    void resizeEvent(QResizeEvent * e) override;
+    void wheelEvent(QWheelEvent * e) override;
+    void keyPressEvent(QKeyEvent * e) override;
+    void keyReleaseEvent(QKeyEvent * e) override;
+    void focusOutEvent(QFocusEvent * e) override;
+    void leaveEvent(QEvent * e) override;
+    void enterEvent(QEvent * e) override;
     //@}
 
     ///This method is called whenever the intensity mode changes. Reimplement if you need to react on such changes.
@@ -958,4 +958,3 @@ protected:
   };
 }
 
-#endif

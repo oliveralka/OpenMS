@@ -33,8 +33,7 @@
 // --------------------------------------------------------------------------
 
 
-#ifndef OPENMS_ANALYSIS_DENOVO_COMPNOVOIDENTIFICATIONBASE_H
-#define OPENMS_ANALYSIS_DENOVO_COMPNOVOIDENTIFICATIONBASE_H
+#pragma once
 
 // OpenMS includes
 #include <OpenMS/METADATA/PeptideIdentification.h>
@@ -71,7 +70,7 @@ public:
     CompNovoIdentificationBase(const CompNovoIdentificationBase & source);
 
     /// destructor
-    virtual ~CompNovoIdentificationBase();
+    ~CompNovoIdentificationBase() override;
     //@}
 
     /// assignment operator
@@ -89,7 +88,7 @@ public:
 protected:
 
     /// update members method from DefaultParamHandler to update the members
-    void updateMembers_();
+    void updateMembers_() override;
 
     /// filters the permutations
     void filterPermuts_(std::set<String> & permut);
@@ -254,4 +253,3 @@ protected:
   }
 }
 
-#endif

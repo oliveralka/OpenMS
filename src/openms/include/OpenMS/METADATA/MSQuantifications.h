@@ -32,8 +32,7 @@
 // $Authors: Mathias Walzer$
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_METADATA_MSQUANTIFICATIONS_H
-#define OPENMS_METADATA_MSQUANTIFICATIONS_H
+#pragma once
 
 #include <OpenMS/KERNEL/StandardTypes.h>
 #include <OpenMS/CONCEPT/Exception.h>
@@ -189,7 +188,7 @@ public:
     MSQuantifications(FeatureMap fm, ExperimentalSettings& es, std::vector<DataProcessing>& dps, std::vector<std::vector<std::pair<String, double> > > labels = (std::vector<std::vector<std::pair<String, double> > >()));
 
     /// Destructor
-    ~MSQuantifications();
+    ~MSQuantifications() override;
 
     /// Copy constructor
     MSQuantifications(const MSQuantifications & source);
@@ -247,4 +246,3 @@ private:
 
 } // namespace OpenMS
 
-#endif // OPENMS_METADATA_MSQUANTIFICATIONS_H

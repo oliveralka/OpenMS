@@ -32,8 +32,7 @@
 // $Authors: $
 // --------------------------------------------------------------------------
 //
-#ifndef OPENMS_FILTERING_TRANSFORMERS_ISOTOPEDIFFFILTER_H
-#define OPENMS_FILTERING_TRANSFORMERS_ISOTOPEDIFFFILTER_H
+#pragma once
 
 #include <OpenMS/FILTERING/TRANSFORMERS/FilterFunctor.h>
 #include <cmath>
@@ -62,7 +61,7 @@ public:
     IsotopeDiffFilter(const IsotopeDiffFilter & source);
 
     /// destructor
-    virtual ~IsotopeDiffFilter();
+    ~IsotopeDiffFilter() override;
     // @}
 
     // @name Operators
@@ -117,4 +116,3 @@ public:
 private:
   };
 }
-#endif // OPENMS_FILTERING_TRANSFORMERS_ISOTOPEDIFFFILTER_H

@@ -32,8 +32,7 @@
 // $Authors: $
 // --------------------------------------------------------------------------
 //
-#ifndef OPENMS_FILTERING_TRANSFORMERS_COMPLEMENTFILTER_H
-#define OPENMS_FILTERING_TRANSFORMERS_COMPLEMENTFILTER_H
+#pragma once
 
 #include <OpenMS/FILTERING/TRANSFORMERS/FilterFunctor.h>
 
@@ -63,7 +62,7 @@ public:
     ComplementFilter(const ComplementFilter & source);
 
     /// destructor
-    virtual ~ComplementFilter();
+    ~ComplementFilter() override;
     //@}
 
     // @name Operators
@@ -128,4 +127,3 @@ public:
 
   };
 }
-#endif // OPENMS_FILTERING_TRANSFORMERS_COMPLEMENTFILTER_H

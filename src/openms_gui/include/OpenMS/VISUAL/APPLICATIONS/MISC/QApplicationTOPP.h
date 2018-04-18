@@ -32,14 +32,13 @@
 // $Authors: Chris Bielow $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_VISUAL_APPLICATIONS_MISC_QAPPLICATIONTOPP_H
-#define OPENMS_VISUAL_APPLICATIONS_MISC_QAPPLICATIONTOPP_H
+#pragma once
 
 // OpenMS_GUI config
 #include <OpenMS/VISUAL/OpenMS_GUIConfig.h>
 
 //Qt
-#include <QtGui/QApplication>
+#include <QtWidgets/QApplication>
 
 namespace OpenMS
 {
@@ -59,7 +58,7 @@ public:
     QApplicationTOPP(int& argc, char** argv);
 
     /// Destructor
-    virtual ~QApplicationTOPP();
+    ~QApplicationTOPP() override;
 
     /*
       @brief: Catch exceptions in Qt GUI applications, preventing ungraceful exit
@@ -67,12 +66,12 @@ public:
       Re-implementing QApplication::notify() to catch exception thrown in event
       handlers (which is most likely OpenMS code).
     */
-    virtual bool notify(QObject* rec, QEvent* ev);
+    bool notify(QObject* rec, QEvent* ev) override;
 
     /*
       Reimplemented from QApplication, to handle QEvent::FileOpen to enable handling of odoc event on MacOSX
     */
-    bool event(QEvent*);
+    bool event(QEvent*) override;
 
 signals:
     void fileOpen(QString file);
@@ -81,4 +80,3 @@ signals:
 
 }
 
-#endif

@@ -32,8 +32,7 @@
 // $Authors: Hannes Roest $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_CONCEPT_HELPERS_H
-#define OPENMS_CONCEPT_HELPERS_H
+#pragma once
 
 #include <vector>
 #include <boost/shared_ptr.hpp>
@@ -62,11 +61,11 @@ namespace OpenMS
     {
        // We are not interested whether the pointers are equal but whether the
        // contents are equal
-      if (a == NULL && b == NULL)
+      if (a == nullptr && b == nullptr)
       {
         return true;
       }
-      else if (a == NULL || b == NULL)
+      else if (a == nullptr || b == nullptr)
       {
         return false; // one is null the other is not
       }
@@ -101,4 +100,3 @@ namespace OpenMS
 }
 
 
-#endif //OPENMS_CONCEPT_HELPERS_H

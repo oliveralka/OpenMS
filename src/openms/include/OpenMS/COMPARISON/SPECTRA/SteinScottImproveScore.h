@@ -32,8 +32,7 @@
 // $Authors: Vipul Patel $
 // --------------------------------------------------------------------------
 //
-#ifndef OPENMS_COMPARISON_SPECTRA_STEINSCOTTIMPROVESCORE_H
-#define OPENMS_COMPARISON_SPECTRA_STEINSCOTTIMPROVESCORE_H
+#pragma once
 
 #include <OpenMS/COMPARISON/SPECTRA/PeakSpectrumCompareFunctor.h>
 #include <cmath>
@@ -82,7 +81,7 @@ public:
     /// copy constructor
     SteinScottImproveScore(const SteinScottImproveScore & source);
     /// destructor
-    virtual ~SteinScottImproveScore();
+    ~SteinScottImproveScore() override;
     /// assignment operator
     SteinScottImproveScore & operator=(const SteinScottImproveScore & source);
     /**
@@ -90,13 +89,13 @@ public:
 
         This function return the similarity score of two Spectra based on SteinScott.
     */
-    double operator()(const PeakSpectrum & spec1, const PeakSpectrum & spec2) const;
+    double operator()(const PeakSpectrum & spec1, const PeakSpectrum & spec2) const override;
     /**
         @brief Similarity pairwise score itself
 
         This function return the similarity score of itself based on SteinScott.
     */
-    double operator()(const PeakSpectrum & spec) const;
+    double operator()(const PeakSpectrum & spec) const override;
     static PeakSpectrumCompareFunctor * create()
     {
       return new SteinScottImproveScore();
@@ -111,4 +110,3 @@ public:
 }
 
 
-#endif /*OPENMS_COMPARISON_SPECTRA_STEINSCOTTIMPROVESCORE_H*/

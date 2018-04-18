@@ -32,8 +32,7 @@
 // $Authors: Chris Bielow $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_CONCEPT_FACTORY_H
-#define OPENMS_CONCEPT_FACTORY_H
+#pragma once
 
 #include <OpenMS/CONCEPT/Exception.h>
 #include <OpenMS/CONCEPT/FactoryBase.h>
@@ -71,7 +70,7 @@ private:
     typedef Factory<FactoryProduct> FactoryType;
 
     /// Destructor
-    virtual ~Factory(){}
+    ~Factory() override{}
 
     /// Constructor
     Factory()
@@ -161,7 +160,6 @@ private:
   };
 
   template <typename FactoryProduct>
-  Factory<FactoryProduct> * Factory<FactoryProduct>::instance_ptr_ = 0;
+  Factory<FactoryProduct> * Factory<FactoryProduct>::instance_ptr_ = nullptr;
 
 }
-#endif //OPENMS_CONCEPT_FACTORY_H

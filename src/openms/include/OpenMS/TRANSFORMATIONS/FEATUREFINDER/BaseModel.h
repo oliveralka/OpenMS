@@ -32,8 +32,7 @@
 // $Authors: $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_TRANSFORMATIONS_FEATUREFINDER_BASEMODEL_H
-#define OPENMS_TRANSFORMATIONS_FEATUREFINDER_BASEMODEL_H
+#pragma once
 
 #include <OpenMS/DATASTRUCTURES/DefaultParamHandler.h>
 #include <OpenMS/KERNEL/DPeak.h>
@@ -76,7 +75,7 @@ public:
     }
 
     /// Destructor
-    virtual ~BaseModel()
+    ~BaseModel() override
     {
     }
 
@@ -155,7 +154,7 @@ public:
 protected:
     IntensityType cut_off_;
 
-    virtual void updateMembers_()
+    void updateMembers_() override
     {
       cut_off_ = (double)param_.getValue("cutoff");
     }
@@ -163,4 +162,3 @@ protected:
   };
 }
 
-#endif // OPENMS_TRANSFORMATIONS_FEATUREFINDER_BASEMODEL_H

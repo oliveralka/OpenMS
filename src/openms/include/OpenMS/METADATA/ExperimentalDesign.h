@@ -32,8 +32,7 @@
 // $Authors: Timo Sachsenberg $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_KERNEL_EXPERIMENTALDESIGN_H
-#define OPENMS_KERNEL_EXPERIMENTALDESIGN_H
+#pragma once
 
 #include <OpenMS/DATASTRUCTURES/String.h>
 
@@ -74,11 +73,11 @@ namespace OpenMS
         technical_replicate(1) 
       {
       }
-      std::string file; //< file name, mandatory
-      unsigned fraction; //< fraction 1..m, mandatory, 1 if not set
-      unsigned technical_replicate; //< technical replicate 1..k of a fraction, 1 if not set
+      std::string file; ///< file name, mandatory
+      unsigned fraction; ///< fraction 1..m, mandatory, 1 if not set
+      unsigned technical_replicate; ///< technical replicate 1..k of a fraction, 1 if not set
     };
-    std::vector<MSRun> runs;  //< run 1..n (index + 1 determines run id of the first column)
+    std::vector<MSRun> runs;  ///< run 1..n (index + 1 determines run id of the first column)
 
     /// return fraction index to MSRuns (e.g., Fraction 1 maps to MSRun 1 and 2 in the example above)
     std::map<unsigned int, std::set<unsigned int> > getFractionToRunsMapping() const;
@@ -102,4 +101,3 @@ namespace OpenMS
 }
 
 
-#endif // header guard

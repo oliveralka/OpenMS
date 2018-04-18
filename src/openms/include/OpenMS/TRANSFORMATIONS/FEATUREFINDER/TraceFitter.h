@@ -32,8 +32,7 @@
 // $Authors: Stephan Aiche, Marc Sturm $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_TRANSFORMATIONS_FEATUREFINDER_TRACEFITTER_H
-#define OPENMS_TRANSFORMATIONS_FEATUREFINDER_TRACEFITTER_H
+#pragma once
 
 #include <OpenMS/TRANSFORMATIONS/FEATUREFINDER/FeatureFinderAlgorithmPickedHelperStructs.h>
 #include <OpenMS/DATASTRUCTURES/DefaultParamHandler.h>
@@ -88,7 +87,7 @@ protected:
     virtual TraceFitter& operator=(const TraceFitter& source);
 
     /// destructor
-    virtual ~TraceFitter();
+    ~TraceFitter() override;
 
     /**
      * Main method of the TraceFitter which triggers the actual fitting.
@@ -171,7 +170,7 @@ protected:
       bool weighted;
     };
 
-    virtual void updateMembers_();
+    void updateMembers_() override;
 
     /**
      * Updates all member variables to the fitted values stored in the solver.
@@ -193,4 +192,3 @@ protected:
 
 }
 
-#endif // #ifndef OPENMS_TRANSFORMATIONS_FEATUREFINDER_TRACEFITTER_H

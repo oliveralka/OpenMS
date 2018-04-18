@@ -32,8 +32,7 @@
 // $Authors: Andreas Bertsch $
 // --------------------------------------------------------------------------
 //
-#ifndef OPENMS_FILTERING_TRANSFORMERS_NORMALIZER_H
-#define OPENMS_FILTERING_TRANSFORMERS_NORMALIZER_H
+#pragma once
 
 #include <OpenMS/KERNEL/StandardTypes.h>
 
@@ -65,7 +64,7 @@ public:
     /// default constructor
     Normalizer();
     /// destructor
-    virtual ~Normalizer();
+    ~Normalizer() override;
 
     /// assignment operator
     Normalizer & operator=(const Normalizer & source);
@@ -129,7 +128,7 @@ public:
     ///
     void filterPeakMap(PeakMap & exp) const;
 
-    virtual void updateMembers_();
+    void updateMembers_() override;
 
     // @}
 
@@ -139,4 +138,3 @@ private:
 
 
 }
-#endif //OPENMS_FILTERING_TRANSFORMERS_NORMALIZER_H

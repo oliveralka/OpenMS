@@ -32,8 +32,7 @@
 // $Authors: $
 // --------------------------------------------------------------------------
 //
-#ifndef OPENMS_FILTERING_TRANSFORMERS_NLARGEST_H
-#define OPENMS_FILTERING_TRANSFORMERS_NLARGEST_H
+#pragma once
 
 #include <OpenMS/KERNEL/StandardTypes.h>
 #include <OpenMS/DATASTRUCTURES/DefaultParamHandler.h>
@@ -65,7 +64,7 @@ public:
     /// detailed constructor
     NLargest(UInt n);
     /// destructor
-    virtual ~NLargest();
+    ~NLargest() override;
 
     /// copy constructor
     NLargest(const NLargest & source);
@@ -101,7 +100,7 @@ public:
     // @}
 
 protected:
-    void updateMembers_();
+    void updateMembers_() override;
     UInt peakcount_;
 
     /// handles the initialization of the default parameters for the 2 constructors
@@ -110,4 +109,3 @@ protected:
   };
 
 }
-#endif //OPENMS_FILTERING_TRANSFORMERS_NLARGEST_H

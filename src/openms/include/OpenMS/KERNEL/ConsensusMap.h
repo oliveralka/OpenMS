@@ -32,8 +32,7 @@
 // $Authors: $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_KERNEL_CONSENSUSMAP_H
-#define OPENMS_KERNEL_CONSENSUSMAP_H
+#pragma once
 
 #include <OpenMS/CONCEPT/UniqueIdInterface.h>
 #include <OpenMS/CONCEPT/UniqueIdIndexer.h>
@@ -148,7 +147,7 @@ public:
     OPENMS_DLLAPI ConsensusMap(const ConsensusMap& source);
 
     /// Destructor
-    OPENMS_DLLAPI ~ConsensusMap();
+    OPENMS_DLLAPI ~ConsensusMap() override;
 
     /// Creates a ConsensusMap with n elements
     OPENMS_DLLAPI explicit ConsensusMap(Base::size_type n);
@@ -222,7 +221,7 @@ public:
     //@}
 
     // Docu in base class
-    OPENMS_DLLAPI void updateRanges();
+    OPENMS_DLLAPI void updateRanges() override;
 
     /// Swaps the content of this map with the content of @p from
     OPENMS_DLLAPI void swap(ConsensusMap& from);
@@ -317,7 +316,7 @@ public:
               - we should restrict the user to first fill the list of maps, before any datapoints can be inserted
 
     */
-    bool isMapConsistent(Logger::LogStream* stream = 0) const;
+    bool isMapConsistent(Logger::LogStream* stream = nullptr) const;
 
 protected:
 
@@ -342,4 +341,3 @@ protected:
 
 } // namespace OpenMS
 
-#endif // OPENMS_KERNEL_CONSENSUSMAP_H

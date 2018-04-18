@@ -32,8 +32,7 @@
 // $Authors: David Wojnar $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_FORMAT_BZIP2IFSTREAM_H
-#define OPENMS_FORMAT_BZIP2IFSTREAM_H
+#pragma once
 
 #include <OpenMS/config.h>
 #include <bzlib.h>
@@ -113,7 +112,7 @@ protected:
   //return bzip2file???!!!!????
   inline bool Bzip2Ifstream::isOpen() const
   {
-    return file_ != NULL;
+    return file_ != nullptr;
   }
 
   inline bool Bzip2Ifstream::streamEnd() const
@@ -122,4 +121,3 @@ protected:
   }
 
 } //namespace OpenMS
-#endif //OPENMS_FORMAT_BZIP2IFSTREAM_H

@@ -32,8 +32,7 @@
 // $Authors: Nico Pfeifer $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_FORMAT_PEPXMLFILEMASCOT_H
-#define OPENMS_FORMAT_PEPXMLFILEMASCOT_H
+#pragma once
 
 #include <OpenMS/METADATA/ProteinIdentification.h>
 #include <OpenMS/METADATA/PeptideIdentification.h>
@@ -72,10 +71,10 @@ public:
 protected:
 
     // Docu in base class
-    virtual void endElement(const XMLCh * const /*uri*/, const XMLCh * const /*local_name*/, const XMLCh * const qname);
+    void endElement(const XMLCh * const /*uri*/, const XMLCh * const /*local_name*/, const XMLCh * const qname) override;
 
     // Docu in base class
-    virtual void startElement(const XMLCh * const /*uri*/, const XMLCh * const /*local_name*/, const XMLCh * const qname, const xercesc::Attributes & attributes);
+    void startElement(const XMLCh * const /*uri*/, const XMLCh * const /*local_name*/, const XMLCh * const qname, const xercesc::Attributes & attributes) override;
 
     void matchModification_(double mass, String & modification_description);
 
@@ -108,4 +107,3 @@ protected:
 
 } // namespace OpenMS
 
-#endif // OPENMS_FORMAT_PEPXMLFILEMASCOT_H

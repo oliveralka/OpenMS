@@ -32,8 +32,7 @@
 // $Authors: Stephan Aiche, Chris Bielow $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_ANALYSIS_QUANTITATION_ISOBARICCHANNELEXTRACTOR_H
-#define OPENMS_ANALYSIS_QUANTITATION_ISOBARICCHANNELEXTRACTOR_H
+#pragma once
 
 #include <OpenMS/DATASTRUCTURES/DefaultParamHandler.h>
 #include <OpenMS/KERNEL/Peak2D.h>
@@ -222,8 +221,7 @@ protected:
     void setDefaultParams_();
 
     /// implemented for DefaultParamHandler
-    void updateMembers_();
+    void updateMembers_() override;
   };
 } // namespace
 
-#endif // OPENMS_ANALYSIS_QUANTITATION_ISOBARICCHANNELEXTRACTOR_H
