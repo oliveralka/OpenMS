@@ -1,3 +1,4 @@
+
 // --------------------------------------------------------------------------
 //                   OpenMS -- Open-Source Mass Spectrometry
 // --------------------------------------------------------------------------
@@ -118,6 +119,21 @@ protected:
     String generateMzTabSmallMoleculeHeader_(Size search_ms_runs, Size n_best_search_engine_scores, Size n_search_engine_score, Size assays, Size study_variables, const std::vector<String>& optional_columns) const;
 
     String generateMzTabSmallMoleculeSectionRow_(const MzTabSmallMoleculeSectionRow& row, const std::vector<String>& optional_columns) const;
+
+    // TODO: Introduce new Funtions for Feature and Evidence
+
+    void generateMzTabSmallMoleculeFeatureSection_() const;
+
+    String generateMzTabSmallMoleculeFeatureHeader_() const;
+
+    String generatreMzTabSmallMoleculeFeatureSectionRow() const;
+
+    void generateMzTabSmallMoleculeEvidenceSection_() const;
+
+    String generateMzTabSmallMoleculeEvidenceHeader_() const;
+
+    String generatreMzTabSmallMoleculeEvidenceSectionRow() const;
+
 
     // auxiliary functions
     // extract two integers from string (e.g. search_engine_score[1]_ms_run[2] -> 1,2)
