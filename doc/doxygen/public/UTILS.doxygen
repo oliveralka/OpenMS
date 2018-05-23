@@ -91,6 +91,7 @@
   - @subpage UTILS_MetaboliteAdductDecharger - Decharges and merges different feature charge variants of the same small molecule.  
   - @subpage UTILS_MRMPairFinder - Evaluate labeled pair ratios on MRM features.
   - @subpage UTILS_OpenSwathWorkflow - Complete workflow to run OpenSWATH.
+  - @subpage UTILS_MetabolomicsLFQ - A standard metabolomics LFQ pipline.
 
   <b>Metabolite Identification</b>
   - @subpage UTILS_AccurateMassSearch - Find potential HMDB IDs within the given mass error window.

@@ -27,6 +27,7 @@ LowMemPeakPickerHiRes
 LowMemPeakPickerHiResRandomAccess
 MassCalculator
 MetaboliteAdductDecharger
+MetabolomicsLFQ
 MetaboliteSpectralMatcher
 MetaProSIP
 MRMPairFinder
