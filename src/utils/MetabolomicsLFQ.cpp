@@ -140,11 +140,13 @@ protected:
     StringList in = getStringList_("in");
     String out = getStringOption_("out");
     String design_file = getStringOption_("design");
-    
-    ExperimentalDesign design = ExperimentalDesign::load(design_file);
-    std::map<unsigned int, std::vector<String> > frac2ms = design.getFractionToMSFilesMapping();
+
+    // TODO:: is the experimental design needed for now and how would you specify multiple linking steps in the experimental design?
+    //ExperimentalDesign design = ExperimentalDesign::load(design_file);
+    //std::map<unsigned int, std::vector<String> > frac2ms = design.getFractionToMSFilesMapping();
     
     // Parameter for PeakPickerHiRes
+    // TODO: Should be able to automatically see if allread picked data is provided
     Param pp_param = getParam_().copy("Centroiding:", true);
     writeDebug_("Parameters passed to PeakPickerHiRes algorithm", pp_param, 3);
     PeakPickerHiRes pp;
@@ -184,8 +186,10 @@ protected:
     // Loading input
     //-------------------------------------------------------------
 
+    
     ConsensusMap consensus;
-    for (auto const ms_files : frac2ms) // for each fraction->ms file(s)
+    //for (auto const ms_files : frac2ms) // for each fraction->ms file(s)
+    for (auto const in.being : in.end)
     {
       vector<FeatureMap> feature_maps;
 
@@ -213,24 +217,27 @@ protected:
           if (!ms_raw[i].isSorted())
           {
             ms_raw[i].sortByPosition();
-            writeLog_("Info: Sorte peaks by m/z.");
+            writeLog_("Info:Peaks sorted by m/z.");
           }
         }
 
         //-------------------------------------------------------------
-        // Centroiding of MS1
+        // Centroiding of MS1 and MS2 Spectra
         //-------------------------------------------------------------
-        // TODO: only pick if not already picked (add auto mode that skips already picked ones)
+
+        // Should you auto mode and skip allready picked ones
         PeakMap ms_centroided;
         pp.pickExperiment(ms_raw, ms_centroided, true);
-        ms_raw.clear(true);// free memory of profile PeakMaps
+        ms_raw.clear(true); // free memory of profile PeakMap
+
+
+        // mzML_file.store(OUTPUTFILENAME, ms_centroided);
 
         // writing picked mzML files for data submission
         // annotate output with data processing info
         // TODO: how to store picked files? by specifying a folder? or by output files that match in number to input files
         // TODO: overwrite primaryMSRun with picked mzML name (for submission)
-        // mzML_file.store(OUTPUTFILENAME, ms_centroided);
-        // TODO: free all MS2 spectra (to release memory!)
+        // see Stringlist ms_runs below (push back ouputfilename)
 
         //-------------------------------------------------------------
         // Feature detection
@@ -268,7 +275,7 @@ protected:
             m_traces_final = splitted_mtraces;
           }
         }
-        else // no elution peak detection
+        else // no elution peak detection - TODO: why would you not want elution peak detection
         {
           m_traces_final = m_traces;
           for (Size i = 0; i < m_traces_final.size(); ++i) // estimate FWHM, so .getIntensity() can be called later
