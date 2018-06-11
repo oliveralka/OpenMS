@@ -186,7 +186,7 @@ protected:
     // Loading input
     //-------------------------------------------------------------
 
-    
+
     ConsensusMap consensus;
     //for (auto const ms_files : frac2ms) // for each fraction->ms file(s)
     for (auto const in.being : in.end)
