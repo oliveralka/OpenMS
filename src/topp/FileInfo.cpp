@@ -563,10 +563,61 @@ protected:
       cons.updateRanges();
 
       map<Size, UInt> num_consfeat_of_size;
+      map<Size, UInt> num_consfeat_of_size_with_id;
+
+      map<pair<String, UInt>, vector<int> > seq_charge2map_occurence;
       for (ConsensusMap::const_iterator cmit = cons.begin(); cmit != cons.end(); ++cmit)
       {
         ++num_consfeat_of_size[cmit->size()];
+        const auto& pids = cmit->getPeptideIdentifications();
+        if (!pids.empty())
+        {
+          ++num_consfeat_of_size_with_id[cmit->size()];
+
+          // count how often a peptide/charge pair has been observed in the different maps
+          const vector<PeptideHit>& phits = pids[0].getHits();
+          if (!phits.empty())
+          {
+            const String s = phits[0].getSequence().toString();
+            const int z = phits[0].getCharge();
+
+            if (seq_charge2map_occurence[make_pair(s,z)].empty())
+            {
+              seq_charge2map_occurence[make_pair(s,z)] = vector<int>(cons.getColumnHeaders().size(), 0);
+            }
+
+            // assign id to all dimensions in the consensus feature
+            for (auto const & f : cmit->getFeatures())
+            {
+              Size map_index = f.getMapIndex();
+              seq_charge2map_occurence[make_pair(s,z)][map_index] += 1;
+            }
+          }
+        }
       }
+
+      // now at the level of peptides (different charges and modifications are counted separately) 
+      // to get a number independent of potential alignment/link errors
+      // Note: 
+      // we determine the size of a consensus feature we would obtain if we would link just be sequence and charge
+      // and we sum up all sub features for these consensus feature that has at least one id
+      // (as we assume that the ID is transfered to all sub features)
+      map<Size, UInt> num_aggregated_consfeat_of_size_with_id;
+      map<Size, UInt> num_aggregated_feat_of_size_with_id;
+      for (auto & a : seq_charge2map_occurence)
+      {
+        const vector<int>& occurences = a.second;
+        Size n(0); // dimensions with at least one peptide id assigned
+        Size f(0); // number of subfeatures with a least one peptide id assigned
+        for (int i : occurences) 
+        { 
+          if (i != 0) ++n; 
+          f += i;
+        }
+        num_aggregated_consfeat_of_size_with_id[n] += 1;
+        num_aggregated_feat_of_size_with_id[n] += f;	
+      }
+
       if (num_consfeat_of_size.empty())
       {
         os << "\n"
@@ -581,11 +632,45 @@ protected:
         os << "\n"
            << "Number of consensus features:"
            << "\n";
+        
+        Size number_features{0};
+        Size number_cons_features_with_id{0};
+        Size number_features_with_id{0};
         for (map<Size, UInt>::reverse_iterator i = num_consfeat_of_size.rbegin(); i != num_consfeat_of_size.rend(); ++i)
         {
-          os << "  of size " << setw(field_width) << i->first << ": " << i->second << "\n";
+          const Size csize = i->first;
+          const Size nfeatures = i->first * i->second;
+          const Size nc_with_id = num_consfeat_of_size_with_id[i->first];
+          number_features += nfeatures;
+          number_features_with_id += csize * nc_with_id;
+          number_cons_features_with_id += nc_with_id;
+          number_cons_features_with_id += i->first * nc_with_id;
+
+          os << "  of size " << setw(field_width) << csize << ": " << i->second 
+             << "\t (features: " << nfeatures << " )"
+             << "\t with at least one ID: " << nc_with_id
+             << "\t (features: " << csize * nc_with_id << " )"
+             << "\n";
+
         }
-        os << "  total:    " << string(field_width, ' ') << cons.size() << "\n"
+
+        map<Size, UInt>::reverse_iterator ci = num_aggregated_consfeat_of_size_with_id.rbegin();
+        map<Size, UInt>::reverse_iterator fi = num_aggregated_feat_of_size_with_id.rbegin();
+        for (; ci != num_aggregated_consfeat_of_size_with_id.rend(); ++ci, ++fi)
+        {
+          const Size csize = ci->first;
+          const Size nconsfeatures = ci->second;
+          const Size nfeatures = fi->second;
+
+          os << "  peptides (with different mod. and charge) observed in " << setw(field_width) << csize << " maps: " << nconsfeatures 
+             << "\t (features: " << nfeatures << " )"
+             << "\n";
+
+        }
+        os << "  total consensus features:    "  << cons.size()
+           << "  with at least one ID: " << number_cons_features_with_id << "\n"
+           << "  total features:              " << number_features 
+           << "  with at least one ID: " << string(field_width, ' ') << number_features_with_id
            << "\n";
 
         writeRangesHumanReadable_(cons, os);

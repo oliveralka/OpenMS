@@ -422,16 +422,14 @@ protected:
             set< Coordinate > retention_times;
             set< Intensity > intensities;
             for (const pair< Intensity, Coordinate > p : line.second)
-            {
+            {              
               if (retention_times.find(p.second) != retention_times.end())
               {
-                LOG_WARN << "Peptide ion appears multiple times at the same retention time. This is not expected." << endl;
+                LOG_WARN << "Peptide ion appears multiple times at the same retention time. This is not expected" << endl;
               }
-              else
-              {
-                retention_times.insert(p.second);
-                intensities.insert(p.first);
-              }
+                  
+              retention_times.insert(p.second);
+              intensities.insert(p.first);
             }
 
             tuple<String, String, String > tpl = make_tuple(
