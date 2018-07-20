@@ -2,7 +2,7 @@
 //                   OpenMS -- Open-Source Mass Spectrometry
 // --------------------------------------------------------------------------
 // Copyright The OpenMS Team -- Eberhard Karls University Tuebingen,
-// ETH Zurich, and Freie Universitaet Berlin 2002-2017.
+// ETH Zurich, and Freie Universitaet Berlin 2002-2018.
 //
 // This software is released under a three-clause BSD license:
 //  * Redistributions of source code must retain the above copyright
@@ -92,7 +92,7 @@ public:
         if (explained_int > 0.5 * total_int) break;
         
         double int_max = 0;
-        Size idx = -1;
+        Size idx = std::numeric_limits<Size>::max();
         // find highest peak position
         for (Size i = 0; i < data.size(); ++i)
         {
@@ -101,9 +101,9 @@ public:
             int_max = data[i].getIntensity();
             idx = i;
           }
-        }
+        } 
         // no more peaks
-        if (idx == -1) break;
+        if (idx == std::numeric_limits<Size>::max()) break;
 
         // check left and right peak shoulders and count number of sample points
         typedef typename std::vector<PeakT>::iterator PeakIterator; // non-const version, since we need to modify the peaks

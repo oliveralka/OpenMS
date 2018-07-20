@@ -2,7 +2,7 @@
 //                   OpenMS -- Open-Source Mass Spectrometry
 // --------------------------------------------------------------------------
 // Copyright The OpenMS Team -- Eberhard Karls University Tuebingen,
-// ETH Zurich, and Freie Universitaet Berlin 2002-2017.
+// ETH Zurich, and Freie Universitaet Berlin 2002-2018.
 //
 // This software is released under a three-clause BSD license:
 //  * Redistributions of source code must retain the above copyright
@@ -442,13 +442,13 @@ protected:
         std::vector<BinnedSpectrum> binned;
         std::vector<MSSpectrum> similar_spectra;
         MSExperiment exp;
-        const BinnedSpectrum binned_highest_int(highest_precursor_int_spectrum, BinnedSpectrum::DEFAULT_BIN_WIDTH_HIRES, false, 1);
+        const BinnedSpectrum binned_highest_int(highest_precursor_int_spectrum, BinnedSpectrum::DEFAULT_BIN_WIDTH_HIRES, false, 1, BinnedSpectrum::DEFAULT_BIN_OFFSET_HIRES);
 
         // calculation of contrast angle (cosine simiarity)
         for (std::vector<size_t>::iterator index_it = index.begin(); index_it != index.end(); ++index_it)
         {
           const MSSpectrum &spectrum = spectra[*index_it];
-          const BinnedSpectrum binned_spectrum(spectrum, BinnedSpectrum::DEFAULT_BIN_WIDTH_HIRES, false, 1);
+          const BinnedSpectrum binned_spectrum(spectrum, BinnedSpectrum::DEFAULT_BIN_WIDTH_HIRES, false, 1, BinnedSpectrum::DEFAULT_BIN_OFFSET_HIRES);
 
           BinnedSpectralContrastAngle bspa;
           double cosine_sim = bspa(binned_highest_int, binned_spectrum);

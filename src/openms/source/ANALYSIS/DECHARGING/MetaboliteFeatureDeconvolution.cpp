@@ -2,7 +2,7 @@
 //                   OpenMS -- Open-Source Mass Spectrometry
 // --------------------------------------------------------------------------
 // Copyright The OpenMS Team -- Eberhard Karls University Tuebingen,
-// ETH Zurich, and Freie Universitaet Berlin 2002-2017.
+// ETH Zurich, and Freie Universitaet Berlin 2002-2018.
 //
 // This software is released under a three-clause BSD license:
 //  * Redistributions of source code must retain the above copyright
@@ -999,15 +999,15 @@ namespace OpenMS
 
 
     // fill the header
-    //cons_map.getFileDescriptions()[0].filename = "TODO - take from FeatureMAP.getLoadedFilePath () ";
+    //cons_map.getColumnHeaders()[0].filename = "TODO - take from FeatureMAP.getLoadedFilePath () ";
 
     for (Size i = 0; i < map_label_.size(); ++i)
     {
-      cons_map.getFileDescriptions()[i].size = fm_out.size();
-      cons_map.getFileDescriptions()[i].label = map_label_[i];
+      cons_map.getColumnHeaders()[i].size = fm_out.size();
+      cons_map.getColumnHeaders()[i].label = map_label_[i];
 
-      cons_map_p.getFileDescriptions()[i].size = fm_out.size();
-      cons_map_p.getFileDescriptions()[i].label = map_label_[i];
+      cons_map_p.getColumnHeaders()[i].size = fm_out.size();
+      cons_map_p.getColumnHeaders()[i].label = map_label_[i];
     }
 
     //see Proteomics Decharger for use of ChargeLadder for candidate missing features. Could e.g., be used to predict undetected features and look for them in mzML like FeatureFinderIdentification?!

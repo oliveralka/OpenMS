@@ -69,6 +69,7 @@ set(metadata_executables_list
   DataProcessing_test
   Digestion_test
   DocumentIdentifier_test
+  ExperimentalDesign_test
   ExperimentalSettings_test
   Gradient_test
   HPLC_test
@@ -158,6 +159,7 @@ set(format_executables_list
   DTA2DFile_test
   DTAFile_test
   EDTAFile_test
+  ExperimentalDesignFile_test
   FASTAFile_test
   FeatureFileOptions_test
   FeatureXMLFile_test
@@ -177,6 +179,7 @@ set(format_executables_list
   MRMFeatureQCFile_test
   MS2File_test
   MSPFile_test
+  MSPGenericFile_test
   MascotGenericFile_test
   MascotInfile_test
   MascotRemoteQuery_test
@@ -544,6 +547,7 @@ set(transformations_executables_list
   GaussFitter1D_test
   GaussModel_test
   GaussTraceFitter_test
+  IDConflictResolverAlgorithm_test
   InterpolationModel_test
   IsotopeFitter1D_test
   IsotopeModel_test
@@ -622,6 +626,7 @@ if(NOT DISABLE_OPENSWATH)
     SpectrumHelpers_test
     StatsHelpers_test
     CachedMzML_test
+    CachedMzMLHandler_test
   )
 endif(NOT DISABLE_OPENSWATH)
 
