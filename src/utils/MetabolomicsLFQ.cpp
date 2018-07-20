@@ -80,14 +80,17 @@ protected:
     registerInputFile_("design", "<file>", "", "design file");
     setValidFormats_("design", ListUtils::create<String>("tsv"));
 
-    registerOutputFile_("out", "<file>", "", "output mzTab file");
-    setValidFormats_("out", ListUtils::create<String>("tsv")); // TODO: add file extension for mzTab
+    // TODO: register optional input for using AccurateMassSearch
 
-    /// TODO: think about export of quality control files (qcML?)
+    registerOutputFile_("out", "<file>", "", "output mzTab file");
+    setValidFormats_("out", ListUtils::create<String>("mztab")); // TODO: integrate mztab-M
+
+    // TODO: think about export of quality control files (qcML?)
 
     Param pp_defaults = PeakPickerHiRes().getDefaults();
 //    Param ma_defaults = MapAlignmentPoseClustering().getDefaults();
-//    Param fl_defaults = FeatureGroupingAlgorithmKD().getDefaults();
+//    Param fl_defaults = FeatureGroupingAlgorithmQT().getDefaults();
+//    Param ams_defautls = AccurateMassSearch_Engine().getDefaults();
 
     Param combined;
     
@@ -124,6 +127,7 @@ protected:
     combined.insert("Centroiding:", pp_defaults);
     //combined.insert("Alignment", ma_defaults);
     //combined.insert("Linking:", fl_defaults);
+    //combined.insert("AccurateMassSearch", ams_defaults);
 
     registerFullParam_(combined);
   }
@@ -144,15 +148,50 @@ protected:
     // TODO:: is the experimental design needed for now and how would you specify multiple linking steps in the experimental design?
     //ExperimentalDesign design = ExperimentalDesign::load(design_file);
     //std::map<unsigned int, std::vector<String> > frac2ms = design.getFractionToMSFilesMapping();
-    
+
+    // TODO: Not sure if this is necessary for metabolomics, since fractions are rarely used
+
+    //-------------------------------------------------------------
+    // Experimental design: read or generate default
+    //-------------------------------------------------------------
+    ExperimentalDesign design;
+    if (!design_file.empty())
+    { // load from file
+      design = ExperimentalDesignFile::load(design_file, false);
+    }
+    else
+    {  // default to unfractionated design
+      ExperimentalDesign::MSFileSection msfs;
+      Size count{1};
+      for (String & s : in)
+      {
+        ExperimentalDesign::MSFileSectionEntry e;
+        e.fraction = 1;
+        e.fraction_group = count;
+        e.label = 1;
+        e.path = s;
+        e.sample = count;
+        msfs.push_back(e);
+      }
+      design.setMSFileSection(msfs);
+    }
+    std::map<unsigned int, std::vector<String> > frac2ms = design.getFractionToMSFilesMapping();
+
+    for (auto & f : frac2ms)
+    {
+      writeDebug_("Fraction " + String(f.first) + ":", 10);
+      for (const auto & s : f.second)
+      {
+        writeDebug_("MS file: " + String(s), 10);
+      }
+    }
+
     // Parameter for PeakPickerHiRes
-    // TODO: Should be able to automatically see if allread picked data is provided
+
     Param pp_param = getParam_().copy("Centroiding:", true);
     writeDebug_("Parameters passed to PeakPickerHiRes algorithm", pp_param, 3);
-    PeakPickerHiRes pp;
-    pp.setLogType(log_type_);
-    pp.setParameters(pp_param);
-   
+
+
     // Parameter for FeatureFinderMetabo
     Param common_param = getParam_().copy("Quantification_common:", true);
     writeDebug_("Common parameters passed to sub-algorithms (mtd and ffm)", common_param, 3);
@@ -174,22 +213,23 @@ protected:
     ma.setLogType(log_type_);
     ma.setParameters(ff_param);
     
-    // Parameter for FeautreGrouingAlgorithmKD
+    // Parameter for FeautreGrouingAlgorithmQT
     Param fl_param = getParam_().copy("Linking:", true);
     writeDebug_("Parameters passed to FeatureGroupingAlgorithmKD algorithm", fl_param, 3);
     FeatureGroupingAlgorithmKD fl;
     fl.setLogType(log_type_);
     fl.setParameters(ff_param);
     */
+
+    // Parameter for AccurateMassSearch
     
     //-------------------------------------------------------------
     // Loading input
     //-------------------------------------------------------------
 
-
     ConsensusMap consensus;
     //for (auto const ms_files : frac2ms) // for each fraction->ms file(s)
-    for (auto const in.being : in.end)
+    for (auto const in.being() : in.end())
     {
       vector<FeatureMap> feature_maps;
 
@@ -225,19 +265,22 @@ protected:
         // Centroiding of MS1 and MS2 Spectra
         //-------------------------------------------------------------
 
-        // Should you auto mode and skip allready picked ones
+        // Should you auto mode and skip already picked ones
+        PeakPickerHiRes pp;
+        pp.setLogType(log_type_);
+        pp.setParameters(pp_param);
+
+        // TODO: Initialize ms_centroided at a different position - see proteomicsLFQ
+        // TODO: fraction support metabolomics
+
         PeakMap ms_centroided;
         pp.pickExperiment(ms_raw, ms_centroided, true);
         ms_raw.clear(true); // free memory of profile PeakMap
-
-
-        // mzML_file.store(OUTPUTFILENAME, ms_centroided);
 
         // writing picked mzML files for data submission
         // annotate output with data processing info
         // TODO: how to store picked files? by specifying a folder? or by output files that match in number to input files
         // TODO: overwrite primaryMSRun with picked mzML name (for submission)
-        // see Stringlist ms_runs below (push back ouputfilename)
 
         //-------------------------------------------------------------
         // Feature detection
@@ -338,9 +381,8 @@ protected:
           }
           feat_map[0].setMetaValue("scan_polarity", ListUtils::concatenate(sl_pols, ";"));
         }
-
-
       }
+
 
       //-------------------------------------------------------------
       // Align all features of this fraction
@@ -375,14 +417,16 @@ protected:
       // Link all features of this fraction
       //-------------------------------------------------------------
     }
-    //-------------------------------------------------------------
-    // Export of MzTab file as final output
-    //-------------------------------------------------------------
-   
-    // TODO: adjust to Metabolomics 
-    // Annotate quants to protein(groups) for easier export in mzTab
 
-    // Fill MzTab with meta data and quants annotated in identification data structure
+    //-------------------------------------------------------------
+    // Use AccurateMassSearch as identification method
+    //-------------------------------------------------------------
+
+
+
+    //-------------------------------------------------------------
+    // Export of MzTab-m file as final output
+    //-------------------------------------------------------------
 
     return EXECUTION_OK;
   }
