@@ -33,6 +33,7 @@
 // --------------------------------------------------------------------------
 #include <OpenMS/FORMAT/MzMLFile.h>
 #include <OpenMS/KERNEL/MSExperiment.h>
+#include <OpenMS/FORMAT/ExperimentalDesignFile.h>
 #include <OpenMS/FORMAT/FeatureXMLFile.h>
 #include <OpenMS/KERNEL/ConsensusMap.h>
 
@@ -229,7 +230,7 @@ protected:
 
     ConsensusMap consensus;
     //for (auto const ms_files : frac2ms) // for each fraction->ms file(s)
-    for (auto const in.being() : in.end())
+    for (auto const ms_files : frac2ms)
     {
       vector<FeatureMap> feature_maps;
 
