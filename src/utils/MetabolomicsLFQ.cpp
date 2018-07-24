@@ -115,6 +115,7 @@ protected:
     p_epd.setValue("enabled", "true", "Enable splitting of isobaric mass traces by chromatographic peak detection. Disable for direct injection.");
     p_epd.setValidStrings("enabled", ListUtils::create<String>("true,false"));
     p_epd.insert("", ElutionPeakDetection().getDefaults());
+    //p_mtd.remove("noise_threshold_int");//currently unused, do we want to use it somehow?
     p_epd.remove("chrom_peak_snr");
     p_epd.remove("chrom_fwhm");
 
@@ -416,7 +417,7 @@ protected:
         ams.run(feat_map, mztab_output);
 
         //mztab_outfile.store(out, mztab_output);
-        mztab_outfile.store(mz_file + ".ams.mztab", mztab_output);
+        mztab_outfile.store(mz_file + ".ams.mztab", mztab_output);//writes currently to file path of input mzML
 
       }
 
