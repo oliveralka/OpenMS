@@ -52,6 +52,8 @@
 
 #include <OpenMS/FORMAT/DATAACCESS/MSDataWritingConsumer.h>
 
+#include <OpenMS/ANALYSIS/ID/AccurateMassSearchEngine.h>
+
 using namespace OpenMS;
 using namespace std;
 
@@ -94,8 +96,8 @@ protected:
 //    Param ams_defautls = AccurateMassSearch_Engine().getDefaults();
 
     Param combined;
-    
-    // Default parameter for FeatureFinderMetabo 
+
+    // Default parameter for FeatureFinderMetabo
     Param p_com;
     p_com.setValue("noise_threshold_int", 10.0, "Intensity threshold below which peaks are regarded as noise.");
     p_com.setValue("chrom_peak_snr", 3.0, "Minimum signal-to-noise a mass trace should have.");
@@ -129,6 +131,13 @@ protected:
     //combined.insert("Alignment", ma_defaults);
     //combined.insert("Linking:", fl_defaults);
     //combined.insert("AccurateMassSearch", ams_defaults);
+
+    //AMS
+    registerOutputFile_("out_annotation", "<file>", "", "A copy of the input file, annotated with matching hits from the database.", false);
+    setValidFormats_("out_annotation", ListUtils::create<String>("featureXML,consensusXML"));
+    Param p_ams = AccurateMassSearchEngine().getDefaults();
+    combined.insert("Identification_ams:", p_ams);
+    combined.setSectionDescription("Identification_ams", "Accurate Mass Search parameters");
 
     registerFullParam_(combined);
   }
@@ -213,7 +222,7 @@ protected:
     MapAlignmentPoseClustering ma;
     ma.setLogType(log_type_);
     ma.setParameters(ff_param);
-    
+
     // Parameter for FeautreGrouingAlgorithmQT
     Param fl_param = getParam_().copy("Linking:", true);
     writeDebug_("Parameters passed to FeatureGroupingAlgorithmKD algorithm", fl_param, 3);
@@ -223,7 +232,14 @@ protected:
     */
 
     // Parameter for AccurateMassSearch
-    
+    Param ams_param = getParam_().copy("Identification_ams:", true);
+    // copy top-level params to algorithm
+    ams_param.setValue("db:mapping", getStringList_("Identification_ams:db:mapping"));
+    ams_param.setValue("db:struct", getStringList_("Identification_ams:db:struct"));
+    ams_param.setValue("positive_adducts", getStringOption_("Identification_ams:positive_adducts"));
+    ams_param.setValue("negative_adducts", getStringOption_("Identification_ams:negative_adducts"));
+    writeDebug_("Parameters passed to AccurateMassSearch", ams_param, 3);
+
     //-------------------------------------------------------------
     // Loading input
     //-------------------------------------------------------------
@@ -237,8 +253,8 @@ protected:
       //TODO: check if we want to parallelize that
       for (String const & mz_file : ms_files.second) // for each MS file
       {
-        // TODO: check if s is part of in 
-      
+        // TODO: check if s is part of in
+
         // load raw file
         MzMLFile mzML_file;
         mzML_file.setLogType(log_type_);
@@ -286,11 +302,11 @@ protected:
         //-------------------------------------------------------------
         // Feature detection
         //-------------------------------------------------------------
-      
+
         ms_centroided.sortSpectra(true);
         vector<MassTrace> m_traces;
-     
-        // FeatureFinderMetabo: mass trace detection 
+
+        // FeatureFinderMetabo: mass trace detection
         MassTraceDetection mtdet;
         mtd_param.insert("", common_param);
         mtd_param.remove("chrom_fwhm");
@@ -301,9 +317,9 @@ protected:
         // FeatureFinderMetabo: elution peak detection
         std::vector<MassTrace> m_traces_final;
         if (epd_param.getValue("enabled").toBool())
-        {   
+        {
           std::vector<MassTrace> splitted_mtraces;
-          epd_param.remove("enabled"); // artificially added above
+          //epd_param.remove("enabled"); // artificially added above <- Don't understand, comemnted out else error for multiple files
           epd_param.insert("", common_param);
           ElutionPeakDetection epdet;
           epdet.setParameters(epd_param);
@@ -332,16 +348,16 @@ protected:
             ffm_param.setValue("use_smoothed_intensities", "false");
           }
         }
-        
+
         // FeatureFinderMetabo: run feature finding
         ffm_param.insert("", common_param);
         ffm_param.remove("noise_threshold_int");
         ffm_param.remove("chrom_peak_snr");
         // TODO: how to write chromatograms for multiple files
         // String report_chromatograms = out_chrom.empty() ? "false" : "true";
-        String report_chromatograms = false;
-        ffm_param.setValue("report_chromatograms", report_chromatograms);       
-       
+        String report_chromatograms = "false";
+        ffm_param.setValue("report_chromatograms", report_chromatograms);
+
         FeatureMap feat_map;
         StringList ms_runs;
         ms_centroided.getPrimaryMSRunPath(ms_runs);
@@ -351,7 +367,7 @@ protected:
         FeatureFindingMetabo ffmet;
         ffmet.setParameters(ffm_param);
         ffmet.run(m_traces_final, feat_map, feat_chromatograms);
-      
+
         Size trace_count(0);
         for (Size i = 0; i < feat_map.size(); ++i)
         {
@@ -364,7 +380,7 @@ protected:
                  << "Input traces:    " << m_traces_final.size() << "\n"
                  << "Output features: " << feat_map.size() << " (total trace count: " << trace_count << ")" << std::endl;
 
-        // TODO: if chromatograms are needed please see FeatureFinderMetabo.cpp 
+        // TODO: if chromatograms are needed please see FeatureFinderMetabo.cpp
 
         // store ionization mode of spectra (useful for post-processing by AccurateMassSearch tool)
         if (feat_map.size() > 0)
@@ -382,6 +398,26 @@ protected:
           }
           feat_map[0].setMetaValue("scan_polarity", ListUtils::concatenate(sl_pols, ";"));
         }
+
+
+          //-------------------------------------------------------------
+          // Accurate Mass Search
+          //-------------------------------------------------------------
+
+        // mzTAB output data structure
+        MzTab mztab_output;
+        MzTabFile mztab_outfile;
+
+        ffmet.run(m_traces_final, feat_map, feat_chromatograms);
+        //for now featurexml input, later change to consensusxml
+        AccurateMassSearchEngine ams;
+        ams.setParameters(ams_param);
+        ams.init();
+        ams.run(feat_map, mztab_output);
+
+        //mztab_outfile.store(out, mztab_output);
+        mztab_outfile.store(mz_file + ".ams.mztab", mztab_output);
+
       }
 
 
@@ -412,7 +448,7 @@ protected:
   //    {
   //      MapAlignmentTransformer::transformRetentionTimes(feature_maps[i],
   //        transformations[i]);
-  //    }                                     
+  //    }
 
       //-------------------------------------------------------------
       // Link all features of this fraction
@@ -441,4 +477,3 @@ int main(int argc, const char ** argv)
 }
 
 /// @endcond
-
