@@ -387,36 +387,29 @@ protected:
     // writing output
     //-------------------------------------------------------------
 
-    if(!in_ms.empty())
+    // extract path to subfolders (sirius internal folder structure)
+    QDirIterator it(out_dir.toQString(), QDir::Dirs | QDir::NoDotAndDotDot, QDirIterator::NoIteratorFlags);
+    while (it.hasNext())
     {
-
+      subdirs.push_back(it.next());
     }
-    else
+
+    // sort vector path list
+    std::sort(subdirs.begin(), subdirs.end(), extractAndCompareScanIndexLess_);
+
+    // convert sirius_output to mztab and store file
+    MzTab sirius_result;
+    MzTabFile siriusfile;
+    SiriusMzTabWriter::read(subdirs, in, candidates, sirius_result);
+    siriusfile.store(out_sirius, sirius_result);
+
+    // convert sirius_output to mztab and store file
+    if (out_csifingerid.empty() == false)
     {
-      // extract path to subfolders (sirius internal folder structure)
-      QDirIterator it(out_dir.toQString(), QDir::Dirs | QDir::NoDotAndDotDot, QDirIterator::NoIteratorFlags);
-      while (it.hasNext())
-      {
-        subdirs.push_back(it.next());
-      }
-
-      // sort vector path list
-      std::sort(subdirs.begin(), subdirs.end(), extractAndCompareScanIndexLess_);
-
-      // convert sirius_output to mztab and store file
-      MzTab sirius_result;
-      MzTabFile siriusfile;
-      SiriusMzTabWriter::read(subdirs, in, candidates, sirius_result);
-      siriusfile.store(out_sirius, sirius_result);
-
-      // convert sirius_output to mztab and store file
-      if (out_csifingerid.empty() == false)
-      {
-        MzTab csi_result;
-        MzTabFile csifile;
-        CsiFingerIdMzTabWriter::read(subdirs, in, top_n_hits, csi_result);
-        csifile.store(out_csifingerid, csi_result);
-      }
+      MzTab csi_result;
+      MzTabFile csifile;
+      CsiFingerIdMzTabWriter::read(subdirs, in, top_n_hits, csi_result);
+      csifile.store(out_csifingerid, csi_result);
     }
 
     // clean tmp directory if debug level < 2
