@@ -125,7 +125,9 @@ protected:
     registerInputFile_("executable", "<executable>", "",
                        "sirius executable e.g. sirius", false, false, ListUtils::create<String>("skipexists"));
 
-    registerInputFile_("in", "<file>", "", "MzML Input file");
+    registerInputFile_("in_ms", "<file>", "", "Internal .ms input file", false);
+
+    registerInputFile_("in", "<file>", "", "MzML Input file", false);
     setValidFormats_("in", ListUtils::create<String>("mzml"));
 
     registerInputFile_("in_featureinfo", "<file>", "", "FeatureXML input with feature and adduct information", false);
@@ -175,6 +177,7 @@ protected:
     // Parsing parameters
     //-------------------------------------------------------------
 
+    String in_ms = getStringOption_("in_ms");
     String in = getStringOption_("in");
     String out_sirius = getStringOption_("out_sirius");
     String out_csifingerid = getStringOption_("out_fingerid");
@@ -186,7 +189,9 @@ protected:
     if (num_masstrace_filter != 1 && !feature_only)
     {
       num_masstrace_filter = 1;
-      LOG_WARN << "Parameter: filter_by_num_masstraces, was set to 1 to retain the adduct information for all MS2 spectra, if available. Please use the masstrace filter in combination with feature_only." << endl;
+      LOG_WARN
+          << "Parameter: filter_by_num_masstraces, was set to 1 to retain the adduct information for all MS2 spectra, if available. Please use the masstrace filter in combination with feature_only."
+          << endl;
     }
 
     double precursor_mz_tol = getDoubleOption_("precursor_mz_tolerance");
@@ -224,10 +229,11 @@ protected:
     if (executable.isEmpty())
     {
       const QProcessEnvironment env;
-      const QString & qsiriuspathenv = env.systemEnvironment().value("SIRIUS_PATH");
+      const QString &qsiriuspathenv = env.systemEnvironment().value("SIRIUS_PATH");
       if (qsiriuspathenv.isEmpty())
       {
-        writeLog_( "FATAL: Executable of Sirius could not be found. Please either use SIRIUS_PATH env variable or provide with -executable");
+        writeLog_(
+            "FATAL: Executable of Sirius could not be found. Please either use SIRIUS_PATH env variable or provide with -executable");
         return MISSING_PARAMETERS;
       }
       executable = qsiriuspathenv;
@@ -237,15 +243,11 @@ protected:
     executable = file_info.canonicalFilePath();
 
     writeLog_("Executable is: " + executable);
-    const QString & path_to_executable = File::path(executable).toQString();
+    const QString &path_to_executable = File::path(executable).toQString();
 
     //-------------------------------------------------------------
     // Calculations
     //-------------------------------------------------------------
-    PeakMap spectra;
-    MzMLFile f;
-    f.setLogType(log_type_);
-    f.load(in, spectra);
     std::vector<String> subdirs;
 
     QString tmp_base_dir = File::getTempDirectory().toQString();
@@ -254,50 +256,58 @@ protected:
     String tmp_ms_file = QDir(tmp_base_dir).filePath((File::getUniqueName() + ".ms").toQString());
     String out_dir = QDir(tmp_dir).filePath("sirius_out");
 
-    FeatureMapping::FeatureToMs2Indices feature_mapping;
-    FeatureMap feature_map;
-    KDTreeFeatureMaps fp_map_kd;
-    vector<FeatureMap> v_fp;
-
-    // if fileparameter is given and should be not empty
-    if (!featureinfo.empty())
+    if(in_ms.empty())
     {
-      if (File::exists(featureinfo) && !File::empty(featureinfo))
+      PeakMap spectra;
+      MzMLFile f;
+      f.setLogType(log_type_);
+      f.load(in, spectra);
+
+      FeatureMapping::FeatureToMs2Indices feature_mapping;
+      FeatureMap feature_map;
+      KDTreeFeatureMaps fp_map_kd;
+      vector<FeatureMap> v_fp;
+
+      // if fileparameter is given and should be not empty
+      if (!featureinfo.empty())
       {
-        // read featureXML
-        FeatureXMLFile fxml;
-        fxml.load(featureinfo, feature_map);
+        if (File::exists(featureinfo) && !File::empty(featureinfo))
+        {
+          // read featureXML
+          FeatureXMLFile fxml;
+          fxml.load(featureinfo, feature_map);
 
-        // filter feature by number of masstraces
-        auto map_it = remove_if(feature_map.begin(), feature_map.end(),
-                                [&num_masstrace_filter](const Feature &feat) -> bool
-                                {
-                                  unsigned int n_masstraces = feat.getMetaValue("num_of_masstraces");
-                                  return n_masstraces < num_masstrace_filter;
-                                });
-        feature_map.erase(map_it, feature_map.end());
+          // filter feature by number of masstraces
+          auto map_it = remove_if(feature_map.begin(), feature_map.end(),
+                                  [&num_masstrace_filter](const Feature &feat) -> bool
+                                  {
+                                    unsigned int n_masstraces = feat.getMetaValue("num_of_masstraces");
+                                    return n_masstraces < num_masstrace_filter;
+                                  });
+          feature_map.erase(map_it, feature_map.end());
 
-        v_fp.push_back(feature_map);
-        fp_map_kd.addMaps(v_fp);
+          v_fp.push_back(feature_map);
+          fp_map_kd.addMaps(v_fp);
 
-        // mapping of MS2 spectra to features
-        feature_mapping = FeatureMapping::assignMS2IndexToFeature(spectra,
-                                                                  fp_map_kd,
-                                                                  precursor_mz_tol,
-                                                                  precursor_rt_tol,
-                                                                  ppm_prec);
+          // mapping of MS2 spectra to features
+          feature_mapping = FeatureMapping::assignMS2IndexToFeature(spectra,
+                                                                    fp_map_kd,
+                                                                    precursor_mz_tol,
+                                                                    precursor_rt_tol,
+                                                                    ppm_prec);
+        }
+        else
+        {
+          throw OpenMS::Exception::FileEmpty(__FILE__,
+                                             __LINE__,
+                                             __FUNCTION__,
+                                             "Error: FeatureXML was empty, please provide a valid file.");
+        }
       }
-      else
-      {
-        throw OpenMS::Exception::FileEmpty(__FILE__,
-                                           __LINE__,
-                                           __FUNCTION__,
-                                           "Error: FeatureXML was empty, please provide a valid file.");
-      }
+
+      // write msfile
+      SiriusMSFile::store(spectra, tmp_ms_file, feature_mapping, feature_only, isotope_pattern_iterations, no_mt_info);
     }
-
-    // write msfile
-    SiriusMSFile::store(spectra, tmp_ms_file, feature_mapping, feature_only, isotope_pattern_iterations, no_mt_info);
 
     // assemble SIRIUS parameters
     QStringList process_params;
@@ -335,7 +345,15 @@ protected:
       process_params << "--mostintense-ms2";
     }
 
-    process_params << tmp_ms_file.toQString();
+    if(!in_ms.empty())
+    {
+      process_params << in_ms.toQString();
+    }
+    else
+    {
+      process_params << tmp_ms_file.toQString();
+    }
+
 
     // the actual process
     QProcess qp;
@@ -369,29 +387,36 @@ protected:
     // writing output
     //-------------------------------------------------------------
 
-    // extract path to subfolders (sirius internal folder structure)
-    QDirIterator it(out_dir.toQString(), QDir::Dirs | QDir::NoDotAndDotDot, QDirIterator::NoIteratorFlags);
-    while (it.hasNext())
+    if(!in_ms.empty())
     {
-      subdirs.push_back(it.next());
+
     }
-
-    // sort vector path list
-    std::sort(subdirs.begin(), subdirs.end(), extractAndCompareScanIndexLess_);
-
-    // convert sirius_output to mztab and store file
-    MzTab sirius_result;
-    MzTabFile siriusfile;
-    SiriusMzTabWriter::read(subdirs, in, candidates, sirius_result);
-    siriusfile.store(out_sirius, sirius_result);
-
-    // convert sirius_output to mztab and store file
-    if (out_csifingerid.empty() == false)
+    else
     {
-      MzTab csi_result;
-      MzTabFile csifile;
-      CsiFingerIdMzTabWriter::read(subdirs, in, top_n_hits, csi_result);
-      csifile.store(out_csifingerid, csi_result);
+      // extract path to subfolders (sirius internal folder structure)
+      QDirIterator it(out_dir.toQString(), QDir::Dirs | QDir::NoDotAndDotDot, QDirIterator::NoIteratorFlags);
+      while (it.hasNext())
+      {
+        subdirs.push_back(it.next());
+      }
+
+      // sort vector path list
+      std::sort(subdirs.begin(), subdirs.end(), extractAndCompareScanIndexLess_);
+
+      // convert sirius_output to mztab and store file
+      MzTab sirius_result;
+      MzTabFile siriusfile;
+      SiriusMzTabWriter::read(subdirs, in, candidates, sirius_result);
+      siriusfile.store(out_sirius, sirius_result);
+
+      // convert sirius_output to mztab and store file
+      if (out_csifingerid.empty() == false)
+      {
+        MzTab csi_result;
+        MzTabFile csifile;
+        CsiFingerIdMzTabWriter::read(subdirs, in, top_n_hits, csi_result);
+        csifile.store(out_csifingerid, csi_result);
+      }
     }
 
     // clean tmp directory if debug level < 2
