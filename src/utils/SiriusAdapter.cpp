@@ -43,6 +43,7 @@
 #include <OpenMS/CHEMISTRY/EmpiricalFormula.h>
 #include <OpenMS/CHEMISTRY/Element.h>
 #include <OpenMS/SYSTEM/File.h>
+#include <QFile>
 
 #include <QtCore/QProcess>
 #include <QDir>
@@ -139,6 +140,8 @@ protected:
     registerOutputFile_("out_fingerid","<file>", "", "MzTab output file for CSI:FingerID, if this parameter is given, SIRIUS will search for a molecular structure using CSI:FingerID after determining the sum formula", false);
     setValidFormats_("out_fingerid", ListUtils::create<String>("mzTab"));
 
+    registerOutputFile_("out_ms","<file>", "", "Internal SIRIUS .ms format after openMS preprocessing", false);
+
     // adapter parameters
     registerIntOption_("filter_by_num_masstraces", "<num>", 1, "Features have to have at least x MassTraces. To use this parameter feature_only is neccessary", false);
     setMinInt_("filter_by_num_masstraces", 1);
@@ -181,6 +184,7 @@ protected:
     String in = getStringOption_("in");
     String out_sirius = getStringOption_("out_sirius");
     String out_csifingerid = getStringOption_("out_fingerid");
+    String out_ms = getStringOption_("out_ms");
     String featureinfo = getStringOption_("in_featureinfo");
 
     // parameter for SiriusAdapter
@@ -307,109 +311,118 @@ protected:
 
       // write msfile
       SiriusMSFile::store(spectra, tmp_ms_file, feature_mapping, feature_only, isotope_pattern_iterations, no_mt_info);
+
+      if(!out_ms.empty())
+      {
+        QFile::copy(tmp_ms_file.toQString(),out_ms.toQString());
+      }
     }
 
-    // assemble SIRIUS parameters
-    QStringList process_params;
-    process_params << "-p" << profile
-                   << "-e" << elements
-                   << "-d" << database
-                   << "-s" << isotope
-                   << "--noise" << noise
-                   << "--candidates" << QString::number(candidates)
-                   << "--ppm-max" << ppm_max
-                   << "--compound-timeout" << compound_timeout
-                   << "--tree-timeout" << tree_timeout 
-                   << "--quiet"
-                   << "--output" << out_dir.toQString(); //internal output folder for temporary SIRIUS output file storage
+    if(out_ms.empty())
+    {
+      // assemble SIRIUS parameters
+      QStringList process_params;
+      process_params << "-p" << profile
+                     << "-e" << elements
+                     << "-d" << database
+                     << "-s" << isotope
+                     << "--noise" << noise
+                     << "--candidates" << QString::number(candidates)
+                     << "--ppm-max" << ppm_max
+                     << "--compound-timeout" << compound_timeout
+                     << "--tree-timeout" << tree_timeout
+                     << "--quiet"
+                     << "--output"
+                     << out_dir.toQString(); //internal output folder for temporary SIRIUS output file storage
 
-    // add flags
-    if (no_recalibration)
-    {
-      process_params << "--no-recalibration";
-    }
-    if (!out_csifingerid.empty())
-    {
-      process_params << "--fingerid";
-    }
-    if (ion_tree)
-    {
-      process_params << "--iontree";
-    }
-    if (auto_charge)
-    {
-      process_params << "--auto-charge";
-    }
-    if (most_intense_ms2)
-    {
-      process_params << "--mostintense-ms2";
-    }
+      // add flags
+      if (no_recalibration)
+      {
+        process_params << "--no-recalibration";
+      }
+      if (!out_csifingerid.empty())
+      {
+        process_params << "--fingerid";
+      }
+      if (ion_tree)
+      {
+        process_params << "--iontree";
+      }
+      if (auto_charge)
+      {
+        process_params << "--auto-charge";
+      }
+      if (most_intense_ms2)
+      {
+        process_params << "--mostintense-ms2";
+      }
 
-    if(!in_ms.empty())
-    {
-      process_params << in_ms.toQString();
-    }
-    else
-    {
-      process_params << tmp_ms_file.toQString();
-    }
+      if (!in_ms.empty())
+      {
+        process_params << in_ms.toQString();
+      }
+      else
+      {
+        process_params << tmp_ms_file.toQString();
+      }
 
 
-    // the actual process
-    QProcess qp;
-    qp.setWorkingDirectory(path_to_executable); //since library paths are relative to sirius executable path
-    qp.start(executable, process_params); // does automatic escaping etc... start
-    std::stringstream ss;
-    ss << "COMMAND: " << executable.toStdString();
-    for (QStringList::const_iterator it = process_params.begin(); it != process_params.end(); ++it)
-    {
+      // the actual process
+      QProcess qp;
+      qp.setWorkingDirectory(path_to_executable); //since library paths are relative to sirius executable path
+      qp.start(executable, process_params); // does automatic escaping etc... start
+      std::stringstream ss;
+      ss << "COMMAND: " << executable.toStdString();
+      for (QStringList::const_iterator it = process_params.begin(); it != process_params.end(); ++it)
+      {
         ss << " " << it->toStdString();
-    }
-    LOG_DEBUG << ss.str() << endl;
-    writeLog_("Executing: " + String(executable));
-    writeLog_("Working Dir is: " + path_to_executable);
-    const bool success = qp.waitForFinished(-1); // wait till job is finished
-    qp.close();
+      }
+      LOG_DEBUG << ss.str() << endl;
+      writeLog_("Executing: " + String(executable));
+      writeLog_("Working Dir is: " + path_to_executable);
+      const bool success = qp.waitForFinished(-1); // wait till job is finished
+      qp.close();
 
-    if (success == false || qp.exitStatus() != 0 || qp.exitCode() != 0)
-    {
-      writeLog_( "FATAL: External invocation of Sirius failed. Standard output and error were:");
-      const QString sirius_stdout(qp.readAllStandardOutput());
-      const QString sirius_stderr(qp.readAllStandardError());
-      writeLog_(sirius_stdout);
-      writeLog_(sirius_stderr);
-      writeLog_(String(qp.exitCode()));
+      if (success == false || qp.exitStatus() != 0 || qp.exitCode() != 0)
+      {
+        writeLog_("FATAL: External invocation of Sirius failed. Standard output and error were:");
+        const QString sirius_stdout(qp.readAllStandardOutput());
+        const QString sirius_stderr(qp.readAllStandardError());
+        writeLog_(sirius_stdout);
+        writeLog_(sirius_stderr);
+        writeLog_(String(qp.exitCode()));
 
-      return EXTERNAL_PROGRAM_ERROR;
-    }
+        return EXTERNAL_PROGRAM_ERROR;
+      }
 
-    //-------------------------------------------------------------
-    // writing output
-    //-------------------------------------------------------------
+      //-------------------------------------------------------------
+      // writing output
+      //-------------------------------------------------------------
 
-    // extract path to subfolders (sirius internal folder structure)
-    QDirIterator it(out_dir.toQString(), QDir::Dirs | QDir::NoDotAndDotDot, QDirIterator::NoIteratorFlags);
-    while (it.hasNext())
-    {
-      subdirs.push_back(it.next());
-    }
+      // extract path to subfolders (sirius internal folder structure)
+      QDirIterator it(out_dir.toQString(), QDir::Dirs | QDir::NoDotAndDotDot, QDirIterator::NoIteratorFlags);
+      while (it.hasNext())
+      {
+        subdirs.push_back(it.next());
+      }
 
-    // sort vector path list
-    std::sort(subdirs.begin(), subdirs.end(), extractAndCompareScanIndexLess_);
+      // sort vector path list
+      std::sort(subdirs.begin(), subdirs.end(), extractAndCompareScanIndexLess_);
 
-    // convert sirius_output to mztab and store file
-    MzTab sirius_result;
-    MzTabFile siriusfile;
-    SiriusMzTabWriter::read(subdirs, in, candidates, sirius_result);
-    siriusfile.store(out_sirius, sirius_result);
+      // convert sirius_output to mztab and store file
+      MzTab sirius_result;
+      MzTabFile siriusfile;
+      SiriusMzTabWriter::read(subdirs, in, candidates, sirius_result);
+      siriusfile.store(out_sirius, sirius_result);
 
-    // convert sirius_output to mztab and store file
-    if (out_csifingerid.empty() == false)
-    {
-      MzTab csi_result;
-      MzTabFile csifile;
-      CsiFingerIdMzTabWriter::read(subdirs, in, top_n_hits, csi_result);
-      csifile.store(out_csifingerid, csi_result);
+      // convert sirius_output to mztab and store file
+      if (out_csifingerid.empty() == false)
+      {
+        MzTab csi_result;
+        MzTabFile csifile;
+        CsiFingerIdMzTabWriter::read(subdirs, in, top_n_hits, csi_result);
+        csifile.store(out_csifingerid, csi_result);
+      }
     }
 
     // clean tmp directory if debug level < 2
