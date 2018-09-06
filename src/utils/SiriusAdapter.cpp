@@ -44,6 +44,8 @@
 #include <OpenMS/CHEMISTRY/Element.h>
 #include <OpenMS/SYSTEM/File.h>
 #include <QFile>
+#include <cstdio>
+
 
 #include <QtCore/QProcess>
 #include <QDir>
@@ -142,6 +144,8 @@ protected:
 
     registerOutputFile_("out_ms","<file>", "", "Internal SIRIUS .ms format after openMS preprocessing", false);
 
+    registerStringOption_("sirius_workspace_directory","<directory>", "", "Output directory with SIRIUS workspace", false);
+   
     // adapter parameters
     registerIntOption_("filter_by_num_masstraces", "<num>", 1, "Features have to have at least x MassTraces. To use this parameter feature_only is neccessary", false);
     setMinInt_("filter_by_num_masstraces", 1);
@@ -186,6 +190,7 @@ protected:
     String out_csifingerid = getStringOption_("out_fingerid");
     String out_ms = getStringOption_("out_ms");
     String featureinfo = getStringOption_("in_featureinfo");
+    String sirius_workspace_directory = getStringOption_("sirius_workspace_directory");
 
     // parameter for SiriusAdapter
     bool feature_only = getFlag_("feature_only");
@@ -425,8 +430,26 @@ protected:
       }
     }
 
+    // should the sirius workspace be retained
+    if(!sirius_workspace_directory.empty())
+    {
+      // convert path to absolute path
+      QDir sw_dir(sirius_workspace_directory.toQString());
+      sirius_workspace_directory = String(sw_dir.absolutePath());
+      
+      // try to create directory if not present
+      if (!sw_dir.exists())
+      {
+        sw_dir.mkpath(sirius_workspace_directory.toQString());
+      }
+      
+      // move tmp folder to new location
+      std::rename(tmp_dir.toStdString().c_str(), sirius_workspace_directory.c_str());
+      LOG_WARN << "Sirius Workspace was moved to " << sirius_workspace_directory << std::endl;
+    }
+
     // clean tmp directory if debug level < 2
-    if (debug_level_ >= 2)
+    if (debug_level_ >= 2 && sirius_workspace_directory.empty())
     {
       writeDebug_("Keeping temporary files in directory '" + String(tmp_dir) + " and msfile at this location "+ tmp_ms_file + ". Set debug level to 1 or lower to remove them.", 2);
     }
