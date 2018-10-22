@@ -192,9 +192,6 @@ protected:
     String featureinfo = getStringOption_("in_featureinfo");
     String sirius_workspace_directory = getStringOption_("sirius_workspace_directory");
 
-    String out_ms = getStringOption_("out_ms");
-    String sirius_workspace_directory = getStringOption_("sirius_workspace_directory");
-
     bool converter_mode = getFlag_("converter_mode");
 
     // parameter for SiriusAdapter
@@ -330,6 +327,7 @@ protected:
                   "If you would like to run SIRIUS internally please disable the converter mode." << std::endl; 
       return EXECUTION_OK;
     }
+  }
 
       // assemble SIRIUS parameters
       QStringList process_params;
