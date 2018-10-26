@@ -171,7 +171,6 @@ protected:
     registerIntOption_("compound_timeout", "<num>", 10, "Time out in seconds per compound. To disable the timeout set the value to 0", false);
     registerIntOption_("tree_timeout", "<num>", 0, "Time out in seconds per fragmentation tree computation.", false);
     registerIntOption_("top_n_hits", "<num>", 10, "The number of top hits for each compound written to the CSI:FingerID output", false);
-
     registerFlag_("auto_charge", "Use this option if the charge of your compounds is unknown and you do not want to assume [M+H]+ as default. With the auto charge option SIRIUS will not care about charges and allow arbitrary adducts for the precursor peak.", false);
     registerFlag_("ion_tree", "Print molecular formulas and node labels with the ion formula instead of the neutral formula", false);
     registerFlag_("no_recalibration", "If this option is set, SIRIUS will not recalibrate the spectrum during the analysis.", false);
@@ -231,7 +230,9 @@ protected:
     bool no_recalibration = getFlag_("no_recalibration");
     bool ion_tree = getFlag_("ion_tree");
     bool most_intense_ms2 = getFlag_("most_intense_ms2");
-
+   
+    int threads = getIntOption_("threads");
+      
     //-------------------------------------------------------------
     // Determination of the Executable
     //-------------------------------------------------------------
@@ -329,42 +330,42 @@ protected:
     }
   }
 
-      // assemble SIRIUS parameters
-      QStringList process_params;
-      process_params << "-p" << profile
-                     << "-e" << elements
-                     << "-d" << database
-                     << "-s" << isotope
-                     << "--noise" << noise
-                     << "--candidates" << QString::number(candidates)
-                     << "--ppm-max" << ppm_max
-                     << "--compound-timeout" << compound_timeout
-                     << "--tree-timeout" << tree_timeout
-                     << "--quiet"
-                     << "--output"
-                     << out_dir.toQString(); //internal output folder for temporary SIRIUS output file storage
+    // assemble SIRIUS parameters
+    QStringList process_params;
+    process_params << "-p" << profile
+                   << "-e" << elements
+                   << "-d" << database
+                   << "-s" << isotope
+                   << "--noise" << noise
+                   << "--candidates" << QString::number(candidates)
+                   << "--ppm-max" << ppm_max
+                   << "--compound-timeout" << compound_timeout
+                   << "--tree-timeout" << tree_timeout
+                   << "--processors" << QString::number(threads) 
+                   << "--quiet"
+                   << "--output" << out_dir.toQString(); //internal output folder for temporary SIRIUS output file storage
 
-      // add flags
-      if (no_recalibration)
-      {
-        process_params << "--no-recalibration";
-      }
-      if (!out_csifingerid.empty())
-      {
-        process_params << "--fingerid";
-      }
-      if (ion_tree)
-      {
-        process_params << "--iontree";
-      }
-      if (auto_charge)
-      {
-        process_params << "--auto-charge";
-      }
-      if (most_intense_ms2)
-      {
-        process_params << "--mostintense-ms2";
-      }
+    // add flags 
+    if (no_recalibration)
+    {
+      process_params << "--no-recalibration";
+    }
+    if (!out_csifingerid.empty())
+    {
+      process_params << "--fingerid";
+    }
+    if (ion_tree)
+    {
+      process_params << "--iontree";
+    }
+    if (auto_charge)
+    {
+      process_params << "--auto-charge";
+    }
+    if (most_intense_ms2)
+    {
+      process_params << "--mostintense-ms2";
+    }
 
       if (!in_ms.empty())
       {
