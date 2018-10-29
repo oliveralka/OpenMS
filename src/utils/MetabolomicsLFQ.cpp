@@ -54,6 +54,10 @@
 
 #include <OpenMS/ANALYSIS/ID/AccurateMassSearchEngine.h>
 
+#include <OpenMS/ANALYSIS/MAPMATCHING/FeatureGroupingAlgorithmQT.h>
+//#include "FeatureLinkerBase.cpp"
+
+
 using namespace OpenMS;
 using namespace std;
 
@@ -70,7 +74,7 @@ class UTILMetabolomicsLFQ :
 {
 public:
   UTILMetabolomicsLFQ() :
-    TOPPBase("MetabolomicsLFQ", "A standard metabolomics LFQ pipeline.")
+    TOPPBase("MetabolomicsLFQ", "A standard metabolomics LFQ pipeline.", false)
   {
   }
 
@@ -134,11 +138,25 @@ protected:
     //combined.insert("AccurateMassSearch", ams_defaults);
 
     //AMS
+    //currently no adduct files as parameter, use hardwiring?
+    //do we want out_annotation as optional file, or hardwire?
     registerOutputFile_("out_annotation", "<file>", "", "A copy of the input file, annotated with matching hits from the database.", false);
     setValidFormats_("out_annotation", ListUtils::create<String>("featureXML,consensusXML"));
     Param p_ams = AccurateMassSearchEngine().getDefaults();
     combined.insert("Identification_ams:", p_ams);
     combined.setSectionDescription("Identification_ams", "Accurate Mass Search parameters");
+
+    //FL
+    //do we set linking file explicitly?
+    //registerOutputFile_("out_linking", "<file>", "", "Output file", true);
+    //setValidFormats_("out_linking", ListUtils::create<String>("consensusXML"));
+    //FL QT sub parameters
+    Param p_fl = FeatureGroupingAlgorithmQT().getParameters();
+    combined.insert("Quantification_linking:", p_fl);
+    combined.setSectionDescription("Quantification_linking", "Feature Linking parameters");
+    //Do we want to allow the keep_subelements' option or hardwire to false? (true returns ONLY the subelements I think, no consensus. Or something like that, have to evaluate use case.)
+    //registerFlag_("keep_subelements", "For consensusXML input only: If set, the sub-features of the inputs are transferred to the output.");
+
 
     registerFullParam_(combined);
   }
@@ -231,6 +249,9 @@ protected:
     fl.setLogType(log_type_);
     fl.setParameters(ff_param);
     */
+    //TOPPFeatureLinkerUnlabeledQT fl;
+    //Param fl_param = getParam_().copy("Quantification_ffm:", true);
+    //Param p = fl.getParameters();
 
     // Parameter for AccurateMassSearch
     Param ams_param = getParam_().copy("Identification_ams:", true);
@@ -455,6 +476,17 @@ protected:
       // Link all features of this fraction
       //-------------------------------------------------------------
     }
+
+
+    //FeatureGroupingAlgorithmQT algo;
+    //return TOPPFeatureLinkerBase::common_main_(&algo);
+    //flqt.
+    //ffmet.run(m_traces_final, feat_map, feat_chromatograms);
+    //for now featurexml input, later change to consensusxml
+    //AccurateMassSearchEngine ams;
+    //ams.setParameters(ams_param);
+    //ams.init();
+    //ams.run(feat_map, mztab_output);
 
     //-------------------------------------------------------------
     // Use AccurateMassSearch as identification method
