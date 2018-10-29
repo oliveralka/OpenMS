@@ -54,6 +54,8 @@
 
 #include <OpenMS/ANALYSIS/ID/AccurateMassSearchEngine.h>
 
+#include <OpenMS/ANALYSIS/MAPMATCHING/MapAlignmentAlgorithmPoseClustering.h>
+
 #include <OpenMS/ANALYSIS/MAPMATCHING/FeatureGroupingAlgorithmQT.h>
 //#include "FeatureLinkerBase.cpp"
 
@@ -145,6 +147,11 @@ protected:
     Param p_ams = AccurateMassSearchEngine().getDefaults();
     combined.insert("Identification_ams:", p_ams);
     combined.setSectionDescription("Identification_ams", "Accurate Mass Search parameters");
+
+    //MapAligner pose
+    Param p_align = MapAlignmentAlgorithmPoseClustering().getParameters();
+    combined.insert("Quantification_alignment:", p_align);
+    combined.setSectionDescription("Quantification_alignment", "Map Alignment parameters");
 
     //FL
     //do we set linking file explicitly?
