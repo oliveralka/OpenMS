@@ -84,38 +84,29 @@ protected:
 
   void registerOptionsAndFlags_() override
   {
+    // input
     registerInputFileList_("in", "<file list>", StringList(), "input files");
     setValidFormats_("in", ListUtils::create<String>("mzML"));
     registerInputFile_("design", "<file>", "", "design file");
     setValidFormats_("design", ListUtils::create<String>("tsv"));
 
-    // TODO: register optional input for using AccurateMassSearch
-
+    // output
     registerOutputFile_("out", "<file>", "", "output mzTab file");
     setValidFormats_("out", ListUtils::create<String>("mztab")); // TODO: integrate mztab-M
 
     // TODO: think about export of quality control files (qcML?)
 
     Param pp_defaults = PeakPickerHiRes().getDefaults();
-//    Param ma_defaults = MapAlignmentPoseClustering().getDefaults();
-//    Param fl_defaults = FeatureGroupingAlgorithmQT().getDefaults();
-//    Param ams_defautls = AccurateMassSearch_Engine().getDefaults();
-
-    Param combined;
 
     // Default parameter for FeatureFinderMetabo
     Param p_com;
     p_com.setValue("noise_threshold_int", 10.0, "Intensity threshold below which peaks are regarded as noise.");
     p_com.setValue("chrom_peak_snr", 3.0, "Minimum signal-to-noise a mass trace should have.");
     p_com.setValue("chrom_fwhm", 5.0, "Expected chromatographic peak width (in seconds).");
-    combined.insert("Quantification_common:", p_com);
-    combined.setSectionDescription("Quantification_common", "Common parameters for Mass Trace Detection, Elution Profile Detection and Feature Finding");
 
     Param p_mtd = MassTraceDetection().getDefaults();
     p_mtd.remove("noise_threshold_int");
     p_mtd.remove("chrom_peak_snr");
-    combined.insert("Quantification_mtd:", p_mtd);
-    combined.setSectionDescription("Quantification_mtd", "Mass Trace Detection parameters");
 
     Param p_epd;
     p_epd.setValue("enabled", "true", "Enable splitting of isobaric mass traces by chromatographic peak detection. Disable for direct injection.");
@@ -125,24 +116,12 @@ protected:
     p_epd.remove("chrom_peak_snr");
     p_epd.remove("chrom_fwhm");
 
-    combined.insert("Quantification_epd:", p_epd);
-    combined.setSectionDescription("Quantification_epd", "Elution Profile Detection parameters (to separate isobaric Mass Traces by elution time).");
-
     Param p_ffm = FeatureFindingMetabo().getDefaults();
     p_ffm.remove("chrom_fwhm");
     p_ffm.remove("report_chromatograms");
-    combined.insert("Quantification_ffm:", p_ffm);
-    combined.setSectionDescription("Quantification_ffm", "FeatureFinder parameters (assembling mass traces to charged features)");
-
-    combined.insert("Centroiding:", pp_defaults);
-    //combined.insert("Alignment", ma_defaults);
-    //combined.insert("Linking:", fl_defaults);
-    //combined.insert("AccurateMassSearch", ams_defaults);
 
     //MapAligner pose
     Param p_align = MapAlignmentAlgorithmPoseClustering().getParameters();
-    combined.insert("Quantification_alignment:", p_align);
-    combined.setSectionDescription("Quantification_alignment", "Map Alignment parameters");
 
     //FL
     //do we set linking file explicitly?
@@ -150,8 +129,6 @@ protected:
     //setValidFormats_("out_linking", ListUtils::create<String>("consensusXML"));
     //FL QT sub parameters
     Param p_fl = FeatureGroupingAlgorithmQT().getParameters();
-    combined.insert("Quantification_linking:", p_fl);
-    combined.setSectionDescription("Quantification_linking", "Feature Linking parameters");
     //Do we want to allow the keep_subelements' option or hardwire to false? (true returns ONLY the subelements I think, no consensus. Or something like that, have to evaluate use case.)
     //registerFlag_("keep_subelements", "For consensusXML input only: If set, the sub-features of the inputs are transferred to the output.");
 
@@ -161,9 +138,42 @@ protected:
     registerOutputFile_("out_annotation", "<file>", "", "A copy of the input file, annotated with matching hits from the database.", false);
     setValidFormats_("out_annotation", ListUtils::create<String>("featureXML,consensusXML"));
     Param p_ams = AccurateMassSearchEngine().getDefaults();
+    
+    // TODO: Make optional and add logic -> if the files are missing do nothing - LOG_WARN - AccurateMassSearch could not be performed files missing - quantification only 
+    registerTOPPSubsection_("db", "Database files which contain the identifications");
+    registerInputFileList_("db:mapping", "<file(s)>", p_ams.getValue("db:mapping"), p_ams.getDescription("db:mapping"), false, false, ListUtils::create<String>("skipexists"));
+    setValidFormats_("db:mapping", ListUtils::create<String>("tsv"));
+    registerInputFileList_("db:struct", "<file(s)>", p_ams.getValue("db:struct"), p_ams.getDescription("db:struct"), false, false, ListUtils::create<String>("skipexists"));
+    setValidFormats_("db:struct", ListUtils::create<String>("tsv"));
+    registerInputFile_("positive_adducts", "<file>", p_ams.getValue("positive_adducts"), p_ams.getDescription("positive_adducts"), false, false, ListUtils::create<String>("skipexists"));
+    setValidFormats_("positive_adducts", ListUtils::create<String>("tsv"));
+    registerInputFile_("negative_adducts", "<file>", p_ams.getValue("negative_adducts"), p_ams.getDescription("negative_adducts"), false, false, ListUtils::create<String>("skipexists"));
+
+    
+    Param combined;
+    combined.insert("Centroiding:", pp_defaults);
+    // FeatureFinderMetabo
+    combined.insert("Quantification_common:", p_com);
+    combined.setSectionDescription("Quantification_common", "Common parameters for Mass Trace Detection, Elution Profile Detection and Feature Finding");
+    combined.insert("Quantification_mtd:", p_mtd);
+    combined.setSectionDescription("Quantification_mtd", "Mass Trace Detection parameters");
+    combined.insert("Quantification_epd:", p_epd);
+    combined.setSectionDescription("Quantification_epd", "Elution Profile Detection parameters (to separate isobaric Mass Traces by elution time).");
+    combined.insert("Quantification_ffm:", p_ffm);
+    combined.setSectionDescription("Quantification_ffm", "FeatureFinder parameters (assembling mass traces to charged features)");
+    //
+    // combined.insert("Alignment", ma_defaults);
+    // combined.insert("Linking:", fl_defaults);
+    // combined.insert("AccurateMassSearch", ams_defaults);
+    // MapAlignerPoseClustering
+    combined.insert("Quantification_alignment:", p_align);
+    combined.setSectionDescription("Quantification_alignment", "Map Alignment parameters");
+    // FeatureLinkerUnlabeledQT
+    combined.insert("Quantification_linking:", p_fl);
+    combined.setSectionDescription("Quantification_linking", "Feature Linking parameters");
+    // AccurateMassSearch
     combined.insert("Identification_ams:", p_ams);
     combined.setSectionDescription("Identification_ams", "Accurate Mass Search parameters");
-
 
     registerFullParam_(combined);
   }
