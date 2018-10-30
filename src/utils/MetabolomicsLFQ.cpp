@@ -54,6 +54,8 @@
 
 #include <OpenMS/ANALYSIS/ID/AccurateMassSearchEngine.h>
 
+#include <OpenMS/ANALYSIS/MAPMATCHING/MapAlignmentAlgorithmPoseClustering.h>
+
 #include <OpenMS/ANALYSIS/MAPMATCHING/FeatureGroupingAlgorithmQT.h>
 //#include "FeatureLinkerBase.cpp"
 
@@ -137,14 +139,10 @@ protected:
     //combined.insert("Linking:", fl_defaults);
     //combined.insert("AccurateMassSearch", ams_defaults);
 
-    //AMS
-    //currently no adduct files as parameter, use hardwiring?
-    //do we want out_annotation as optional file, or hardwire?
-    registerOutputFile_("out_annotation", "<file>", "", "A copy of the input file, annotated with matching hits from the database.", false);
-    setValidFormats_("out_annotation", ListUtils::create<String>("featureXML,consensusXML"));
-    Param p_ams = AccurateMassSearchEngine().getDefaults();
-    combined.insert("Identification_ams:", p_ams);
-    combined.setSectionDescription("Identification_ams", "Accurate Mass Search parameters");
+    //MapAligner pose
+    Param p_align = MapAlignmentAlgorithmPoseClustering().getParameters();
+    combined.insert("Quantification_alignment:", p_align);
+    combined.setSectionDescription("Quantification_alignment", "Map Alignment parameters");
 
     //FL
     //do we set linking file explicitly?
@@ -156,6 +154,15 @@ protected:
     combined.setSectionDescription("Quantification_linking", "Feature Linking parameters");
     //Do we want to allow the keep_subelements' option or hardwire to false? (true returns ONLY the subelements I think, no consensus. Or something like that, have to evaluate use case.)
     //registerFlag_("keep_subelements", "For consensusXML input only: If set, the sub-features of the inputs are transferred to the output.");
+
+    //AMS
+    //currently no adduct files as parameter, use hardwiring?
+    //do we want out_annotation as optional file, or hardwire?
+    registerOutputFile_("out_annotation", "<file>", "", "A copy of the input file, annotated with matching hits from the database.", false);
+    setValidFormats_("out_annotation", ListUtils::create<String>("featureXML,consensusXML"));
+    Param p_ams = AccurateMassSearchEngine().getDefaults();
+    combined.insert("Identification_ams:", p_ams);
+    combined.setSectionDescription("Identification_ams", "Accurate Mass Search parameters");
 
 
     registerFullParam_(combined);
