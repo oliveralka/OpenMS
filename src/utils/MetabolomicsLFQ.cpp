@@ -252,9 +252,9 @@ protected:
     writeDebug_("Parameters passed to FeatureFindingMetabo", ffm_param, 3);
 
     // Parameter for MapAlignPoseClustering
+    Param ma_param = getParam_().copy("Quantification_alignment:", true);
+    writeDebug_("Parameters passed to MapAlignerPoseClustering", ma_param, 3);
     /*
-    Param ma_param = getParam_().copy("Alignment:", true);
-    writeDebug_("Parameters passed to MapAlignmentPoseClustering algorithm", ma_param, 3);
     MapAlignmentPoseClustering ma;
     ma.setLogType(log_type_);
     ma.setParameters(ff_param);
