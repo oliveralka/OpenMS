@@ -774,6 +774,12 @@ namespace OpenMS
         {
           mrmfeature->addScore("var_library_corr", scores.library_corr);
           mrmfeature->addScore("var_library_rmsd", scores.library_norm_manhattan);
+          std::cout << "library_angle " << scores.library_sangle << std::endl;
+          if (isnan(scores.library_sangle)) 
+          {
+            scores.library_sangle = 1;
+          }
+          std::cout << "after_library_angle " << scores.library_sangle << std::endl;
           mrmfeature->addScore("var_library_sangle", scores.library_sangle);
           mrmfeature->addScore("var_library_rootmeansquare", scores.library_rootmeansquare);
           mrmfeature->addScore("var_library_manhattan", scores.library_manhattan);
