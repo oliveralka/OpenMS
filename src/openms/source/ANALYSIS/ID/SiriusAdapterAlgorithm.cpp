@@ -92,6 +92,9 @@ namespace OpenMS
       defaults_.setValidStrings("sirius:no_recalibration", ListUtils::create<String>("true,false"));
       defaults_.setValue("sirius:most_intense_ms2", "false", "SIRIUS uses the fragmentation spectrum with the most intense precursor peak (for each spectrum)", ListUtils::create<String>("advanced"));
       defaults_.setValidStrings("sirius:most_intense_ms2", ListUtils::create<String>("true,false"));
+      defaults_.setValue("sirius:quiet", "true", "If enabled, SIRIUS' output to the console will be suppressed.", ListUtils::create<String>("advanced"));
+      defaults_.setValidStrings("sirius:quiet", ListUtils::create<String>("true,false"));
+      defaults_.setValue("sirius:java_memory", 1024, "Maximum Java heap size (in MB)",ListUtils::create<String>("advanced"));
       defaults_.setSectionDescription("sirius", "Parameters for SIRIUS and CSI:FingerID");
 
       defaultsToParam_();
@@ -132,6 +135,8 @@ namespace OpenMS
       ion_tree_ = param_.getValue("sirius:ion_tree");
       no_recalibration_ = param_.getValue("sirius:no_recalibration");
       most_intense_ms2_ = param_.getValue("sirius:most_intense_ms2");
+      quiet_ = param_.getValue("sirius:quiet").toBool();
+      java_memory_ = param_.getValue("sirius:java_memory");
     }   
 
     std::pair<String, String> SiriusAdapterAlgorithm::checkSiriusExecutablePath(String& executable)
@@ -246,7 +251,7 @@ namespace OpenMS
                                                            const MSExperiment& spectra,
                                                            const SiriusAdapterAlgorithm& sirius_algo)
     {
-      bool feature_only = (sirius_algo.feature_only_ == "true") ? true : false;
+      bool feature_only = (sirius_algo.feature_only_ == "true");
       // number of features to be processed 
       if (feature_only && !featureinfo.empty())
       {
@@ -289,9 +294,11 @@ namespace OpenMS
                      << "--ppm-max" << QString::number(sirius_algo.ppm_max_)
                      << "--compound-timeout" << QString::number(sirius_algo.compound_timeout_)
                      << "--tree-timeout" << QString::number(sirius_algo.tree_timeout_)
-                     << "--processors" << QString::number(sirius_algo.cores_)
-                     << "--quiet"
-                     << "--output" << tmp_out_dir.toQString(); //internal output folder for temporary SIRIUS output file storage
+                     << "--processors" << QString::number(sirius_algo.cores_);
+
+      if (sirius_algo.quiet_) process_params << "--quiet";
+
+      process_params << "--output" << tmp_out_dir.toQString(); //internal output folder for temporary SIRIUS output file storage
   
       // add flags 
       if (sirius_algo.no_recalibration_ == "true")
@@ -335,21 +342,13 @@ namespace OpenMS
       OPENMS_LOG_WARN << "Working Dir is: " + String(wd) << std::endl;
       const bool success = qp.waitForFinished(-1); // wait till job is finished
   
-      if (!success || qp.exitStatus() != 0 || qp.exitCode() != 0)
+      if (!sirius_algo.quiet_)
       {
-        OPENMS_LOG_WARN << "FATAL: External invocation of Sirius failed. Standard output and error were:" << std::endl;
+        OPENMS_LOG_DEBUG << "Standard output and error of Sirius were:" << std::endl;
         const QString sirius_stdout(qp.readAllStandardOutput());
         const QString sirius_stderr(qp.readAllStandardError());
-        OPENMS_LOG_WARN << String(sirius_stdout) << std::endl;
-        OPENMS_LOG_WARN << String(sirius_stderr) << std::endl;
-        OPENMS_LOG_WARN << String(qp.exitCode()) << std::endl;
-        qp.close();
-
-        throw Exception::InvalidValue(__FILE__,
-                                      __LINE__, 
-                                      OPENMS_PRETTY_FUNCTION, 
-                                      "FATAL: External invocation of Sirius failed!",
-                                       "");
+        OPENMS_LOG_DEBUG << String(sirius_stdout) << std::endl;
+        OPENMS_LOG_DEBUG << String(sirius_stderr) << std::endl;
       }
       qp.close();
       
@@ -358,7 +357,7 @@ namespace OpenMS
       QDirIterator it(tmp_out_dir.toQString(), QDir::Dirs | QDir::NoDotAndDotDot, QDirIterator::NoIteratorFlags);
       while (it.hasNext())
       {
-        subdirs.push_back(it.next());
+        subdirs.emplace_back(it.next());
       }
       return subdirs;
     }

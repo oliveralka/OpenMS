@@ -167,6 +167,8 @@ namespace OpenMS
       String ion_tree_;
       String no_recalibration_;
       String most_intense_ms2_;
+      int java_memory_;
+      bool quiet_;
 
       void updateMembers_() override;
     };
