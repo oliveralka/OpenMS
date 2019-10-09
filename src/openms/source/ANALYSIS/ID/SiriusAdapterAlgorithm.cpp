@@ -283,6 +283,11 @@ namespace OpenMS
                                                                          const String& out_csifingerid,
                                                                          const SiriusAdapterAlgorithm& sirius_algo)
     {
+      // set java memory via SIRIUS_OPTS 
+      String java_memory = "-Xmx" + sirius_algo.java_memory_ + "m";
+      int overwrite = 1;
+      std::setenv(SIRIUS_OPTS, java_memory, overwrite)
+
       // assemble SIRIUS parameters
       QStringList process_params;
       process_params << "-p" << sirius_algo.profile_.toQString()
