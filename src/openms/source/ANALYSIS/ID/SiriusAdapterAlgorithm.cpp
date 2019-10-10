@@ -41,6 +41,7 @@
 #include <QDirIterator>
 
 #include <fstream>
+#include <stdlib.h> 
 
 namespace OpenMS
 {
@@ -284,9 +285,10 @@ namespace OpenMS
                                                                          const SiriusAdapterAlgorithm& sirius_algo)
     {
       // set java memory via SIRIUS_OPTS 
-      String java_memory = "-Xmx" + sirius_algo.java_memory_ + "m";
+      String java_memory = "-Xmx" + String(sirius_algo.java_memory_) + "m";
+      String sirius_opts = "SIRIUS_OPTS";
       int overwrite = 1;
-      std::setenv(SIRIUS_OPTS, java_memory, overwrite)
+      setenv(sirius_opts.c_str(), java_memory.c_str(), overwrite);
 
       // assemble SIRIUS parameters
       QStringList process_params;
@@ -301,7 +303,10 @@ namespace OpenMS
                      << "--tree-timeout" << QString::number(sirius_algo.tree_timeout_)
                      << "--processors" << QString::number(sirius_algo.cores_);
 
-      if (sirius_algo.quiet_) process_params << "--quiet";
+      if (sirius_algo.quiet_)
+      {
+        process_params << "--quiet";
+      } 
 
       process_params << "--output" << tmp_out_dir.toQString(); //internal output folder for temporary SIRIUS output file storage
   
@@ -345,7 +350,6 @@ namespace OpenMS
       OPENMS_LOG_DEBUG << ss.str() << std::endl;
       OPENMS_LOG_WARN << "Executing: " + String(exe) << std::endl;
       OPENMS_LOG_WARN << "Working Dir is: " + String(wd) << std::endl;
-      const bool success = qp.waitForFinished(-1); // wait till job is finished
   
       if (!sirius_algo.quiet_)
       {
