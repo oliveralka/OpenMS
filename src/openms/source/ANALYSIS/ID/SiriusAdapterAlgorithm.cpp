@@ -350,8 +350,24 @@ namespace OpenMS
       OPENMS_LOG_DEBUG << ss.str() << std::endl;
       OPENMS_LOG_WARN << "Executing: " + String(exe) << std::endl;
       OPENMS_LOG_WARN << "Working Dir is: " + String(wd) << std::endl;
+      const bool success = qp.waitForFinished(-1); // wait till job is finished
   
-      if (!sirius_algo.quiet_)
+      if (!success || qp.exitStatus() != 0 || qp.exitCode() != 0)
+      {
+        OPENMS_LOG_WARN << "FATAL: External invocation of Sirius failed. Standard output and error were:" << std::endl;
+        const QString sirius_stdout(qp.readAllStandardOutput());
+        const QString sirius_stderr(qp.readAllStandardError());
+        OPENMS_LOG_WARN << String(sirius_stdout) << std::endl;
+        OPENMS_LOG_WARN << String(sirius_stderr) << std::endl;
+        OPENMS_LOG_WARN << String(qp.exitCode()) << std::endl;
+        qp.close();
+        throw Exception::InvalidValue(__FILE__,
+                                      __LINE__, 
+                                      OPENMS_PRETTY_FUNCTION, 
+                                      "FATAL: External invocation of Sirius failed!",
+                                       "");
+      }
+      else if (!sirius_algo.quiet_)
       {
         OPENMS_LOG_DEBUG << "Standard output and error of Sirius were:" << std::endl;
         const QString sirius_stdout(qp.readAllStandardOutput());
@@ -359,6 +375,7 @@ namespace OpenMS
         OPENMS_LOG_DEBUG << String(sirius_stdout) << std::endl;
         OPENMS_LOG_DEBUG << String(sirius_stderr) << std::endl;
       }
+      
       qp.close();
       
       // extract path to subfolders (sirius internal folder structure)
