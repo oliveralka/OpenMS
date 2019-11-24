@@ -12,7 +12,7 @@ jobs:
         python-version: ['3.x']
 
     steps:
-      - uses: actions/checkout@develop #checkout develop
+      - uses: actions/checkout@test/pyopenms-actions #checkout develop
       - name: python setup
         uses: actions/setup-python@v1 #setup python environments - probably need to add the pip install tools
         with:
