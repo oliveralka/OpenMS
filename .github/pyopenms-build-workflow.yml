@@ -1,0 +1,23 @@
+name: pyopenms-build-nightly-macOS 
+on: 
+  schedule:
+    - cron: '0 01 * * *' # run every day at midnight
+
+jobs:
+  build:
+    name: pyopenms-build-nightly-macOS
+    runs-on: [macOS-latest]
+    strategy:
+      matrix:
+        python-version: ['3.x']
+
+    steps:
+      - uses: actions/checkout@develop #checkout develop
+      - name: python setup
+        uses: actions/setup-python@v1 #setup python environments - probably need to add the pip install tools
+        with:
+          python-version: ${{ matrix.python-version }}
+          architecture: x64
+      - run: | 
+            sh ./tools/quickbuld-pyopenms.sh 16 #not sure how many cores one is allowed to use! 
+            python ./openms-build/pyOpenMs/setup.py bdist_wheel
