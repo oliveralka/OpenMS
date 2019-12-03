@@ -143,9 +143,11 @@ include_dirs.extend(PYOPENMS_INCLUDE_DIRS.split(";"))
 include_dirs.extend(LIBRARIES_EXTEND)
 libraries.extend(LIBRARIES_EXTEND)
 library_dirs.extend(LIBRARY_DIRS_EXTEND)
+#libraries.extend("boost_regex-mt-x64")
 
 extra_link_args = []
 extra_compile_args = []
+extra_objects = []
 
 if iswin:
     # /EHs is important. It sets _CPPUNWIND which causes boost to
@@ -166,13 +168,18 @@ if IS_DEBUG:
 # Note: we use -std=gnu++11 in Linux by default, also reduce some warnings
 if not iswin:
     extra_link_args.append("-std=c++11")
-    if isosx: # MacOS c++11
-        extra_link_args.append("-stdlib=libc++") # MacOS libstdc++ does not include c++11 lib support.
-        extra_link_args.append("-mmacosx-version-min=10.7") # due to libc++
     extra_compile_args.append("-std=c++11")
     if isosx: # MacOS c++11
+        extra_link_args.append("-v")
+        extra_link_args.append("-stdlib=libc++")
+        extra_link_args.append("-mmacosx-version-min=10.9") # libc++/c++11
+        #extra_link_args.append("-L/Users/alka/Documents/work/software/contrib_build_current/lib/libboost_regex-mt-x64.a")
+        extra_objects.append("/Users/alka/Documents/work/software/contrib_build_current/lib/libboost_regex-mt-x64.a")
+    if isosx: # MacOS c++11
+        extra_compile_args.append("-v")
         extra_compile_args.append("-stdlib=libc++")
-        extra_compile_args.append("-mmacosx-version-min=10.7")
+        extra_compile_args.append("-mmacosx-version-min=10.9")
+        #extra_compile_args.append("-L/Users/alka/Documents/work/software/contrib_build_current/lib/libboost_regex-mt-x64.a")
         if (osx_ver >= "10.14.0" and SYSROOT_OSX_PATH): # since macOS Mojave
             extra_compile_args.append("-isysroot" + SYSROOT_OSX_PATH)
     extra_compile_args.append("-Wno-redeclared-class-member")
@@ -201,6 +208,7 @@ for module in mnames:
         libraries=libraries,
         include_dirs=include_dirs + autowrap_include_dirs,
         extra_compile_args=extra_compile_args,
+        extra_objects=extra_objects,
         extra_link_args=extra_link_args,
 		define_macros=[('BOOST_ALL_NO_LIB', None)] ## Deactivates boost autolink (esp. on win).
 		## Alternative is to specify the boost naming scheme (--layout param; easy if built from contrib)

@@ -376,6 +376,7 @@ endif()
 # add additional sysroot information (osx)
 if (APPLE)
   set(SYSROOT_OSX_PATH ${CMAKE_OSX_SYSROOT})
+  set(Boost_REGEX_LIBRARY_RELEASE ${Boost_REGEX_LIBRARY_RELEASE})
 endif()
 #------------------------------------------------------------------------------
 
