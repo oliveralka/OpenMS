@@ -2,7 +2,7 @@
 //                   OpenMS -- Open-Source Mass Spectrometry
 // --------------------------------------------------------------------------
 // Copyright The OpenMS Team -- Eberhard Karls University Tuebingen,
-// ETH Zurich, and Freie Universitaet Berlin 2002-2017.
+// ETH Zurich, and Freie Universitaet Berlin 2002-2018.
 //
 // This software is released under a three-clause BSD license:
 //  * Redistributions of source code must retain the above copyright
@@ -85,6 +85,10 @@ public:
     void setCharge(const SignedSize& ch);
 
     std::vector<double> getAllIntensities(bool smoothed = false) const;
+
+    std::vector<double> getAllCentroidMZ() const;
+
+    std::vector<double> getAllCentroidRT() const;
 
     std::vector<double> getIsotopeDistances() const;
 
@@ -188,10 +192,6 @@ private:
     */
     double computeCosineSim_(const std::vector<double>&, const std::vector<double>&) const;
 
-    /// unused function ???
-    /// TODO: remove
-    double computeOLSCoeff_(const std::vector<double>&, const std::vector<double>&) const;
-
     /** @brief Compare intensities of feature hypothesis with model 
      *
      * Use a pre-trained SVM model to evaluate the intensity distribution of a
@@ -260,7 +260,7 @@ e conditions are fulfilled. Mainly the
      *
      * The resulting possible groupings are appended to output_hypotheses.
     */
-    void findLocalFeatures_(const std::vector<const MassTrace*>& candidates, const double total_intensity, std::vector<FeatureHypothesis>& output_hypotheses) const;
+    void findLocalFeatures_(const std::vector<const MassTrace*>& candidates, double total_intensity, std::vector<FeatureHypothesis>& output_hypotheses) const;
 
     /// SVM parameters
     svm_model* isotope_filt_svm_;
@@ -284,6 +284,8 @@ e conditions are fulfilled. Mainly the
     bool use_mz_scoring_C13_;
     bool report_convex_hulls_;
     bool report_chromatograms_;
+
+    bool remove_single_traces_;
   };
 
 }

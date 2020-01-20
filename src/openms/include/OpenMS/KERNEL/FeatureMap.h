@@ -2,7 +2,7 @@
 //                   OpenMS -- Open-Source Mass Spectrometry
 // --------------------------------------------------------------------------
 // Copyright The OpenMS Team -- Eberhard Karls University Tuebingen,
-// ETH Zurich, and Freie Universitaet Berlin 2002-2017.
+// ETH Zurich, and Freie Universitaet Berlin 2002-2018.
 //
 // This software is released under a three-clause BSD license:
 //  * Redistributions of source code must retain the above copyright
@@ -36,6 +36,8 @@
 
 #include <OpenMS/KERNEL/Feature.h>
 #include <OpenMS/KERNEL/RangeManager.h>
+#include <OpenMS/KERNEL/MSExperiment.h>
+
 #include <OpenMS/METADATA/DocumentIdentifier.h>
 #include <OpenMS/METADATA/MetaInfoInterface.h>
 
@@ -79,9 +81,9 @@ namespace OpenMS
   /**
     @brief A container for features.
 
-    A map is a container holding 2-dimensional features,
-    which in turn represent chemical entities (peptides, proteins, etc.) found
-    in a 2-dimensional experiment.
+    A feature map is a container holding features, which represent chemical
+    entities (peptides, proteins, small molecules etc.) found in an LC-MS/MS
+    experiment.
 
     Maps are implemented as vectors of features and have basically the same interface
     as an STL vector has (model of Random Access Container and Back Insertion Sequence).
@@ -247,6 +249,10 @@ public:
 
     /// set the file path to the primary MS run (usually the mzML file obtained after data conversion from raw files)
     OPENMS_DLLAPI void setPrimaryMSRunPath(const StringList& s);
+
+    /// set the file path to the primary MS run using the mzML annotated in the MSExperiment @param e. 
+    /// If it doesn't exist, fallback to @param s.
+    OPENMS_DLLAPI void setPrimaryMSRunPath(const StringList& s, MSExperiment & e);
 
     /// get the file path to the first MS run
     OPENMS_DLLAPI void getPrimaryMSRunPath(StringList& toFill) const;

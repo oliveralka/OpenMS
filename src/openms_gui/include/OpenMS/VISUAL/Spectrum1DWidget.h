@@ -2,7 +2,7 @@
 //                   OpenMS -- Open-Source Mass Spectrometry
 // --------------------------------------------------------------------------
 // Copyright The OpenMS Team -- Eberhard Karls University Tuebingen,
-// ETH Zurich, and Freie Universitaet Berlin 2002-2017.
+// ETH Zurich, and Freie Universitaet Berlin 2002-2018.
 //
 // This software is released under a three-clause BSD license:
 //  * Redistributions of source code must retain the above copyright
@@ -67,7 +67,7 @@ namespace OpenMS
   {
     Q_OBJECT
 
-public:
+public:    
     /// Default constructor
     Spectrum1DWidget(const Param & preferences, QWidget * parent = nullptr);
     ///Destructor
@@ -87,7 +87,7 @@ public:
 
     /// Switches to mirror view, displays another y-axis for the second spectrum
     void toggleMirrorView(bool mirror);
-
+    
     /// Performs an alignment of the layers with @p layer_index_1 and @p layer_index_2
     void performAlignment(Size layer_index_1, Size layer_index_2, const Param & param);
 
@@ -109,6 +109,12 @@ signals:
 
     /// Requests to display the whole spectrum in 3D view
     void showCurrentPeaksAs3D();
+
+    /// Requests to display the whole spectrum in ion mobility view
+    void showCurrentPeaksAsIonMobility();
+
+    /// Requests to display a full DIA window
+    void showCurrentPeaksAsDIA();
 
 public slots:
     // Docu in base class

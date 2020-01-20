@@ -2,7 +2,7 @@
 //                   OpenMS -- Open-Source Mass Spectrometry
 // --------------------------------------------------------------------------
 // Copyright The OpenMS Team -- Eberhard Karls University Tuebingen,
-// ETH Zurich, and Freie Universitaet Berlin 2002-2017.
+// ETH Zurich, and Freie Universitaet Berlin 2002-2018.
 //
 // This software is released under a three-clause BSD license:
 //  * Redistributions of source code must retain the above copyright
@@ -35,7 +35,8 @@
 #include <OpenMS/FORMAT/MzMLFile.h>
 #include <OpenMS/FORMAT/ConsensusXMLFile.h>
 #include <OpenMS/FORMAT/FeatureXMLFile.h>
-#include <OpenMS/KERNEL/StandardTypes.h>
+#include <OpenMS/KERNEL/FeatureMap.h>
+#include <OpenMS/KERNEL/Feature.h>
 #include <OpenMS/CONCEPT/Constants.h>
 #include <OpenMS/MATH/STATISTICS/StatisticFunctions.h>
 #include <OpenMS/APPLICATIONS/TOPPBase.h>
@@ -194,10 +195,10 @@ protected:
     //-------------------------------------------------------------
 
     ConsensusMap results_map;
-    results_map.getFileDescriptions()[0].label = "light";
-    results_map.getFileDescriptions()[0].filename = in;
-    results_map.getFileDescriptions()[1].label = "heavy";
-    results_map.getFileDescriptions()[1].filename = in;
+    results_map.getColumnHeaders()[0].label = "light";
+    results_map.getColumnHeaders()[0].filename = in;
+    results_map.getColumnHeaders()[1].label = "heavy";
+    results_map.getColumnHeaders()[1].filename = in;
 
     // collect the different MRM XIC pairs for each SILAC pair as quantlets
     // then calculate the ratio over the quanlets and calculate some statistics

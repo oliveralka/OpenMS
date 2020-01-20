@@ -2,7 +2,7 @@
 //                   OpenMS -- Open-Source Mass Spectrometry
 // --------------------------------------------------------------------------
 // Copyright The OpenMS Team -- Eberhard Karls University Tuebingen,
-// ETH Zurich, and Freie Universitaet Berlin 2002-2017.
+// ETH Zurich, and Freie Universitaet Berlin 2002-2018.
 //
 // This software is released under a three-clause BSD license:
 //  * Redistributions of source code must retain the above copyright
@@ -32,7 +32,8 @@
 // $Authors: Timo Sachsenberg $
 // --------------------------------------------------------------------------
 
-#include <OpenMS/KERNEL/StandardTypes.h>
+#include <OpenMS/KERNEL/FeatureMap.h>
+#include <OpenMS/KERNEL/Feature.h>
 #include <OpenMS/FORMAT/MzMLFile.h>
 #include <OpenMS/CONCEPT/Constants.h>
 #include <OpenMS/APPLICATIONS/TOPPBase.h>
@@ -54,6 +55,7 @@
 #include <OpenMS/MATH/MISC/CubicSpline2d.h>
 #include <OpenMS/CHEMISTRY/MASSDECOMPOSITION/MassDecomposition.h>
 #include <OpenMS/CHEMISTRY/MASSDECOMPOSITION/MassDecompositionAlgorithm.h>
+#include <OpenMS/CHEMISTRY/ISOTOPEDISTRIBUTION/CoarseIsotopePatternGenerator.h>
 #include <OpenMS/SYSTEM/File.h>
 
 
@@ -85,18 +87,18 @@ typedef vector<IsotopePattern> IsotopePatterns;
 
 struct RateScorePair
 {
-  double rate;
-  double score;
+  double rate = -1.;
+  double score = -1.;
 };
 
 /// datastructure for reporting an incorporation event
 struct SIPIncorporation
 {
-  double rate; ///< rate
+  double rate = -1.; ///< rate
 
-  double correlation; ///< correlation coefficient
+  double correlation = -1.; ///< correlation coefficient
 
-  double abundance; ///< abundance of isotopologue
+  double abundance = -1.; ///< abundance of isotopologue
 #ifdef DEBUG_METAPROSIP
   PeakSpectrum theoretical; ///< peak spectrum as generated from the theoretical isotopic distribution. Large memory consumption.
 #endif
@@ -109,25 +111,25 @@ struct SIPPeptide
 
   vector<String> accessions; ///< protein accessions of the peptide
 
-  bool unique; ///< if the peptide is unique and therefor identifies the protein umambigously
+  bool unique = true; ///< if the peptide is unique and therefor identifies the protein umambigously
 
-  double mz_theo; ///< theoretical mz
+  double mz_theo = -1.; ///< theoretical mz
 
-  double mass_theo; ///< uncharged theoretical mass
+  double mass_theo = -1.; ///< uncharged theoretical mass
 
-  double score; ///< search engine score or q-value if fdr filtering is applied
+  double score = -1.; ///< search engine score or q-value if fdr filtering is applied
 
-  double feature_rt; ///< measurement time of feature apex [s]
+  double feature_rt = -1.; ///< measurement time of feature apex [s]
 
-  double feature_mz; ///< mz of feature apex [s]
+  double feature_mz = -1.; ///< mz of feature apex [s]
 
   //Size feature_scan_number; ///< scan number
 
-  Int charge; ///< charge of the peptide feature
+  Int charge = 0; ///< charge of the peptide feature
 
-  double mass_diff; // 13C or 15N mass difference
+  double mass_diff = 0.; // 13C or 15N mass difference
 
-  double global_LR; ///< labeling ratio for the whole spectrum used to detect global drifts. 13C/(12C+13C) intensities. (15N analogous)
+  double global_LR = -1.; ///< labeling ratio for the whole spectrum used to detect global drifts. 13C/(12C+13C) intensities. (15N analogous)
 
   vector<RateScorePair> correlation_maxima;
 
@@ -135,13 +137,13 @@ struct SIPPeptide
 
   MapRateToScoreType correlation_map; // all rate to correlation scores for the peptide
 
-  double RR; ///< R squared of NNLS fit
+  double RR = -1.; ///< R squared of NNLS fit
 
-  double explained_TIC_fraction; ///< fraction of the MS2 TIC that is explained by the maximum correlating decomposition weights
+  double explained_TIC_fraction = -1.; ///< fraction of the MS2 TIC that is explained by the maximum correlating decomposition weights
 
   String feature_type; ///< used to distinguish features from FeatureFinder, or synthetised from ids or averagine ids in reporting
 
-  Size non_zero_decomposition_coefficients; ///< decomposition coefficients significantly larger than 0
+  Size non_zero_decomposition_coefficients = 0; ///< decomposition coefficients significantly larger than 0
 
   PeakSpectrum reconstruction; ///< signal reconstruction (debugging)
 
@@ -222,7 +224,7 @@ public:
 
     if (debug)
     {
-      LOG_DEBUG << x[0] << " " << x[n - 1] << " " << n << endl;
+      OPENMS_LOG_DEBUG << x[0] << " " << x[n - 1] << " " << n << endl;
     }
 
     double last_dxdy = 0;
@@ -238,7 +240,7 @@ public:
 
       if (last_dxdy > 0.0 && dxdy <= 0 && yi > threshold)
       {
-        RateScorePair rsp;
+        RateScorePair rsp{};
         rsp.rate = xi;
         rsp.score = yi;
         high_points.push_back(rsp);
@@ -248,10 +250,10 @@ public:
 
     if (debug)
     {
-      LOG_DEBUG << "Found: " << high_points.size() << " local maxima." << endl;
+      OPENMS_LOG_DEBUG << "Found: " << high_points.size() << " local maxima." << endl;
       for (Size i = 0; i != high_points.size(); ++i)
       {
-        LOG_DEBUG << high_points[i].rate << " " << high_points[i].score << endl;
+        OPENMS_LOG_DEBUG << high_points[i].rate << " " << high_points[i].score << endl;
       }
     }
 
@@ -761,9 +763,9 @@ public:
     }
   }
 
-  static void createQualityReport(String tmp_path, 
-                                  String qc_output_directory, 
-                                  String file_suffix, 
+  static void createQualityReport(const String& tmp_path,
+                                  const String& qc_output_directory,
+                                  const String& file_suffix,
                                   const String& file_extension, 
                                   const vector<vector<SIPPeptide> >& sip_peptide_cluster, 
                                   Size n_heatmap_bins, 
@@ -776,7 +778,7 @@ public:
     {
       for (vector<SIPPeptide>::const_iterator sit = cit->begin(); sit != cit->end(); ++sit)
       {
-        // skip non natural peptides for repoting if flag is set
+        // skip non natural peptides for reporting if flag is set
         if (!report_natural_peptides && sit->incorporations.size() == 1 && sit->incorporations[0].rate < 5.0)
         {
           continue;
@@ -786,16 +788,16 @@ public:
     }
 
     // heat map based on peptide RIAs
-    LOG_INFO << "Plotting peptide heat map of " << sip_peptides.size() << endl;
+    OPENMS_LOG_INFO << "Plotting peptide heat map of " << sip_peptides.size() << endl;
     vector<vector<double> > binned_peptide_ria;
     vector<String> class_labels;
     createBinnedPeptideRIAData_(n_heatmap_bins, sip_peptide_cluster, binned_peptide_ria, class_labels);
     plotHeatMap(qc_output_directory, tmp_path, "_peptide" + file_suffix, file_extension, binned_peptide_ria, class_labels, 0, executable);
 
-    LOG_INFO << "Plotting filtered spectra for quality report" << endl;
+    OPENMS_LOG_INFO << "Plotting filtered spectra for quality report" << endl;
     plotFilteredSpectra(qc_output_directory, tmp_path, file_suffix, file_extension, sip_peptides, 0, executable);
 
-    LOG_INFO << "Plotting correlation score and weight distribution" << endl;
+    OPENMS_LOG_INFO << "Plotting correlation score and weight distribution" << endl;
     plotScoresAndWeights(qc_output_directory, tmp_path, file_suffix, file_extension, sip_peptides, score_plot_y_axis_min, 0, executable);
 
     if (file_extension != "pdf") // html doesn't support pdf as image
@@ -810,9 +812,9 @@ public:
     // sort clusters by non increasing size
     sort(sippeptide_cluster.rbegin(), sippeptide_cluster.rend(), SizeLess());
 
-    for (Size i = 0; i != sippeptide_cluster.size(); ++i)
+    for (Size pep_clust_i = 0; pep_clust_i != sippeptide_cluster.size(); ++pep_clust_i)
     {
-      const vector<SIPPeptide>& current_cluster = sippeptide_cluster[i];
+      const vector<SIPPeptide>& current_cluster = sippeptide_cluster[pep_clust_i];
 
       // Group
       map<String, vector<SIPPeptide> > all_peptides; // map sequence to SIPPeptide
@@ -852,10 +854,10 @@ public:
       }
       double group_global_LR = Math::median(group_global_LRs.begin(), group_global_LRs.end(), false);
 
-      Size group_number_RIA = (Size)(Math::median(group_number_RIAs.begin(), group_number_RIAs.end(), false) + 0.5); // median number of RIAs
+      Size group_number_RIA = lround(Math::median(group_number_RIAs.begin(), group_number_RIAs.end(), false)); // median number of RIAs
       // Group header
       // Distinct peptides := different (on sequence level) unique and non-unique peptides
-      out_csv_stream << String("Group ") + String(i + 1) << "# Distinct Peptides" << "# Unambigous Proteins" << "Median Global LR";
+      out_csv_stream << String("Group ") + String(pep_clust_i + 1) << "# Distinct Peptides" << "# Unambiguous Proteins" << "Median Global LR";
       for (Size i = 0; i != group_number_RIA; ++i)
       {
         out_csv_stream << "median RIA " + String(i + 1);
@@ -1024,9 +1026,9 @@ public:
 
       out_csv_stream << "Non-Unique Peptides" << "Accessions" << "Peptide Sequence" << "Descriptions" << "Score" << "RT" << "Exp. m/z" << "Theo. m/z" << "Charge" << "#non-natural weights" << "";
 
-      for (Size i = 0; i != max_incorporations; ++i)
+      for (Size m = 0; m != max_incorporations; ++m)
       {
-        out_csv_stream << "RIA " + String(i + 1) << "INT " + String(i + 1) << "Cor. " + String(i + 1);
+        out_csv_stream << "RIA " + String(m + 1) << "INT " + String(m + 1) << "Cor. " + String(m + 1);
       }
       out_csv_stream << "Peak intensities" << "Global LR" << endl;
 
@@ -1097,7 +1099,7 @@ public:
     os.close();
   }
 
-  static void createPeptideCentricCSVReport(const String in_mzML, const String& file_extension, vector<vector<SIPPeptide> >& sippeptide_cluster, ofstream& os, map<String, String>& proteinid_to_description, String qc_output_directory, String file_suffix, bool report_natural_peptides)
+  static void createPeptideCentricCSVReport(const String& in_mzML, const String& file_extension, vector<vector<SIPPeptide> >& sippeptide_cluster, ofstream& os, map<String, String>& proteinid_to_description, String qc_output_directory, String file_suffix, bool report_natural_peptides)
   {
     SVOutStream out_csv_stream(os, "\t", "_", String::NONE);
 
@@ -1111,11 +1113,11 @@ public:
       const vector<SIPPeptide>& current_cluster = sippeptide_cluster[i];
       for (Size k = 0; k != current_cluster.size(); ++k)
       {
-        peptide_to_cluster_index.push_back(make_pair(current_cluster[k], i));
+        peptide_to_cluster_index.emplace_back(current_cluster[k], i);
       }
     }
 
-    LOG_INFO << "Writing " << peptide_to_cluster_index.size() << " peptides to peptide centric csv." << endl;
+    OPENMS_LOG_INFO << "Writing " << peptide_to_cluster_index.size() << " peptides to peptide centric csv." << endl;
 
     // sort by sequence
     sort(peptide_to_cluster_index.begin(), peptide_to_cluster_index.end(), SequenceLess());
@@ -1234,7 +1236,7 @@ protected:
         vector<double> binned(n_heatmap_bins, 0.0);
         for (vector<SIPIncorporation>::const_iterator iit = pit->incorporations.begin(); iit != pit->incorporations.end(); ++iit)
         {
-          Int bin = iit->rate / 100.0 * n_heatmap_bins;
+          Int bin = static_cast<Int>(iit->rate / 100.0 * n_heatmap_bins);
           bin = bin > (Int)binned.size() - 1 ? (Int)binned.size() - 1 : bin;
           bin = bin < 0 ? 0 : bin;
           binned[bin] = log1p(iit->abundance);
@@ -1288,7 +1290,7 @@ public:
 
     // calculate R squared
     double S_tot = 0;
-    double mean = accumulate(isotopic_intensities.begin(), isotopic_intensities.end(), 0) / isotopic_intensities.size();
+    double mean = accumulate(isotopic_intensities.begin(), isotopic_intensities.end(), 0.0) / isotopic_intensities.size();
     for (Size row = 0; row != isotopic_intensities.size(); ++row)
     {
       S_tot += pow(isotopic_intensities[row] - mean, 2);
@@ -1334,12 +1336,11 @@ public:
   static IsotopePatterns calculateIsotopePatternsFor13CRange(const AASequence& peptide, Size additional_isotopes = 5)
   {
     IsotopePatterns ret;
-
     const Element* e1 = ElementDB::getInstance()->getElement("Carbon");
     Element* e2 = const_cast<Element*>(e1);
 
     EmpiricalFormula peptide_ef = peptide.getFormula();
-    Size MAXISOTOPES = (Size)peptide_ef.getNumberOf(e1);
+    Size MAXISOTOPES = static_cast<Size>(peptide_ef.getNumberOf(e1));
 
     // calculate empirical formula of modifications - these can not be labeled via substrate feeding and must be taken care of in pattern calculation
     AASequence unmodified_peptide = AASequence::fromString(peptide.toUnmodifiedString());
@@ -1349,46 +1350,48 @@ public:
 
     if (modifications_ef.getNumberOf(e1) > 0) // modification adds additional (unlabeled) carbon atoms
     {
-      IsotopeDistribution modification_dist = modifications_ef.getIsotopeDistribution(max_labeling_carbon + additional_isotopes);
+      IsotopeDistribution modification_dist = modifications_ef.getIsotopeDistribution(CoarseIsotopePatternGenerator(max_labeling_carbon + additional_isotopes));
+      
       for (double abundance = 0.0; abundance < 100.0 - 1e-8; abundance += 100.0 / (double)max_labeling_carbon)
       {
         double a = abundance / 100.0;
         IsotopeDistribution isotopes;
-        std::vector<std::pair<Size, double> > container;
-        container.push_back(make_pair(12, 1.0 - a));
-        container.push_back(make_pair(13, a));
-        isotopes.set(container);
+        isotopes.clear();
+        isotopes.insert(12, 1.0 - a);
+        isotopes.insert(13, a);
         e2->setIsotopeDistribution(isotopes);
-        IsotopeDistribution dist = unmodified_peptide_ef.getIsotopeDistribution(max_labeling_carbon + additional_isotopes);
-        dist += modification_dist; // convole with modification distribution (which follows the natural distribution)
-        container = dist.getContainer();
+        IsotopeDistribution dist = unmodified_peptide_ef.getIsotopeDistribution(CoarseIsotopePatternGenerator(max_labeling_carbon + additional_isotopes));
+        dist.set(CoarseIsotopePatternGenerator().convolve_(dist.getContainer(), modification_dist.getContainer())); // convolve with modification distribution (which follows the natural distribution)
+        IsotopeDistribution::ContainerType container = dist.getContainer();
         vector<double> intensities;
         for (Size i = 0; i != container.size(); ++i)
         {
-          intensities.push_back(container[i].second);
+          intensities.push_back(container[i].getIntensity());
         }
         ret.push_back(make_pair(abundance, intensities));
       }
     }
     else
     {
-      // calculate isotope distribution for a given peptide and varying incoperation rates
+      
+      // calculate isotope distribution for a given peptide and varying incorporation rates
       // modification of isotope distribution in static ElementDB
       for (double abundance = 0.0; abundance < 100.0 - 1e-8; abundance += 100.0 / (double)MAXISOTOPES)
       {
         double a = abundance / 100.0;
         IsotopeDistribution isotopes;
-        std::vector<std::pair<Size, double> > container;
-        container.push_back(make_pair(12, 1.0 - a));
-        container.push_back(make_pair(13, a));
-        isotopes.set(container);
+        isotopes.clear();
+        isotopes.insert(12, 1.0 - a);
+        isotopes.insert(13, a);
         e2->setIsotopeDistribution(isotopes);
-        IsotopeDistribution dist = peptide_ef.getIsotopeDistribution(MAXISOTOPES + additional_isotopes);
-        container = dist.getContainer();
+        IsotopeDistribution dist = peptide_ef.getIsotopeDistribution(CoarseIsotopePatternGenerator(MAXISOTOPES + additional_isotopes));
+
+        IsotopeDistribution::ContainerType container = dist.getContainer();
         vector<double> intensities;
+
         for (Size i = 0; i != container.size(); ++i)
         {
-          intensities.push_back(container[i].second);
+          intensities.push_back(container[i].getIntensity());
         }
         ret.push_back(make_pair(abundance, intensities));
       }
@@ -1396,15 +1399,14 @@ public:
 
     // reset to natural occurance
     IsotopeDistribution isotopes;
-    std::vector<std::pair<Size, double> > container;
-    container.push_back(make_pair(12, 0.9893));
-    container.push_back(make_pair(13, 0.0107));
-    isotopes.set(container);
+    isotopes.clear();
+    isotopes.insert(12, 0.9893f);
+    isotopes.insert(13, 0.0107f);
     e2->setIsotopeDistribution(isotopes);
     return ret;
   }
 
-  static Size getNumberOfLabelingElements(String labeling_element, const AASequence& peptide)
+  static Size getNumberOfLabelingElements(const String& labeling_element, const AASequence& peptide)
   {
     const Element * e;
     if (labeling_element == "N")
@@ -1458,7 +1460,7 @@ public:
     Element* e2 = const_cast<Element*>(e1);
 
     EmpiricalFormula peptide_ef = peptide.getFormula();
-    UInt MAXISOTOPES = (UInt)peptide_ef.getNumberOf(e1);
+    UInt MAXISOTOPES = static_cast<UInt>(peptide_ef.getNumberOf(e1));
 
     // calculate empirical formula of modifications - these can not be labeled via substrate feeding and must be taken care of in pattern calculation
     AASequence unmodified_peptide = AASequence::fromString(peptide.toUnmodifiedString());
@@ -1468,23 +1470,22 @@ public:
 
     if (modifications_ef.getNumberOf(e1) > 0) // modification adds additional (unlabeled) nitrogen atoms
     {
-      IsotopeDistribution modification_dist = modifications_ef.getIsotopeDistribution(max_labeling_nitrogens + additional_isotopes);
+      IsotopeDistribution modification_dist = modifications_ef.getIsotopeDistribution(CoarseIsotopePatternGenerator(max_labeling_nitrogens + additional_isotopes));
       for (double abundance = 0; abundance < 100.0 - 1e-8; abundance += 100.0 / (double)max_labeling_nitrogens)
       {
         double a = abundance / 100.0;
         IsotopeDistribution isotopes;
-        std::vector<std::pair<Size, double> > container;
-        container.push_back(make_pair(14, 1.0 - a));
-        container.push_back(make_pair(15, a));
-        isotopes.set(container);
+        isotopes.clear();
+        isotopes.insert(14, 1.0 - a);
+        isotopes.insert(15, a);
         e2->setIsotopeDistribution(isotopes);
-        IsotopeDistribution dist = unmodified_peptide_ef.getIsotopeDistribution(max_labeling_nitrogens + additional_isotopes);
-        dist += modification_dist; // calculate convolution with isotope distribution of modification(s)
-        container = dist.getContainer();
+        IsotopeDistribution dist = unmodified_peptide_ef.getIsotopeDistribution(CoarseIsotopePatternGenerator(max_labeling_nitrogens + additional_isotopes));
+        dist.set(CoarseIsotopePatternGenerator().convolve_(dist.getContainer(), modification_dist.getContainer())); // calculate convolution with isotope distribution of modification(s)
+        IsotopeDistribution::ContainerType container = dist.getContainer();
         vector<double> intensities;
         for (Size i = 0; i != container.size(); ++i)
         {
-          intensities.push_back(container[i].second);
+          intensities.push_back(container[i].getIntensity());
         }
         ret.push_back(make_pair(abundance, intensities));
       }
@@ -1497,27 +1498,25 @@ public:
       {
         double a = abundance / 100.0;
         IsotopeDistribution isotopes;
-        std::vector<std::pair<Size, double> > container;
-        container.push_back(make_pair(14, 1.0 - a));
-        container.push_back(make_pair(15, a));
-        isotopes.set(container);
+        isotopes.clear();
+        isotopes.insert(14, 1.0 - a);
+        isotopes.insert(15, a);
         e2->setIsotopeDistribution(isotopes);
-        IsotopeDistribution dist = peptide_ef.getIsotopeDistribution(MAXISOTOPES + additional_isotopes);
-        container = dist.getContainer();
+        IsotopeDistribution dist = peptide_ef.getIsotopeDistribution(CoarseIsotopePatternGenerator(MAXISOTOPES + additional_isotopes));
+        IsotopeDistribution::ContainerType container = dist.getContainer();
         vector<double> intensities;
         for (Size i = 0; i != container.size(); ++i)
         {
-          intensities.push_back(container[i].second);
+          intensities.push_back(container[i].getIntensity());
         }
         ret.push_back(make_pair(abundance, intensities));
       }
     }
     // reset to natural occurance
     IsotopeDistribution isotopes;
-    std::vector<std::pair<Size, double> > container;
-    container.push_back(make_pair(14, 0.99632));
-    container.push_back(make_pair(15, 0.368));
-    isotopes.set(container);
+    isotopes.clear();
+    isotopes.insert(14, 0.99632f);
+    isotopes.insert(15, 0.368f);
     e2->setIsotopeDistribution(isotopes);
     return ret;
   }
@@ -1530,7 +1529,7 @@ public:
     Element* e2 = const_cast<Element*>(e1);
 
     EmpiricalFormula peptide_ef = peptide.getFormula();
-    Size MAXISOTOPES = (Size)peptide_ef.getNumberOf(e1);
+    Size MAXISOTOPES = static_cast<Size>(peptide_ef.getNumberOf(e1));
 
     // calculate empirical formula of modifications - these can not be labeled via substrate feeding and must be taken care of in pattern calculation
     AASequence unmodified_peptide = AASequence::fromString(peptide.toUnmodifiedString());
@@ -1540,23 +1539,23 @@ public:
 
     if (modifications_ef.getNumberOf(e1) > 0) // modification adds additional (unlabeled) atoms
     {
-      IsotopeDistribution modification_dist = modifications_ef.getIsotopeDistribution(max_labeling_element + additional_isotopes);
+      IsotopeDistribution modification_dist = modifications_ef.getIsotopeDistribution(CoarseIsotopePatternGenerator(max_labeling_element + additional_isotopes));
       for (double abundance = 0.0; abundance < 100.0 - 1e-8; abundance += 100.0 / (double)max_labeling_element)
       {
         double a = abundance / 100.0;
         IsotopeDistribution isotopes;
-        std::vector<std::pair<Size, double> > container;
-        container.push_back(make_pair(1, 1.0 - a));
-        container.push_back(make_pair(2, a));
-        isotopes.set(container);
+        isotopes.clear();
+        isotopes.insert(1, 1.0 - a);
+        isotopes.insert(2, a);
         e2->setIsotopeDistribution(isotopes);
-        IsotopeDistribution dist = unmodified_peptide_ef.getIsotopeDistribution(max_labeling_element + additional_isotopes);
-        dist += modification_dist; // convole with modification distribution (which follows the natural distribution)
-        container = dist.getContainer();
+        
+        IsotopeDistribution dist = unmodified_peptide_ef.getIsotopeDistribution(CoarseIsotopePatternGenerator(max_labeling_element + additional_isotopes));
+        dist.set(CoarseIsotopePatternGenerator().convolve_(dist.getContainer(), modification_dist.getContainer())); // convole with modification distribution (which follows the natural distribution)
+        IsotopeDistribution::ContainerType container = dist.getContainer();
         vector<double> intensities;
         for (Size i = 0; i != container.size(); ++i)
         {
-          intensities.push_back(container[i].second);
+          intensities.push_back(container[i].getIntensity());
         }
         ret.push_back(make_pair(abundance, intensities));
       }
@@ -1569,17 +1568,16 @@ public:
       {
         double a = abundance / 100.0;
         IsotopeDistribution isotopes;
-        std::vector<std::pair<Size, double> > container;
-        container.push_back(make_pair(1, 1.0 - a));
-        container.push_back(make_pair(2, a));
-        isotopes.set(container);
+        isotopes.clear();
+        isotopes.insert(1, 1.0 - a);
+        isotopes.insert(2, a);
         e2->setIsotopeDistribution(isotopes);
-        IsotopeDistribution dist = peptide_ef.getIsotopeDistribution(MAXISOTOPES + additional_isotopes);
-        container = dist.getContainer();
+        IsotopeDistribution dist = peptide_ef.getIsotopeDistribution(CoarseIsotopePatternGenerator(MAXISOTOPES + additional_isotopes));
+        IsotopeDistribution::ContainerType container = dist.getContainer();
         vector<double> intensities;
         for (Size i = 0; i != container.size(); ++i)
         {
-          intensities.push_back(container[i].second);
+          intensities.push_back(container[i].getIntensity());
         }
         ret.push_back(make_pair(abundance, intensities));
       }
@@ -1587,10 +1585,9 @@ public:
 
     // reset to natural occurance
     IsotopeDistribution isotopes;
-    std::vector<std::pair<Size, double> > container;
-    container.push_back(make_pair(1, 0.999885));
-    container.push_back(make_pair(2, 0.000115));
-    isotopes.set(container);
+    isotopes.clear();
+    isotopes.insert(1, 0.999885f);
+    isotopes.insert(2, 0.000115f);
     e2->setIsotopeDistribution(isotopes);
     return ret;
   }
@@ -1603,7 +1600,7 @@ public:
     Element* e2 = const_cast<Element*>(e1);
 
     EmpiricalFormula peptide_ef = peptide.getFormula();
-    Size MAXISOTOPES = (Size)peptide_ef.getNumberOf(e1); 
+    Size MAXISOTOPES = static_cast<Size>(peptide_ef.getNumberOf(e1));
     // calculate empirical formula of modifications - these can not be labeled via substrate feeding and must be taken care of in pattern calculation
     AASequence unmodified_peptide = AASequence::fromString(peptide.toUnmodifiedString());
     EmpiricalFormula unmodified_peptide_ef = unmodified_peptide.getFormula();
@@ -1612,24 +1609,23 @@ public:
 
     if (modifications_ef.getNumberOf(e1) > 0) // modification adds additional (unlabeled) atoms
     {
-      IsotopeDistribution modification_dist = modifications_ef.getIsotopeDistribution(max_labeling_element + additional_isotopes);
+      IsotopeDistribution modification_dist = modifications_ef.getIsotopeDistribution(CoarseIsotopePatternGenerator(max_labeling_element + additional_isotopes));
       for (double abundance = 0.0; abundance < 100.0 - 1e-8; abundance += 100.0 / static_cast<double>(max_labeling_element * 2.0))
       {
         double a = abundance / 100.0;
         IsotopeDistribution isotopes;
-        std::vector<std::pair<Size, double> > container;
-        container.push_back(make_pair(1, 1.0 - a));
-        container.push_back(make_pair(2, 0.0)); // 17O is neglectable (=0.038%)
-        container.push_back(make_pair(3, a));
-        isotopes.set(container);
+        isotopes.insert(1, 1.0 - a);
+        isotopes.insert(2, 0.0); // 17O is neglectable (=0.038%)
+        isotopes.insert(3, a);
         e2->setIsotopeDistribution(isotopes);
-        IsotopeDistribution dist = unmodified_peptide_ef.getIsotopeDistribution(max_labeling_element * 2 + additional_isotopes); // 2 * isotopic traces
-        dist += modification_dist; // convole with modification distribution (which follows the natural distribution)
-        container = dist.getContainer();
+        
+        IsotopeDistribution dist = unmodified_peptide_ef.getIsotopeDistribution(CoarseIsotopePatternGenerator(max_labeling_element * 2 + additional_isotopes)); // 2 * isotopic traces
+        dist.set(CoarseIsotopePatternGenerator().convolve_(dist.getContainer(), modification_dist.getContainer())); // convole with modification distribution (which follows the natural distribution)
+        IsotopeDistribution::ContainerType container = dist.getContainer();
         vector<double> intensities;
         for (Size i = 0; i != container.size(); ++i)
         {
-          intensities.push_back(container[i].second);
+          intensities.push_back(container[i].getIntensity());
         }
         ret.push_back(make_pair(abundance, intensities));
       }
@@ -1642,18 +1638,17 @@ public:
       {
         double a = abundance / 100.0;
         IsotopeDistribution isotopes;
-        std::vector<std::pair<Size, double> > container;
-        container.push_back(make_pair(1, 1.0 - a));
-        container.push_back(make_pair(2, 0.0)); // 17O is neglectable (=0.038%)
-        container.push_back(make_pair(3, a));
-        isotopes.set(container);
+        isotopes.clear();
+        isotopes.insert(1, 1.0 - a);
+        isotopes.insert(2, 0.0); // 17O is neglectable (=0.038%)
+        isotopes.insert(3, a);
         e2->setIsotopeDistribution(isotopes);
-        IsotopeDistribution dist = peptide_ef.getIsotopeDistribution(MAXISOTOPES * 2 + additional_isotopes); // 2 * isotopic traces
-        container = dist.getContainer();
+        IsotopeDistribution dist = peptide_ef.getIsotopeDistribution(CoarseIsotopePatternGenerator(MAXISOTOPES * 2 + additional_isotopes)); // 2 * isotopic traces
+        IsotopeDistribution::ContainerType container = dist.getContainer();
         vector<double> intensities;
         for (Size i = 0; i != container.size(); ++i)
         {
-          intensities.push_back(container[i].second);
+          intensities.push_back(container[i].getIntensity());
         }
         ret.push_back(make_pair(abundance, intensities));
       }
@@ -1661,11 +1656,10 @@ public:
 
     // reset to natural occurance
     IsotopeDistribution isotopes;
-    std::vector<std::pair<Size, double> > container;
-    container.push_back(make_pair(1, 0.99757));
-    container.push_back(make_pair(2, 0.00038));
-    container.push_back(make_pair(3, 0.00205));
-    isotopes.set(container);
+    isotopes.clear();
+    isotopes.insert(1, 0.99757f);
+    isotopes.insert(2, 0.00038f);
+    isotopes.insert(3, 0.00205f);
     e2->setIsotopeDistribution(isotopes);
     return ret;
   }
@@ -1677,7 +1671,7 @@ public:
     Element* e2 = const_cast<Element*>(e1);
 
     // calculate number of expected labeling elements using averagine model
-    Size element_count = mass * 0.0122177302837372;
+    Size element_count = static_cast<Size>(mass * 0.0122177302837372);
 
     // calculate isotope distribution for a given peptide and varying incoperation rates
     // modification of isotope distribution in static ElementDB
@@ -1685,28 +1679,26 @@ public:
     {
       double a = abundance / 100.0;
       IsotopeDistribution isotopes;
-      std::vector<std::pair<Size, double> > container;
-      container.push_back(make_pair(14, 1.0 - a));
-      container.push_back(make_pair(15, a));
-      isotopes.set(container);
+      isotopes.clear();
+      isotopes.insert(14, 1.0 - a);
+      isotopes.insert(15, a);
       e2->setIsotopeDistribution(isotopes);
-      IsotopeDistribution dist(element_count);
-      dist.estimateFromPeptideWeight(mass);
-      container = dist.getContainer();
+      CoarseIsotopePatternGenerator solver(element_count);
+      auto dist = solver.estimateFromPeptideWeight(mass);
+      IsotopeDistribution::ContainerType container = dist.getContainer();
       vector<double> intensities;
       for (Size i = 0; i != container.size(); ++i)
       {
-        intensities.push_back(container[i].second);
+        intensities.push_back(container[i].getIntensity());
       }
       ret.push_back(make_pair(abundance, intensities));
     }
 
     // reset to natural occurance
     IsotopeDistribution isotopes;
-    std::vector<std::pair<Size, double> > container;
-    container.push_back(make_pair(14, 0.99632));
-    container.push_back(make_pair(15, 0.368));
-    isotopes.set(container);
+    isotopes.clear();
+    isotopes.insert(14, 0.99632f);
+    isotopes.insert(15, 0.368f);
     e2->setIsotopeDistribution(isotopes);
     return ret;
   }
@@ -1714,10 +1706,9 @@ public:
   static IsotopePatterns calculateIsotopePatternsFor13CRangeOfAveraginePeptide(double mass)
   {
     IsotopePatterns ret;
-
     const Element* e1 = ElementDB::getInstance()->getElement("Carbon");
     Element* e2 = const_cast<Element*>(e1);
-    Size element_count = mass * 0.0444398894906044;
+    Size element_count = static_cast<Size>(mass * 0.0444398894906044);
 
     // calculate isotope distribution for a given peptide and varying incoperation rates
     // modification of isotope distribution in static ElementDB
@@ -1725,28 +1716,25 @@ public:
     {
       double a = abundance / 100.0;
       IsotopeDistribution isotopes;
-      std::vector<std::pair<Size, double> > container;
-      container.push_back(make_pair(12, 1.0 - a));
-      container.push_back(make_pair(13, a));
-      isotopes.set(container);
+      isotopes.clear();
+      isotopes.insert(12, 1.0 - a);
+      isotopes.insert(13, a);
       e2->setIsotopeDistribution(isotopes);
-      IsotopeDistribution dist(element_count);
-      dist.estimateFromPeptideWeight(mass);
-      container = dist.getContainer();
+      CoarseIsotopePatternGenerator solver(element_count);
+      auto dist = solver.estimateFromPeptideWeight(mass);
+      IsotopeDistribution::ContainerType container = dist.getContainer();
       vector<double> intensities;
       for (Size i = 0; i != container.size(); ++i)
       {
-        intensities.push_back(container[i].second);
+        intensities.push_back(container[i].getIntensity());
       }
       ret.push_back(make_pair(abundance, intensities));
     }
 
     // reset to natural occurance
     IsotopeDistribution isotopes;
-    std::vector<std::pair<Size, double> > container;
-    container.push_back(make_pair(12, 0.9893));
-    container.push_back(make_pair(13, 0.0107));
-    isotopes.set(container);
+    isotopes.insert(12, 0.9893f);
+    isotopes.insert(13, 0.010f);
     e2->setIsotopeDistribution(isotopes);
     return ret;
   }
@@ -1757,7 +1745,7 @@ public:
 
     const Element* e1 = ElementDB::getInstance()->getElement("Hydrogen");
     Element* e2 = const_cast<Element*>(e1);
-    Size element_count = mass * 0.06981572169;
+    Size element_count = static_cast<Size>(mass * 0.06981572169);
 
     // calculate isotope distribution for a given peptide and varying incoperation rates
     // modification of isotope distribution in static ElementDB
@@ -1765,28 +1753,26 @@ public:
     {
       double a = abundance / 100.0;
       IsotopeDistribution isotopes;
-      std::vector<std::pair<Size, double> > container;
-      container.push_back(make_pair(1, 1.0 - a));
-      container.push_back(make_pair(2, a));
-      isotopes.set(container);
+      isotopes.clear();
+      isotopes.insert(1, 1.0 - a);
+      isotopes.insert(2, a);
       e2->setIsotopeDistribution(isotopes);
-      IsotopeDistribution dist(element_count);
-      dist.estimateFromPeptideWeight(mass);
-      container = dist.getContainer();
+      CoarseIsotopePatternGenerator solver(element_count);
+      auto dist = solver.estimateFromPeptideWeight(mass);
+      IsotopeDistribution::ContainerType container = dist.getContainer();
       vector<double> intensities;
       for (Size i = 0; i != container.size(); ++i)
       {
-        intensities.push_back(container[i].second);
+        intensities.push_back(container[i].getIntensity());
       }
       ret.push_back(make_pair(abundance, intensities));
     }
 
     // reset to natural occurance
     IsotopeDistribution isotopes;
-    std::vector<std::pair<Size, double> > container;
-    container.push_back(make_pair(1, 0.999885));
-    container.push_back(make_pair(2, 0.000115));
-    isotopes.set(container);
+    isotopes.clear();
+    isotopes.insert(1, 0.999885f);
+    isotopes.insert(2, 0.000115f);
     e2->setIsotopeDistribution(isotopes);
     return ret;
   }
@@ -1797,7 +1783,7 @@ public:
 
     const Element* e1 = ElementDB::getInstance()->getElement("Oxygen");
     Element* e2 = const_cast<Element*>(e1);
-    Size element_count = mass * 0.01329399039;  
+    Size element_count = static_cast<Size>(mass * 0.01329399039);
 
     // calculate isotope distribution for a given peptide and varying incoperation rates
     // modification of isotope distribution in static ElementDB
@@ -1805,30 +1791,28 @@ public:
     {
       double a = abundance / 100.0;
       IsotopeDistribution isotopes;
-      std::vector<std::pair<Size, double> > container;
-      container.push_back(make_pair(1, 1.0 - a));
-      container.push_back(make_pair(2, 0));
-      container.push_back(make_pair(3, a));
-      isotopes.set(container);
+      isotopes.clear();
+      isotopes.insert(1, 1.0 - a);
+      isotopes.insert(2, 0);
+      isotopes.insert(3, a);
       e2->setIsotopeDistribution(isotopes);
-      IsotopeDistribution dist(element_count * 2); // spaces are 2 Da between 18O and 16O but we observe isotopic peaks at every (approx.) nominal mass
-      dist.estimateFromPeptideWeight(mass);
-      container = dist.getContainer();
+      CoarseIsotopePatternGenerator solver(element_count * 2); // spaces are 2 Da between 18O and 16O but we observe isotopic peaks at every (approx.) nominal mass
+      auto dist = solver.estimateFromPeptideWeight(mass);
+      IsotopeDistribution::ContainerType container = dist.getContainer();
       vector<double> intensities;
       for (Size i = 0; i != container.size(); ++i)
       {
-        intensities.push_back(container[i].second);
+        intensities.push_back(container[i].getIntensity());
       }
       ret.push_back(make_pair(abundance, intensities));
     }
 
     // reset to natural occurance
     IsotopeDistribution isotopes;
-    std::vector<std::pair<Size, double> > container;
-    container.push_back(make_pair(1, 0.99757));
-    container.push_back(make_pair(2, 0.00038));
-    container.push_back(make_pair(3, 0.00205));
-    isotopes.set(container);
+    isotopes.clear();
+    isotopes.insert(1, 0.99757f);
+    isotopes.insert(2, 0.00038f);
+    isotopes.insert(3, 0.00205f);
     e2->setIsotopeDistribution(isotopes);
     return ret;
   }
@@ -1875,15 +1859,15 @@ public:
         }
         else
         {
-          LOG_WARN << "RT: " << rt << " not contained in rt set." << endl;
+          OPENMS_LOG_WARN << "RT: " << rt << " not contained in rt set." << endl;
         }
       }
 
       // copy map to vector for easier processing
       vector<double> v;
-      for (map<double, double>::const_iterator it = xic.begin(); it != xic.end(); ++it)
+      for (map<double, double>::const_iterator xic_it = xic.begin(); xic_it != xic.end(); ++xic_it)
       {
-        v.push_back(it->second);
+        v.push_back(xic_it->second);
       }
 
       xics[i] = v;
@@ -1947,8 +1931,8 @@ public:
 class RIntegration
 {
 public:
-  // Perform a simple check if R and all R dependencies are thereget
-  static bool checkRDependencies(String tmp_path, StringList package_names, const QString& executable = QString("R"))
+  // Perform a simple check if R and all R dependencies are there
+  static bool checkRDependencies(const String& tmp_path, StringList package_names, const QString& executable = QString("R"))
   {
     String random_name = String::random(8);
     String script_filename = tmp_path + String("/") + random_name + String(".R");
@@ -1958,7 +1942,7 @@ public:
     checkRInPath.addLine("q()");
     checkRInPath.store(script_filename);
 
-    LOG_INFO << "Checking R...";
+    OPENMS_LOG_INFO << "Checking R...";
     {
       QProcess p;
       p.setProcessChannelMode(QProcess::MergedChannels);
@@ -1973,14 +1957,14 @@ public:
 
       if (p.error() == QProcess::FailedToStart || p.exitStatus() == QProcess::CrashExit || p.exitCode() != 0)
       {
-        LOG_INFO << " failed" << std::endl;
-        LOG_ERROR << "Can't execute R. Do you have R installed? Check if the path to R is in your system path variable." << std::endl;
+        OPENMS_LOG_INFO << " failed" << std::endl;
+        OPENMS_LOG_ERROR << "Can't execute R. Do you have R installed? Check if the path to R is in your system path variable." << std::endl;
         return false;
       }
-      LOG_INFO << " success" << std::endl;
+      OPENMS_LOG_INFO << " success" << std::endl;
     }
     // check dependencies
-    LOG_INFO << "Checking R dependencies. If package is not found we will try to install it in your temp directory...";
+    OPENMS_LOG_INFO << "Checking R dependencies. If package is not found we will try to install it in your temp directory...";
     TextFile current_script;
     current_script.addLine("LoadOrInstallPackage <-function(x)");
     current_script.addLine("{");
@@ -2018,21 +2002,38 @@ public:
 
     if (status != 0)
     {
-      LOG_ERROR << "\nProblem finding all R dependencies. Check if R and following libraries are installed:" << std::endl;
+      OPENMS_LOG_ERROR << "\nProblem finding all R dependencies. Check if R and following libraries are installed:" << std::endl;
       for (TextFile::ConstIterator line_it = current_script.begin(); line_it != current_script.end(); ++line_it)
       {
-        LOG_ERROR << *line_it  << std::endl;
+        OPENMS_LOG_ERROR << *line_it  << std::endl;
       }
       QString s = p.readAllStandardOutput();
-      LOG_ERROR << s.toStdString() << std::endl;
+      OPENMS_LOG_ERROR << s.toStdString() << std::endl;
       return false;
     }
-    LOG_INFO << " success" << std::endl;
+    OPENMS_LOG_INFO << " success" << std::endl;
     return true;
   }
 
 };
 
+//-------------------------------------------------------------
+// Doxygen docu
+//-------------------------------------------------------------
+
+/**
+    @page UTILS_MetaProSIP MetaProSIP 
+
+    @brief Performs proteinSIP on peptide features for elemental flux analysis.
+
+    <B>The command line parameters of this tool are:</B>
+    @verbinclude UTILS_MetaProSIP.cli
+    <B>INI file documentation of this tool:</B>
+    @htmlinclude UTILS_MetaProSIP.html
+ */
+
+// We do not want this class to show up in the docu:
+/// @cond TOPPCLASSES
 class TOPPMetaProSIP :
   public TOPPBase
 {
@@ -2068,7 +2069,7 @@ protected:
     registerInputFile_("in_featureXML", "<file>", "", "Feature data annotated with identifications (IDMapper)");
     setValidFormats_("in_featureXML", ListUtils::create<String>("featureXML"));
 
-    registerInputFile_("r_executable", "<file>", "R", "Path to the R executable (default: 'R')", false);
+    registerInputFile_("r_executable", "<file>", "R", "Path to the R executable (default: 'R')", false, false, {"is_executable"});
 
     registerDoubleOption_("mz_tolerance_ppm", "<tol>", 10.0, "Tolerance in ppm", false);
 
@@ -2140,7 +2141,7 @@ protected:
   {
     if (std::distance(pattern_begin, pattern_end) != std::distance(intensities_begin, intensities_end))
     {
-      LOG_ERROR << "Error: size of pattern and collected intensities don't match!: (pattern " << std::distance(pattern_begin, pattern_end) << ") (intensities " << std::distance(intensities_begin, intensities_end) << ")" << endl;
+      OPENMS_LOG_ERROR << "Error: size of pattern and collected intensities don't match!: (pattern " << std::distance(pattern_begin, pattern_end) << ") (intensities " << std::distance(intensities_begin, intensities_end) << ")" << endl;
     }
 
     if (pattern_begin == pattern_end)
@@ -2253,17 +2254,17 @@ protected:
       // calculate isotope distribution of averagine peptide as this will be used to detect spurious correlations with coeluting peptides
       // Note: actually it would be more accurate to use 15N-14N or 13C-12C distances. This doesn't affect averagine distribution much so this approximation is sufficient. (see TODO)
       double current_weight = peptide_weight + ii * 1.0; // TODO: use 13C-12C or 15N-14N instead of 1.0 as mass distance to be super accurate
-      IsotopeDistribution averagine = IsotopeDistribution(10);
-      averagine.estimateFromPeptideWeight(current_weight);
+      CoarseIsotopePatternGenerator solver(10);
+      IsotopeDistribution averagine = solver.estimateFromPeptideWeight(current_weight);
 
-      std::vector<std::pair<Size, double> > averagine_intensities_pairs = averagine.getContainer();
+      IsotopeDistribution::ContainerType averagine_intensities_pairs = averagine.getContainer();
 
       // zeros to the left for sliding window correlation
       std::vector<double> averagine_intensities(AVERAGINE_CORR_OFFSET, 0.0); // add 0 intensity bins left to actual averagine pattern
 
       for (Size i = 0; i != averagine_intensities_pairs.size(); ++i)
       {
-        averagine_intensities.push_back(averagine_intensities_pairs[i].second);
+        averagine_intensities.push_back(averagine_intensities_pairs[i].getIntensity());
       }
 
       // zeros to the right
@@ -2398,7 +2399,7 @@ protected:
         }
       }
 
-      found_peak_int = std::accumulate(found_peaks.begin(), found_peaks.end(), 0);
+      found_peak_int = std::accumulate(found_peaks.begin(), found_peaks.end(), 0.0);
 
       // assign peak intensity to first peak in small area around theoretical predicted position (should be usually only be 1)
       isotopic_intensities.push_back(found_peak_int);
@@ -2462,24 +2463,20 @@ protected:
     }
     else // bad correlation, no need to print intensities, ratio etc.
     {
-      String int_string;
-
-      int_string += "\t";
-      int_string += "\t";
-      out_stream << int_string;
+      out_stream << "\t\t";
     }
   }
 
-  // scores smaller than 0 will be paddde to 0
+  // scores smaller than 0 will be padded to 0
   MapRateToScoreType normalizeToMax(const MapRateToScoreType& map_rate_to_decomposition_weight)
   {
-    // extract heightest weight (best score) and rate
+    // extract highest weight (best score) and rate
     double best_rate, best_score;
     getBestRateScorePair(map_rate_to_decomposition_weight, best_rate, best_score);
 
     if (debug_level_ >= 10)
     {
-      LOG_DEBUG << "best rate + score: " << best_rate << " " << best_score << endl;
+      OPENMS_LOG_DEBUG << "best rate + score: " << best_rate << " " << best_score << endl;
     }
 
     // normalize weights to max(weights)=1
@@ -2539,7 +2536,7 @@ protected:
 
     // determine trace peak with highest intensity
     double max_trace_int = -1e16;
-    double max_trace_int_idx = 0;
+    Size max_trace_int_idx = 0;
 
     for (Size j = 0; j != mono_trace.size(); ++j)
     {
@@ -2555,7 +2552,7 @@ protected:
     for (Size i = 1; i <= n_scans; ++i)
     {
       double rt_after = max_trace_int_rt;
-      if (max_trace_int_idx < (Int)mono_trace.size() - (Int)i)
+      if (max_trace_int_idx < mono_trace.size() - (Int)i)
       {
         rt_after = mono_trace[max_trace_int_idx + i].getRT();
       }
@@ -2632,7 +2629,7 @@ protected:
 
       if (corr > min_corr_threshold)
       {
-        SIPIncorporation sip_incorporation;
+        SIPIncorporation sip_incorporation{};
         sip_incorporation.rate = rate;
 
         // sum up decomposition intensities for quantification in merge window
@@ -2674,16 +2671,16 @@ protected:
         {
           if (debug_level_ > 1)
           {
-            LOG_WARN << "warning: prevented adding of 0 abundance decomposition at rate " << rate << endl;
-            LOG_WARN << "decomposition: " << endl;
+            OPENMS_LOG_WARN << "warning: prevented adding of 0 abundance decomposition at rate " << rate << endl;
+            OPENMS_LOG_WARN << "decomposition: " << endl;
             for (MapRateToScoreType::const_iterator it = map_rate_to_decomposition_weight.begin(); it != map_rate_to_decomposition_weight.end(); ++it)
             {
-              LOG_WARN << it->first << " " << it->second << endl;
+              OPENMS_LOG_WARN << it->first << " " << it->second << endl;
             }
-            LOG_WARN << "correlation: " << endl;
+            OPENMS_LOG_WARN << "correlation: " << endl;
             for (MapRateToScoreType::const_iterator it = map_rate_to_correlation_score.begin(); it != map_rate_to_correlation_score.end(); ++it)
             {
-              LOG_WARN << it->first << " " << it->second << endl;
+              OPENMS_LOG_WARN << it->first << " " << it->second << endl;
             }
           }
 
@@ -2802,7 +2799,7 @@ protected:
       // find weights in window to merge, remove from seed map. maybe also remove from original map depending on whether we want to quantify the weight only 1 time
       const double rate = current_seed.second;
 
-      SIPIncorporation sip_incorporation;
+      SIPIncorporation sip_incorporation{};
       sip_incorporation.rate = rate;
 
       MapRateToScoreType::const_iterator low = map_rate_to_decomposition_weight.lower_bound(rate - weight_merge_window - 1e-4);
@@ -2917,8 +2914,8 @@ protected:
       return 0.0;
     }
 
-    double sum = accumulate(isotopic_intensities.begin(), isotopic_intensities.end(), 0);
-    double sum_incorporated = accumulate(isotopic_intensities.begin() + 4, isotopic_intensities.end(), 0);
+    double sum = accumulate(isotopic_intensities.begin(), isotopic_intensities.end(), 0.0);
+    double sum_incorporated = accumulate(isotopic_intensities.begin() + 4, isotopic_intensities.end(), 0.0);
 
     if (sum < 1e-4)
     {
@@ -2934,7 +2931,6 @@ protected:
     Int debug_level = getIntOption_("debug");
     String in_mzml = getStringOption_("in_mzML");
     String in_features = getStringOption_("in_featureXML");
-    QString executable = getStringOption_("r_executable").toQString();
     double mz_tolerance_ppm_ = getDoubleOption_("mz_tolerance_ppm");
     double rt_tolerance_s = getDoubleOption_("rt_tolerance_s");
 
@@ -2955,6 +2951,7 @@ protected:
     // Do we want to create a qc report?  
     if (!qc_output_directory.empty())
     {
+      QString executable = getStringOption_("r_executable").toQString();
       // convert path to absolute path
       QDir qc_dir(qc_output_directory.toQString());
       qc_output_directory = String(qc_dir.absolutePath());
@@ -2971,7 +2968,7 @@ protected:
       bool R_is_working = RIntegration::checkRDependencies(tmp_path, package_names, executable);
       if (!R_is_working)
       {
-        LOG_INFO << "There was a problem detecting R and/or of one of the required libraries. Make sure you have the directory of your R executable in your system path variable." << endl;
+        OPENMS_LOG_INFO << "There was a problem detecting one of the required R libraries." << endl;
         return EXTERNAL_PROGRAM_ERROR;
       }
     }
@@ -3002,10 +2999,10 @@ protected:
     bool cluster_flag = getFlag_("cluster");
 
     // read descriptions from FASTA and create map for fast annotation
-    LOG_INFO << "loading sequences..." << endl;
+    OPENMS_LOG_INFO << "loading sequences..." << endl;
     String in_fasta = getStringOption_("in_fasta");
     vector<FASTAFile::FASTAEntry> fasta_entries;
-    FASTAFile().load(in_fasta, fasta_entries);
+    FASTAFile::load(in_fasta, fasta_entries);
     map<String, String> proteinid_to_description;
     for (vector<FASTAFile::FASTAEntry>::const_iterator it = fasta_entries.begin(); it != fasta_entries.end(); ++it)
     {
@@ -3016,7 +3013,7 @@ protected:
       }
     }
 
-    LOG_INFO << "loading feature map..." << endl;
+    OPENMS_LOG_INFO << "loading feature map..." << endl;
     FeatureXMLFile fh;
     FeatureMap feature_map;
     fh.load(in_features, feature_map);
@@ -3041,7 +3038,7 @@ protected:
           f.setMetaValue("feature_type", UNASSIGNED_ID_STRING);
           f.setRT(it->getRT());
           // take sequence of first hit to calculate ground truth mz
-          double charge = hits[0].getCharge();
+          Int charge = hits[0].getCharge();
           if (charge == 0)
           {
             continue;
@@ -3058,7 +3055,7 @@ protected:
         }
       }
       feature_map.updateRanges();
-      LOG_INFO << "Evaluating " << unassigned_id_features << " unassigned identifications." << endl;
+      OPENMS_LOG_INFO << "Evaluating " << unassigned_id_features << " unassigned identifications." << endl;
     }
 
     // determine all spectra that have not been identified and assign an averagine peptide to it
@@ -3151,7 +3148,7 @@ protected:
       feature_map.updateRanges();
     }
 
-    LOG_INFO << "loading experiment..." << endl;
+    OPENMS_LOG_INFO << "loading experiment..." << endl;
     PeakMap peak_map;
     MzMLFile mh;
     std::vector<Int> ms_level(1, 1);
@@ -3213,7 +3210,7 @@ protected:
         }
         else
         {
-          LOG_WARN << "Empty peptide hit encountered on feature. Ignoring." << endl;
+          OPENMS_LOG_WARN << "Empty peptide hit encountered on feature. Ignoring." << endl;
         }
       }
 
@@ -3226,7 +3223,7 @@ protected:
       const PeptideHit& feature_hit = tmp_pepid.getHits()[0];
       const double feature_hit_score = feature_hit.getScore();
       const double feature_hit_center_mz = feature_it->getMZ();
-      const double feature_hit_charge = feature_hit.getCharge();
+      const Int feature_hit_charge = feature_hit.getCharge();
 
       String feature_hit_seq = "";
       double feature_hit_theoretical_mz = 0;
@@ -3250,7 +3247,7 @@ protected:
 
       if (debug_level_ > 1)
       {
-        LOG_DEBUG << "Feature type: (" << sip_peptide.feature_type << ") Seq.: " << feature_hit_seq << " m/z: " << feature_hit_theoretical_mz << endl;
+        OPENMS_LOG_DEBUG << "Feature type: (" << sip_peptide.feature_type << ") Seq.: " << feature_hit_seq << " m/z: " << feature_hit_theoretical_mz << endl;
       }
 
       const set<String> protein_accessions = feature_hit.extractProteinAccessionsSet();
@@ -3262,7 +3259,7 @@ protected:
       sip_peptide.score = feature_hit_score;
       sip_peptide.feature_rt = feature_hit_center_rt;
       sip_peptide.feature_mz = feature_hit_center_mz;
-      sip_peptide.unique = sip_peptide.accessions.size() == 1 ? true : false;
+      sip_peptide.unique = sip_peptide.accessions.size() == 1;
 
       // determine retention time of scans next to the central scan
       vector<double> seeds_rt = findApexRT(feature_it, feature_hit_center_rt, peak_map, 2); // 1 scan at maximum, 2+2 above and below
@@ -3303,19 +3300,19 @@ protected:
         // calculate number of expected labeling elements using averagine model C:4.9384 H:7.7583 N:1.3577 O:1.4773 S:0.0417 divided by average weight 111.1254
         if (labeling_element == "C")
         {
-          element_count = sip_peptide.mass_theo * 0.0444398894906044;
+          element_count = static_cast<Size>(sip_peptide.mass_theo * 0.0444398894906044);
         }
         else if (labeling_element == "N")
         {
-          element_count = sip_peptide.mass_theo * 0.0122177302837372;
+          element_count = static_cast<Size>(sip_peptide.mass_theo * 0.0122177302837372);
         }
         else if (labeling_element == "H")
         {
-          element_count = sip_peptide.mass_theo * 0.06981572169;
+          element_count = static_cast<Size>(sip_peptide.mass_theo * 0.06981572169);
         }
         else if (labeling_element == "O")
         {
-          element_count = sip_peptide.mass_theo * 0.01329399039;
+          element_count = static_cast<Size>(sip_peptide.mass_theo * 0.01329399039);
         }
       }
 
@@ -3324,7 +3321,7 @@ protected:
       // collect 13C / 15N peaks
       if (debug_level_ >= 10)
       {
-        LOG_DEBUG << "Extract XICs" << endl;
+        OPENMS_LOG_DEBUG << "Extract XICs" << endl;
       }
 
       vector<double> isotopic_intensities = MetaProSIPXICExtraction::extractXICsOfIsotopeTraces(isotopic_trace_count + ADDITIONAL_ISOTOPES, sip_peptide.mass_diff, mz_tolerance_ppm_, rt_tolerance_s, max_trace_int_rt, feature_hit_theoretical_mz, feature_hit_charge, peak_map, xic_threshold);
@@ -3334,33 +3331,21 @@ protected:
       {
         if (isotopic_intensities[i] < 1e-4) continue;
         Size consecutive_isotopes = 0;
-        Int j = i;
+        Size j = i;
 
-        while (j >= 0)
+        while (j != std::numeric_limits<Size>::max()) // unsigned type wrap-around is well defined
         {
-          if (isotopic_intensities[j] > 1e-4)
-          {
-            ++consecutive_isotopes;
-            --j;
-          }
-          else
-          {
-            break;
-          }
+          if (isotopic_intensities[j] <= 1e-4) break;
+          ++consecutive_isotopes;
+          --j;
         }
         j = i + 1;
 
-        while ((Size)j < isotopic_intensities.size())
+        while (j < isotopic_intensities.size())
         {
-          if (isotopic_intensities[j] > 1e-4)
-          {
-            ++consecutive_isotopes;
-            ++j;
-          }
-          else
-          {
-            break;
-          }
+          if (isotopic_intensities[j] <= 1e-4) break;
+          ++consecutive_isotopes;
+          ++j;
         }
 
         if (consecutive_isotopes < min_consecutive_isotopes)
@@ -3374,7 +3359,7 @@ protected:
       // collect 13C / 15N peaks
       if (debug_level_ >= 10)
       {
-        LOG_DEBUG << "TIC of XICs: " << TIC << endl;
+        OPENMS_LOG_DEBUG << "TIC of XICs: " << TIC << endl;
         for (Size i = 0; i != isotopic_intensities.size(); ++i)
         {
           cout << isotopic_intensities[i] << endl;
@@ -3387,7 +3372,7 @@ protected:
         ++spectrum_with_no_isotopic_peaks;
         if (debug_level > 0)
         {
-          LOG_INFO << "no isotopic peaks in spectrum" << endl;
+          OPENMS_LOG_INFO << "no isotopic peaks in spectrum" << endl;
         }
         continue;
       }
@@ -3415,7 +3400,7 @@ protected:
         cout << "Isotopic intensities found / total: " << non_zero_isotopic_intensities << "/" << isotopic_intensities.size() << endl;
       }
 
-      LOG_INFO << feature_hit.getSequence().toString() << "\trt: " << max_trace_int_rt << endl;
+      OPENMS_LOG_INFO << feature_hit.getSequence().toString() << "\trt: " << max_trace_int_rt << endl;
 
       // correlation filtering
       MapRateToScoreType map_rate_to_correlation_score;
@@ -3531,11 +3516,11 @@ protected:
       }
 
       // store sip peptide
-      if (sip_peptide.incorporations.size() != 0 && sip_peptide.RR > decomposition_threshold)
+      if (!sip_peptide.incorporations.empty() && sip_peptide.RR > decomposition_threshold)
       {
         if (debug_level > 0)
         {
-          LOG_INFO << "SIP peptides: " << sip_peptide.incorporations.size() << endl;
+          OPENMS_LOG_INFO << "SIP peptides: " << sip_peptide.incorporations.size() << endl;
         }
         sip_peptides.push_back(sip_peptide);
       }
@@ -3549,17 +3534,17 @@ protected:
       correlation_maps.push_back(map_rate_to_correlation_score);
     }
 
-    LOG_INFO << "Spectra with / without isotopic peaks " << spectrum_with_isotopic_peaks << "/" << spectrum_with_no_isotopic_peaks << endl;
+    OPENMS_LOG_INFO << "Spectra with / without isotopic peaks " << spectrum_with_isotopic_peaks << "/" << spectrum_with_no_isotopic_peaks << endl;
 
     if (nPSMs == 0)
     {
-      LOG_ERROR << "No assigned identifications found in featureXML. Did you forget to run IDMapper?" << endl;
+      OPENMS_LOG_ERROR << "No assigned identifications found in featureXML. Did you forget to run IDMapper?" << endl;
       return INCOMPATIBLE_INPUT_DATA;
     }
 
-    if (sip_peptides.size() == 0)
+    if (sip_peptides.empty())
     {
-      LOG_ERROR << "No peptides passing the incorporation threshold found." << endl;
+      OPENMS_LOG_ERROR << "No peptides passing the incorporation threshold found." << endl;
       return INCOMPATIBLE_INPUT_DATA;
     }
 
@@ -3573,12 +3558,12 @@ protected:
     {
       if (debug_level > 0)
       {
-        LOG_INFO << "Determine cluster center of RIAs: " << endl;
+        OPENMS_LOG_INFO << "Determine cluster center of RIAs: " << endl;
       }
       vector<double> cluster_center(MetaProSIPClustering::getRIAClusterCenter(sip_peptides));
       if (debug_level > 0)
       {
-        LOG_INFO << "Assigning peptides to cluster: " << endl;
+        OPENMS_LOG_INFO << "Assigning peptides to cluster: " << endl;
       }
       sippeptide_clusters = MetaProSIPClustering::clusterSIPPeptides(cluster_center, sip_peptides);
 
@@ -3603,7 +3588,7 @@ protected:
       {
         for (Size i = 0; i != sippeptide_clusters.size(); ++i)
         {
-          LOG_INFO << "Cluster: " << (i + 1) << " contains " << sippeptide_clusters[i].size() << " peptides." << endl;
+          OPENMS_LOG_INFO << "Cluster: " << (i + 1) << " contains " << sippeptide_clusters[i].size() << " peptides." << endl;
         }
       }
     }
@@ -3615,14 +3600,14 @@ protected:
     // create group/cluster centric report
     if (!out_csv.empty())
     {
-      LOG_INFO << "Create CSV report." << endl;
+      OPENMS_LOG_INFO << "Create CSV report." << endl;
       MetaProSIPReporting::createCSVReport(sippeptide_clusters, out_csv_stream, proteinid_to_description);
     }
 
     // create peptide centric report
     if (!out_peptide_centric_csv.empty())
     {
-      LOG_INFO << "Creating peptide centric report: " << out_peptide_centric_csv << std::endl;
+      OPENMS_LOG_INFO << "Creating peptide centric report: " << out_peptide_centric_csv << std::endl;
 
       if (getFlag_("test")) 
       {
@@ -3637,6 +3622,7 @@ protected:
     // quality report
     if (!qc_output_directory.empty())
     {
+      QString executable = getStringOption_("r_executable").toQString();
       // TODO plot merged is now passed as false
       MetaProSIPReporting::createQualityReport(tmp_path, qc_output_directory, file_suffix, file_extension_, sippeptide_clusters, n_heatmap_bins, score_plot_y_axis_min, report_natural_peptides, executable);
     }

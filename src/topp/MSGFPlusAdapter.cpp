@@ -2,7 +2,7 @@
 //                   OpenMS -- Open-Source Mass Spectrometry
 // --------------------------------------------------------------------------
 // Copyright The OpenMS Team -- Eberhard Karls University Tuebingen,
-// ETH Zurich, and Freie Universitaet Berlin 2002-2017.
+// ETH Zurich, and Freie Universitaet Berlin 2002-2018.
 //
 // This software is released under a three-clause BSD license:
 //  * Redistributions of source code must retain the above copyright
@@ -46,7 +46,7 @@
 #include <OpenMS/SYSTEM/File.h>
 #include <OpenMS/SYSTEM/JavaInfo.h>
 
-#include <QtCore/QProcess>
+#include <QProcessEnvironment>
 
 #include <algorithm>
 #include <fstream>
@@ -141,7 +141,7 @@ protected:
     setValidFormats_("out", ListUtils::create<String>("idXML"));
     registerOutputFile_("mzid_out", "<file>", "", "Alternative output file (MS-GF+ parameter '-o')\nEither 'out' or 'mzid_out' are required. They can be used together.", false);
     setValidFormats_("mzid_out", ListUtils::create<String>("mzid"));
-    registerInputFile_("executable", "<file>", "MSGFPlus.jar", "MS-GF+ .jar file, e.g. 'c:\\program files\\MSGFPlus.jar'", true, false, ListUtils::create<String>("skipexists"));
+    registerInputFile_("executable", "<file>", "MSGFPlus.jar", "The MSGFPlus Java archive file. Provide a full or relative path, or make sure it can be found in your PATH environment.", true, false, {"is_executable"});
     registerInputFile_("database", "<file>", "", "Protein sequence database (FASTA file; MS-GF+ parameter '-d'). Non-existing relative filenames are looked up via 'OpenMS.ini:id_db_dir'.", true, false, ListUtils::create<String>("skipexists"));
     setValidFormats_("database", ListUtils::create<String>("FASTA"));
 
@@ -196,7 +196,7 @@ protected:
 
     registerFlag_("legacy_conversion", "Use the indirect conversion of MS-GF+ results to idXML via export to TSV. Try this only if the default conversion takes too long or uses too much memory.", true);
 
-    registerInputFile_("java_executable", "<file>", "java", "The Java executable. Usually Java is on the system PATH. If Java is not found, use this parameter to specify the full path to Java", false, false, ListUtils::create<String>("skipexists"));
+    registerInputFile_("java_executable", "<file>", "java", "The Java executable. Usually Java is on the system PATH. If Java is not found, use this parameter to specify the full path to Java", false, false, {"is_executable"});
     registerIntOption_("java_memory", "<num>", 3500, "Maximum Java heap size (in MB)", false);
     registerIntOption_("java_permgen", "<num>", 0, "Maximum Java permanent generation space (in MB); only for Java 7 and below", false, true);
   }
@@ -299,6 +299,11 @@ protected:
       f.getOptions().addMSLevel(2);
       f.load(exp_name, exp);
       exp.getPrimaryMSRunPath(primary_ms_run_path_);
+      // if no primary run is assigned, the mzML file is the (unprocessed) primary file
+      if (primary_ms_run_path_.empty())
+      {
+        primary_ms_run_path_.push_back(exp_name);
+      }
 
       if (exp.getSpectra().empty())
       {
@@ -330,12 +335,12 @@ protected:
 
   String makeModString_(const String& mod_name, bool fixed=true)
   {
-    ResidueModification mod = ModificationsDB::getInstance()->getModification(mod_name);
-    char residue = mod.getOrigin();
+    const ResidueModification* mod = ModificationsDB::getInstance()->getModification(mod_name);
+    char residue = mod->getOrigin();
     if (residue == 'X') residue = '*'; // terminal mod. without residue specificity
-    String position = mod.getTermSpecificityName(); // "Prot-N-term", "Prot-C-term" not supported by OpenMS
+    String position = mod->getTermSpecificityName(); // "Prot-N-term", "Prot-C-term" not supported by OpenMS
     if (position == "none") position = "any";
-    return String(mod.getDiffMonoMass()) + ", " + residue + (fixed ? ", fix, " : ", opt, ") + position + ", " + mod.getId() + "    # " + mod_name;
+    return String(mod->getDiffMonoMass()) + ", " + residue + (fixed ? ", fix, " : ", opt, ") + position + ", " + mod->getId() + "    # " + mod_name;
   }
 
   void writeModificationsFile_(const String& out_path, const vector<String>& fixed_mods, const vector<String>& variable_mods, Size max_mods)
@@ -449,7 +454,7 @@ protected:
 
     // create temporary directory (and modifications file, if necessary):
     String temp_dir, mzid_temp, mod_file;
-    temp_dir = makeTempDirectory_();
+    temp_dir = makeAutoRemoveTempDirectory_();
     // always create a temporary mzid file first, even if mzid output is requested via "mzid_out"
     // (reason: TOPPAS may pass a filename with wrong extension to "mzid_out", which would cause an error in MzIDToTSVConverter below,
     // so we make sure that we have a properly named mzid file for the converter; see https://github.com/OpenMS/OpenMS/issues/1251)
@@ -480,16 +485,6 @@ protected:
         protocol_code = 0;
     }
     Int tryptic_code = ListUtils::getIndex<String>(tryptic_, getStringOption_("tryptic"));
-
-    // Hack for KNIME. Looks for MSGFPLUS_PATH in the environment which is set in binaries.ini
-    QProcessEnvironment env;
-    String msgfpath = "MSGFPLUS_PATH";
-    QString qmsgfpath = env.systemEnvironment().value(msgfpath.toQString());
-
-    if (!qmsgfpath.isEmpty())
-    {
-      executable = qmsgfpath;
-    }
 
     QStringList process_params; // the actual process is Java, not MS-GF+!
     process_params << java_memory
@@ -524,11 +519,11 @@ protected:
 
     // run MS-GF+ process and create the .mzid file
 
-    int status = QProcess::execute(java_executable.toQString(), process_params);
-    if (status != 0)
+    writeLog_("Running MSGFPlus search...");
+    TOPPBase::ExitCodes exit_code = runExternalProcess_(java_executable.toQString(), process_params);
+    if (exit_code != EXECUTION_OK)
     {
-      writeLog_("Fatal error: Running MS-GF+ returned an error code '" + String(status) + "'. Does the MS-GF+ executable (.jar file) exist?");
-      return EXTERNAL_PROGRAM_ERROR;
+      return exit_code;
     }
 
     //-------------------------------------------------------------
@@ -537,6 +532,13 @@ protected:
 
     if (!out.empty())
     {
+      if (!File::exists(mzid_temp))
+      {
+        OPENMS_LOG_ERROR << "Temporary output file '" << mzid_temp << "' was not created by MSGF+. Please set a debug level > 10 and re-run this tool to diagnose the problem." << endl;
+        return EXTERNAL_PROGRAM_ERROR;
+      }
+
+
       if (getFlag_("legacy_conversion"))
       {
         // run TSV converter
@@ -554,11 +556,11 @@ protected:
                        << "-showQValue" << "1"
                        << "-showDecoy" << "1"
                        << "-unroll" << "1";
-        status = QProcess::execute(java_executable.toQString(), process_params);
-        if (status != 0)
+        writeLog_("Running MzIDToTSVConverter...");
+        exit_code = runExternalProcess_(java_executable.toQString(), process_params);
+        if (exit_code != 0)
         {
-          writeLog_("Fatal error: Running MzIDToTSVConverter returned an error code '" + String(status) + "'.");
-          return EXTERNAL_PROGRAM_ERROR;
+          return exit_code;
         }
 
         // initialize map
@@ -694,7 +696,7 @@ protected:
             double score = elements[12].toDouble();
             UInt rank = 0; // set to 0 at the moment
             Int charge = elements[7].toInt();
-            PeptideHit hit(score, rank, charge, seq);
+            PeptideHit hit(score, rank, charge, std::move(seq));
             hit.addPeptideEvidence(evidence);
             pep_ident.insertHit(hit);
           }
@@ -752,8 +754,6 @@ protected:
         return CANNOT_WRITE_OUTPUT_FILE;
       }
     }
-
-    removeTempDirectory_(temp_dir);
 
     return EXECUTION_OK;
   }

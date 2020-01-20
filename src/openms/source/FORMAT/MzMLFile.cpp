@@ -2,7 +2,7 @@
 //                   OpenMS -- Open-Source Mass Spectrometry
 // --------------------------------------------------------------------------
 // Copyright The OpenMS Team -- Eberhard Karls University Tuebingen,
-// ETH Zurich, and Freie Universitaet Berlin 2002-2017.
+// ETH Zurich, and Freie Universitaet Berlin 2002-2018.
 //
 // This software is released under a three-clause BSD license:
 //  * Redistributions of source code must retain the above copyright
@@ -29,7 +29,7 @@
 //
 // --------------------------------------------------------------------------
 // $Maintainer: Timo Sachsenberg $
-// $Authors: Marc Sturm $
+// $Authors: Marc Sturm, Chris Bielow, Hannes Roest $
 // --------------------------------------------------------------------------
 
 #include <OpenMS/FORMAT/MzMLFile.h>
@@ -37,7 +37,11 @@
 #include <OpenMS/FORMAT/HANDLERS/MzMLHandler.h>
 #include <OpenMS/FORMAT/CVMappingFile.h>
 #include <OpenMS/FORMAT/VALIDATORS/XMLValidator.h>
+#include <OpenMS/FORMAT/VALIDATORS/MzMLValidator.h>
 #include <OpenMS/FORMAT/TextFile.h>
+#include <OpenMS/SYSTEM/File.h>
+
+#include <sstream>
 
 namespace OpenMS
 {
@@ -67,7 +71,7 @@ namespace OpenMS
     options_ = options;
   }
 
-  //reimplemented in order to handle index MzML
+  // reimplemented in order to handle index MzML
   bool MzMLFile::isValid(const String& filename, std::ostream& os)
   {
     //determine if this is indexed mzML or not
@@ -95,11 +99,11 @@ namespace OpenMS
 
   bool MzMLFile::isSemanticallyValid(const String& filename, StringList& errors, StringList& warnings)
   {
-    //load mapping
+    // load mapping
     CVMappings mapping;
     CVMappingFile().load(File::find("/MAPPING/ms-mapping.xml"), mapping);
 
-    //load cvs
+    // load cvs
     ControlledVocabulary cv;
     cv.loadFromOBO("MS", File::find("/CV/psi-ms.obo"));
     cv.loadFromOBO("PATO", File::find("/CV/quality.obo"));
@@ -107,7 +111,7 @@ namespace OpenMS
     cv.loadFromOBO("BTO", File::find("/CV/brenda.obo"));
     cv.loadFromOBO("GO", File::find("/CV/goslim_goa.obo"));
 
-    //validate
+    // validate
     Internal::MzMLValidator v(mapping, cv);
     bool result = v.validate(filename, errors, warnings);
 
@@ -117,16 +121,19 @@ namespace OpenMS
   void MzMLFile::loadSize(const String& filename, Size& scount, Size& ccount)
   {
     PeakMap dummy;
-    bool size_only_before_ = options_.getSizeOnly();
-    options_.setSizeOnly(true);
     Internal::MzMLHandler handler(dummy, filename, getVersion(), *this);
     handler.setOptions(options_);
-
-    // TODO catch errors as above ?
-    parse_(filename, &handler);
-
+    if (options_.hasFilters())
+    {
+      handler.setLoadDetail(Internal::XMLHandler::LD_COUNTS_WITHOPTIONS);
+    }
+    else
+    { // no filters where specified. Just take the 'counts' attributes from the mzML file and end parsing
+      handler.setLoadDetail(Internal::XMLHandler::LD_RAWCOUNTS);
+    }
+    
+    safeParse_(filename, &handler);
     handler.getCounts(scount, ccount);
-    options_.setSizeOnly(size_only_before_);
   }
 
   void MzMLFile::safeParse_(const String& filename, Internal::XMLHandler* handler)
@@ -137,17 +144,13 @@ namespace OpenMS
     }
     catch (Exception::BaseException& e)
     {
-      std::string expr;
-      expr.append(e.getFile());
-      expr.append("@");
-      std::stringstream ss;
-      ss << e.getLine(); // we need c++11!! maybe in 2012?
-      expr.append(ss.str());
-      expr.append("-");
-      expr.append(e.getFunction());
-      std::string mess = "- due to that error of type ";
-      mess.append(e.getName());
-      throw Exception::ParseError(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION, expr, mess);
+      String expr;
+      expr += e.getFile();
+      expr += "@";
+      expr += e.getLine();
+      expr += "-";
+      expr += e.getFunction();
+      throw Exception::ParseError(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION, expr, String("- due to that error of type ") + e.getName());
     }
   }
 
@@ -180,7 +183,7 @@ namespace OpenMS
     save_(filename, &handler);
   }
 
-  void MzMLFile::storeBuffer(std::string & output, const PeakMap& map) const
+  void MzMLFile::storeBuffer(std::string& output, const PeakMap& map) const
   {
     Internal::MzMLHandler handler(map, "dummy", getVersion(), *this);
     handler.setOptions(options_);
@@ -237,9 +240,9 @@ namespace OpenMS
     Internal::MzMLHandler handler(experimental_settings, filename_in, getVersion(), *this);
 
     // set temporary options for handler
-    tmp_options.setSizeOnly(true);
     tmp_options.setMetadataOnly( skip_full_count );
     handler.setOptions(tmp_options);
+    handler.setLoadDetail(Internal::XMLHandler::LD_RAWCOUNTS);
 
     safeParse_(filename_in, &handler);
 

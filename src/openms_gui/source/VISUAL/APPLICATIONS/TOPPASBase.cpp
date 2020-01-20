@@ -2,7 +2,7 @@
 //                   OpenMS -- Open-Source Mass Spectrometry
 // --------------------------------------------------------------------------
 // Copyright The OpenMS Team -- Eberhard Karls University Tuebingen,
-// ETH Zurich, and Freie Universitaet Berlin 2002-2017.
+// ETH Zurich, and Freie Universitaet Berlin 2002-2018.
 //
 // This software is released under a three-clause BSD license:
 //  * Redistributions of source code must retain the above copyright
@@ -35,7 +35,10 @@
 #include <cstdio>
 #include <cstdlib>
 
+#include <OpenMS/APPLICATIONS/ToolHandler.h>
+#include <OpenMS/CONCEPT/LogStream.h>
 #include <OpenMS/VISUAL/APPLICATIONS/TOPPASBase.h>
+#include <OpenMS/VISUAL/APPLICATIONS/MISC/QApplicationTOPP.h>
 
 #include <OpenMS/APPLICATIONS/TOPPBase.h>
 #include <OpenMS/CONCEPT/VersionInfo.h>
@@ -319,7 +322,7 @@ namespace OpenMS
     else
     {
       proposed_filename = "Workflow.toppas";
-      LOG_WARN << "The URL format of downloads from the TOPPAS Online-Repository has changed. Please notify developers!";
+      OPENMS_LOG_WARN << "The URL format of downloads from the TOPPAS Online-Repository has changed. Please notify developers!";
     }
     QString filename = QFileDialog::getSaveFileName(this, "Where to save the TOPPAS file?", this->current_path_.toQString() + "/" + proposed_filename, tr("TOPPAS (*.toppas)"));
 
@@ -355,7 +358,7 @@ namespace OpenMS
   {
     QNetworkReply::NetworkError ne = network_reply_->error();
     qint64 ba = network_reply_->bytesAvailable();
-    LOG_DEBUG << "Error code (QNetworkReply::NetworkError): " << ne << "  bytes available: " << ba << std::endl;
+    OPENMS_LOG_DEBUG << "Error code (QNetworkReply::NetworkError): " << ne << "  bytes available: " << ba << std::endl;
     return;
   }
 
@@ -545,7 +548,7 @@ namespace OpenMS
 
     if (!file_name.toQString().endsWith(".toppas", Qt::CaseInsensitive))
     {
-      LOG_ERROR << "The file '" << file_name << "' is not a .toppas file" << std::endl;
+      OPENMS_LOG_ERROR << "The file '" << file_name << "' is not a .toppas file" << std::endl;
       return;
     }
 
@@ -896,29 +899,22 @@ namespace OpenMS
 
   void TOPPASBase::closeEvent(QCloseEvent* event)
   {
-    bool close = true;
-    QList<QMdiSubWindow *> all_windows = ws_->subWindowList();
-    foreach(QMdiSubWindow * w, all_windows)
+    QList<QMdiSubWindow*> all_windows = ws_->subWindowList();
+    for (QMdiSubWindow* w : all_windows)
     {
-      TOPPASWidget * widget = dynamic_cast<TOPPASWidget*>(w->widget());
-      bool close_this = widget->getScene()->saveIfChanged();
-      if (!close_this)
-      {
-        close = false;
-        break;
+      TOPPASWidget* widget = dynamic_cast<TOPPASWidget*>(w->widget());
+      if (!widget) continue; // not a TOPPASWidget.. ignore it
+
+      if (!widget->getScene()->saveIfChanged())
+      { // user chose 'abort' in dialog
+        event->ignore();
+        return;
       }
     }
-    if (close)
-    {
-      event->accept();
-      QSettings settings("OpenMS", "TOPPAS");
-      settings.setValue("geometry", saveGeometry());
-      settings.setValue("windowState", saveState());
-    }
-    else
-    {
-      event->ignore();
-    }
+    event->accept();
+    QSettings settings("OpenMS", "TOPPAS");
+    settings.setValue("geometry", saveGeometry());
+    settings.setValue("windowState", saveState());
   }
 
   void TOPPASBase::showURL()
@@ -1114,40 +1110,7 @@ namespace OpenMS
 
   void TOPPASBase::showAboutDialog()
   {
-    //dialog and grid layout
-    QDialog* dlg = new QDialog(this);
-    QGridLayout* grid = new QGridLayout(dlg);
-    dlg->setWindowTitle("About TOPPAS");
-
-    QLabel* label = new QLabel(dlg);
-    label->setPixmap(QPixmap(":/TOPP_about.png"));
-    grid->addWidget(label, 0, 0);
-
-    //text
-    QString text = QString("<BR>"
-                           "<FONT size=+3>TOPPAS</font><BR>"
-                           "<BR>"
-                           "Version: %1%2<BR>"
-                           "<BR>"
-                           "OpenMS and TOPP is free software available under the<BR>"
-                           "BSD 3-Clause Licence (BSD-new)<BR>"
-                           "<BR>"
-                           "<BR>"
-                           "<BR>"
-                           "<BR>"
-                           "<BR>"
-                           "Any published work based on TOPP and OpenMS shall cite these papers:<BR>"
-                           "Sturm et al., BMC Bioinformatics (2008), 9, 163<BR>"
-                           "Kohlbacher et al., Bioinformatics (2007), 23:e191-e197<BR>"
-                           ).arg(VersionInfo::getVersion().toQString()
-                           ).arg( // if we have a revision, embed it also into the shown version number
-                              VersionInfo::getRevision() != "" ? QString(" (") + VersionInfo::getRevision().toQString() + ")" : "");
-    
-    QLabel* text_label = new QLabel(text, dlg);
-    grid->addWidget(text_label, 0, 1, Qt::AlignTop | Qt::AlignLeft);
-
-    //execute
-    dlg->exec();
+    QApplicationTOPP::showAboutDialog(this, "TOPPAS");
   }
 
   void TOPPASBase::updateMenu()
@@ -1363,7 +1326,7 @@ namespace OpenMS
     tv->setPos(x, y);
     tv->setZValue(z_value_);
     z_value_ += 0.000001;
-    scene->topoSort();
+    scene->topoSort(false);
     scene->setChanged(true);
   }
 

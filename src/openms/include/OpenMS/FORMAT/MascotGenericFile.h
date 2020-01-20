@@ -2,7 +2,7 @@
 //                   OpenMS -- Open-Source Mass Spectrometry
 // --------------------------------------------------------------------------
 // Copyright The OpenMS Team -- Eberhard Karls University Tuebingen,
-// ETH Zurich, and Freie Universitaet Berlin 2002-2017.
+// ETH Zurich, and Freie Universitaet Berlin 2002-2018.
 //
 // This software is released under a three-clause BSD license:
 //  * Redistributions of source code must retain the above copyright
@@ -294,13 +294,11 @@ protected:
               }
               else // just write the title as metainfo to the spectrum
               {
-                std::vector<String> split;
-                line.split('=', split);
-                if (split.size() == 2)
+                Size firstEqual = line.find('=', 4);
+                if (firstEqual != std::string::npos)
                 {
-                  if (split[1] != "") spectrum.setMetaValue("TITLE", split[1]);
+                  spectrum.setMetaValue("TITLE", line.substr(firstEqual + 1));
                 }
-                // TODO concatenate the other parts if the title contains additional '=' chars
               }
             }
           }

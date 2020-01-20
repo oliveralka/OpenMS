@@ -2,7 +2,7 @@
 //                   OpenMS -- Open-Source Mass Spectrometry
 // --------------------------------------------------------------------------
 // Copyright The OpenMS Team -- Eberhard Karls University Tuebingen,
-// ETH Zurich, and Freie Universitaet Berlin 2002-2017.
+// ETH Zurich, and Freie Universitaet Berlin 2002-2018.
 //
 // This software is released under a three-clause BSD license:
 //  * Redistributions of source code must retain the above copyright
@@ -29,24 +29,90 @@
 //
 // --------------------------------------------------------------------------
 // $Maintainer: Hendrik Weisser $
-// $Authors: Hendrik Weisser, Lucia Espona $
+// $Authors: Hendrik Weisser, Lucia Espona, Moritz Freidank $
 // --------------------------------------------------------------------------
 
 #include <OpenMS/ANALYSIS/ID/IDConflictResolverAlgorithm.h>
 
 using namespace std;
 
-
 namespace OpenMS
 {
-  void IDConflictResolverAlgorithm::resolve(FeatureMap & features)
+  void IDConflictResolverAlgorithm::resolve(FeatureMap & features, bool keep_matching)
   {
-    resolveConflict_(features);
+    resolveConflict_(features, keep_matching);
+  }
+  
+  void IDConflictResolverAlgorithm::resolve(ConsensusMap & features, bool keep_matching)
+  {
+    resolveConflict_(features, keep_matching);
+  }
+  
+  void IDConflictResolverAlgorithm::resolveBetweenFeatures(FeatureMap & features)
+  {
+    resolveBetweenFeatures_(features);
+  }
+  
+  void IDConflictResolverAlgorithm::resolveBetweenFeatures(ConsensusMap & features)
+  {
+    resolveBetweenFeatures_(features);
   }
 
-  void IDConflictResolverAlgorithm::resolve(ConsensusMap & features)
+  // static
+  void IDConflictResolverAlgorithm::resolveConflictKeepMatching_(
+      vector<PeptideIdentification> & peptides,
+      vector<PeptideIdentification> & removed,
+      UInt64 uid)
   {
-    resolveConflict_(features);
+    if (peptides.empty()) { return; }
+
+    for (PeptideIdentification & pep : peptides)
+    {
+      // sort hits
+      pep.sort();
+    }
+
+    vector<PeptideIdentification>::iterator pos;
+    if (peptides[0].isHigherScoreBetter())     // find highest-scoring ID
+    {
+      pos = max_element(peptides.begin(), peptides.end(), compareIDsSmallerScores_);
+    }
+    else  // find lowest-scoring ID
+    {
+      pos = min_element(peptides.begin(), peptides.end(), compareIDsSmallerScores_);
+    }
+
+    const AASequence& best = (*pos).getHits()[0].getSequence();
+    std::swap(*peptides.begin(), *pos); // put best on first position
+
+    // filter for matching PEP Sequence and move to unassigned/removed
+    for (auto it = ++peptides.begin(); it != peptides.end();)
+    {
+      auto& hits = it->getHits();
+      auto hit = hits.begin();
+      for (; hit != hits.end(); ++hit)
+      {
+        if (hit->getSequence() == best)
+        {
+          break;
+        }
+      }
+      if (hit != hits.end()) // found sequence
+      {
+        hits[0] = *hit; // put the match on first place
+        hits.resize(1); // remove rest
+        ++it;
+      }
+      else // not found
+      {
+        // annotate feature_id for later reference
+        it->setMetaValue("feature_id", String(uid));
+        // move to "removed" vector
+        removed.push_back(std::move(*it));
+        // erase and update iterator
+        it = peptides.erase(it);
+      }
+    }
   }
 
   // static
@@ -90,7 +156,7 @@ namespace OpenMS
      
     // copy conflicting ones right of best one
     vector<PeptideIdentification>::iterator pos1p = pos + 1;
-    for (auto it = pos1p; it != peptides.end(); ++it)
+    for (auto it = pos1p; it != peptides.end(); ++it) // OMS_CODING_TEST_EXCLUDE
     {
       removed.push_back(*it);
     }
@@ -105,13 +171,12 @@ namespace OpenMS
   {
     // if any of them is empty, the other is considered "greater"
     // independent of the score in the first hit
-    if (left.getHits().empty()) return true;
-    if (right.getHits().empty()) return false;
-    if (left.getHits()[0].getScore() < right.getHits()[0].getScore())
-    {
-      return true;
+    if (left.getHits().empty() || right.getHits().empty()) 
+    { // also: for strict weak ordering, comp(x,x) needs to be false
+      return left.getHits().size() < right.getHits().size();
     }
-    return false;
+
+    return left.getHits()[0].getScore() < right.getHits()[0].getScore();
   }
 }
 

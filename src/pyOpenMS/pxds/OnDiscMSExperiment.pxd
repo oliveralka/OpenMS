@@ -13,10 +13,14 @@ cdef extern from "<OpenMS/KERNEL/OnDiscMSExperiment.h>" namespace "OpenMS":
         OnDiscMSExperiment(OnDiscMSExperiment &) nogil except +
 
         bool openFile(String filename) nogil except +
+        bool openFile(String filename, bool skipLoadingMetaData) nogil except +
         Size getNrSpectra() nogil except +
         Size getNrChromatograms() nogil except +
 
+        # COMMENT: only retrieves experiment meta data (no actual data in spectra/chromatograms)
+        # COMMENT: useful for filtering by attributes to then retrieve data
         shared_ptr[const ExperimentalSettings] getExperimentalSettings() nogil except +
+        shared_ptr[MSExperiment] getMetaData() nogil except +
 
         MSSpectrum getSpectrum(Size id) nogil except +
         MSChromatogram getChromatogram(Size id) nogil except +

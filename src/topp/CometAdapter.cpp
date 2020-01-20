@@ -2,7 +2,7 @@
 //                   OpenMS -- Open-Source Mass Spectrometry
 // --------------------------------------------------------------------------
 // Copyright The OpenMS Team -- Eberhard Karls University Tuebingen,
-// ETH Zurich, and Freie Universitaet Berlin 2002-2017.
+// ETH Zurich, and Freie Universitaet Berlin 2002-2018.
 //
 // This software is released under a three-clause BSD license:
 //  * Redistributions of source code must retain the above copyright
@@ -43,8 +43,6 @@
 #include <OpenMS/CHEMISTRY/ResidueModification.h>
 #include <OpenMS/SYSTEM/File.h>
 
-#include <QtCore/QProcess>
-
 #include <fstream>
 
 using namespace OpenMS;
@@ -74,7 +72,7 @@ using namespace std;
 </CENTER>
 
     @em Comet must be installed before this wrapper can be used. This wrapper
-    has been successfully tested with version 2016.01.2 of Comet.
+    has been successfully tested with version 2016.01.2, 2016.01.3 and 2017.01.0beta of Comet.
 
     Comet settings not exposed by this adapter can be directly adjusted using a param file, which can be generated using comet -p.
     By default, All (!) parameters available explicitly via this param file will take precedence over the wrapper parameters.
@@ -120,14 +118,13 @@ protected:
     setValidFormats_("in", ListUtils::create<String>("mzML"));
     registerOutputFile_("out", "<file>", "", "Output file");
     setValidFormats_("out", ListUtils::create<String>("idXML"));
-    registerInputFile_("database", "<file>", "", "FASTA file", true, false, ListUtils::create<String>("skipexists"));
+    registerInputFile_("database", "<file>", "", "FASTA file", true, false, {"skipexists"});
     setValidFormats_("database", ListUtils::create<String>("FASTA"));
     registerInputFile_("comet_executable", "<executable>",
       // choose the default value according to the platform where it will be executed
-      "comet.exe",
-      "Comet executable of the installation e.g. 'comet.exe'", true, false, ListUtils::create<String>("skipexists"));
-    registerStringOption_("comet_version","<choice>", "2016.01 rev. 2","comet version: (year,version,revision)",false,false); //required as first line in the param file
-    setValidStrings_("comet_version", ListUtils::create<String>("2016.01 rev. 2,2016.01 rev. 3,2017.01 rev. 0beta"));
+      "comet.exe", // this is the name on ALL platforms currently...
+      "The Comet executable. Provide a full or relative path, or make sure it can be found in your PATH environment.", true, false, {"is_executable"});
+    registerStringOption_("comet_version","<choice>", "2016.01 rev. 2", "comet version: (year,version,revision)", false, false); // required as first line in the param file
 
     //
     // Optional parameters
@@ -135,7 +132,7 @@ protected:
 
     //Files
     registerOutputFile_("pin_out", "<file>", "", "Output file - for Percolator input", false);
-    setValidFormats_("pin_out", ListUtils::create<String>("csv"));
+    setValidFormats_("pin_out", ListUtils::create<String>("tsv"));
     registerInputFile_("default_params_file", "<file>", "", "Default Comet params file. All parameters of this take precedence. A template file can be generated using comet.exe -p", false, false, ListUtils::create<String>("skipexists"));
     setValidFormats_("default_params_file", ListUtils::create<String>("txt"));
 
@@ -206,7 +203,7 @@ protected:
     setMaxInt_("max_precursor_charge", 9);
     registerStringOption_("clip_nterm_methionine", "<bool>", "false", "If set to true, also considers the peptide sequence w/o N-term methionine separately and applies appropriate N-term mods to it", false, false);
     setValidStrings_("clip_nterm_methionine", ListUtils::create<String>("true,false"));
-    registerIntOption_("spectrum_batch_size", "<posnum>", 1000, "max. number of spectra to search at a time; use 0 to search the entire scan range in one batch", false, true);
+    registerIntOption_("spectrum_batch_size", "<posnum>", 20000, "max. number of spectra to search at a time; use 0 to search the entire scan range in one batch", false, true);
     setMinInt_("spectrum_batch_size", 0);
     registerDoubleList_("mass_offsets", "<doubleoffset1, doubleoffset2,...>", {0.0}, "One or more mass offsets to search (values subtracted from deconvoluted precursor mass). Has to include 0.0 if you want the default mass to be searched.", false, true);
 
@@ -238,29 +235,15 @@ protected:
     // iterate over modification names and add to vector
     for (StringList::iterator mod_it = modNames.begin(); mod_it != modNames.end(); ++mod_it)
     {
+      if (mod_it->empty())
+      {
+        continue;
+      }
       String modification(*mod_it);
-      modifications.push_back(ModificationsDB::getInstance()->getModification(modification));
+      modifications.push_back(*ModificationsDB::getInstance()->getModification(modification));
     }
 
     return modifications;
-  }
-
-  void removeTempDir_(const String& tmp_dir)
-  {
-    if (tmp_dir.empty()) {return;} // no temporary directory created
-
-    if (debug_level_ >= 2)
-    {
-      writeDebug_("Keeping temporary files in directory '" + tmp_dir + "'. Set debug level to 1 or lower to remove them.", 2);
-    }
-    else
-    {
-      if (debug_level_ == 1) 
-      {
-        writeDebug_("Deleting temporary directory '" + tmp_dir + "'. Set debug level to 2 or higher to keep it.", 1);
-      }
-      File::removeDirRecursively(tmp_dir);
-    }
   }
 
   void createParamFile_(ostream& os)
@@ -349,13 +332,15 @@ protected:
         // 2 and -1 should be equal for now.
         nc_term = 2;
       }
-      else if (mod.getTermSpecificity() == ResidueModification::PROTEIN_N_TERM) // not yet available
+      else if (mod.getTermSpecificity() == ResidueModification::PROTEIN_N_TERM)
       {
+        residues = "n";
         term_distance = 0;
         nc_term = 0;
       }
-      else if (mod.getTermSpecificity() == ResidueModification::PROTEIN_C_TERM) // not yet available
+      else if (mod.getTermSpecificity() == ResidueModification::PROTEIN_C_TERM)
       {
+        residues = "c";
         term_distance = 0;
         nc_term = 1;
       }
@@ -382,13 +367,13 @@ protected:
     String instrument = getStringOption_("instrument");
     double bin_tol = getDoubleOption_("fragment_bin_tolerance");
     double bin_offset = getDoubleOption_("fragment_bin_offset");
-    if (instrument == "low_res" && (bin_tol < 0.9 || bin_offset < 0.1))
+    if (instrument == "low_res" && (bin_tol < 0.9 || bin_offset <= 0.2))
     {
-      LOG_WARN << "Fragment bin size or tolerance is quite low for low res instruments." << "\n";
+      OPENMS_LOG_WARN << "Fragment bin size or tolerance is quite low for low res instruments." << "\n";
     }
     else if (instrument == "high_res" && (bin_tol > 0.2 || bin_offset > 0.1))
     {
-      LOG_WARN << "Fragment bin size or tolerance is quite high for high res instruments." << "\n";
+      OPENMS_LOG_WARN << "Fragment bin size or tolerance is quite high for high res instruments." << "\n";
     };
 
     os << "fragment_bin_tol = " << bin_tol << "\n";               // binning to use on fragment ions
@@ -425,7 +410,7 @@ protected:
     int precursor_charge_min(0), precursor_charge_max(0);
     if (!parseRange_(getStringOption_("precursor_charge"), precursor_charge_min, precursor_charge_max))
     {
-      LOG_INFO << "precursor_charge range not set. Defaulting to 0:0 (disable charge filtering)." << endl;
+      OPENMS_LOG_INFO << "precursor_charge range not set. Defaulting to 0:0 (disable charge filtering)." << endl;
     }
 
     os << "scan_range = " << "0 0" << "\n";                        // start and scan scan range to search; 0 as 1st entry ignores parameter
@@ -438,7 +423,7 @@ protected:
     double digest_mass_range_min(600.0), digest_mass_range_max(5000.0);
     if (!parseRange_(getStringOption_("digest_mass_range"), digest_mass_range_min, digest_mass_range_max))
     {
-      LOG_INFO << "digest_mass_range not set. Defaulting to 600.0 5000.0." << endl;
+      OPENMS_LOG_INFO << "digest_mass_range not set. Defaulting to 600.0 5000.0." << endl;
     }
 
     os << "digest_mass_range = " << digest_mass_range_min << " " << digest_mass_range_max << "\n";        // MH+ peptide mass range to analyze
@@ -463,7 +448,7 @@ protected:
     double clear_mz_range_min(0.0), clear_mz_range_max(0.0);
     if (!parseRange_(getStringOption_("clear_mz_range"), clear_mz_range_min, clear_mz_range_max))
     {
-      LOG_INFO << "clear_mz_range not set. Defaulting to 0:0 (disable m/z filter)." << endl;
+      OPENMS_LOG_INFO << "clear_mz_range not set. Defaulting to 0:0 (disable m/z filter)." << endl;
     }
 
     os << "minimum_peaks = " << getIntOption_("minimum_peaks") << "\n";                      // required minimum number of peaks in spectrum to search (default 10)
@@ -480,18 +465,29 @@ protected:
     //      add_N/Cterm_peptide = xxx       protein not available yet
     vector<String> fixed_modifications_names = getStringList_("fixed_modifications");
     vector<ResidueModification> fixed_modifications = getModifications_(fixed_modifications_names);
-    for (vector<ResidueModification>::const_iterator it = fixed_modifications.begin(); it != fixed_modifications.end(); ++it)
+    // Comet sets Carbamidometyl (C) as modification as default even if not specified
+    // Therefor there is the need to set it to 0 if not set as flag
+    if (fixed_modifications.empty())
     {
-      String AA = it->getOrigin();
-      if ((AA!="N-term") && (AA!="C-term"))
+      os << "add_C_cysteine = 0.0000" << endl;
+    }
+    else
+    {
+      for (vector<ResidueModification>::const_iterator it = fixed_modifications.begin(); it != fixed_modifications.end(); ++it)
       {
-      const Residue* r = ResidueDB::getInstance()->getResidue(AA);
-      String name = r->getName();
-      os << "add_" << r->getOneLetterCode() << "_" << name.toLower() << " = " << it->getDiffMonoMass() << endl;
-      }
-      else
-      {
-      os << "add_" << AA.erase(1,1) << "_peptide = " << it->getDiffMonoMass() << endl;
+        // check modification (amino acid or terminal)
+        String AA = it->getOrigin(); // X (constructor) or amino acid (e.g. K)
+        String term_specificity = it->getTermSpecificityName(); // N-term, C-term, none
+        if ((AA != "X") && (term_specificity == "none"))
+        {
+          const Residue* r = ResidueDB::getInstance()->getResidue(AA);
+          String name = r->getName();
+          os << "add_" << r->getOneLetterCode() << "_" << name.toLower() << " = " << it->getDiffMonoMass() << endl;
+        }
+        else
+        {
+          os << "add_" << term_specificity.erase(1,1) << "_peptide = " << it->getDiffMonoMass() << endl;
+        }
       }
     }
 
@@ -516,16 +512,12 @@ protected:
     //-------------------------------------------------------------
     // parsing parameters
     //-------------------------------------------------------------
-    
+
     // do this early, to see if comet is installed
     String comet_executable = getStringOption_("comet_executable");
     String tmp_param = File::getTemporaryFile();
-    int status = QProcess::execute(comet_executable.toQString(), QStringList() << "-p" << tmp_param.c_str()); // does automatic escaping etc...
-    if (status != 0)
-    {
-      writeLog_("Comet problem. Aborting! Calling command was: '" + comet_executable + " -p \"" + tmp_param + "\"'.\nDoes the Comet executable exist?");
-      return EXTERNAL_PROGRAM_ERROR;
-    }
+    writeLog_("Comet is writing the default parameter file...");
+    runExternalProcess_(comet_executable.toQString(), QStringList() << "-p" << tmp_param.c_str());
 
     String inputfile_name = getStringOption_("in");
     String out = getStringOption_("out");
@@ -552,8 +544,7 @@ protected:
     }
 
     //tmp_dir
-    const String tmp_dir = makeTempDirectory_(); //OpenMS::File::getTempDirectory() + "/";
-    writeDebug_("Creating temporary directory '" + tmp_dir + "'", 1);
+    String tmp_dir = makeAutoRemoveTempDirectory_();
     String tmp_pepxml = tmp_dir + "result.pep.xml";
     String tmp_pin = tmp_dir + "result.pin";
     String default_params = getStringOption_("default_params_file");
@@ -574,7 +565,7 @@ protected:
 
     PeakMap exp;
     MzMLFile mzml_file;
-    mzml_file.getOptions().setMSLevels({2}); // only load msLevel 2 
+    mzml_file.getOptions().setMSLevels({2}); // only load msLevel 2
     mzml_file.setLogType(log_type_);
     mzml_file.load(inputfile_name, exp);
 
@@ -599,16 +590,18 @@ protected:
     //-------------------------------------------------------------
     String paramP = "-P" + tmp_file;
     String paramN = "-N" + File::removeExtension(File::removeExtension(tmp_pepxml));
-    QStringList process_params;
-    process_params << paramP.toQString() << paramN.toQString() << inputfile_name.toQString();
+    QStringList arguments;
+    arguments << paramP.toQString() << paramN.toQString() << inputfile_name.toQString();
 
-    status = QProcess::execute(comet_executable.toQString(), process_params); // does automatic escaping etc...
-    if (status != 0)
+    //-------------------------------------------------------------
+    // run comet
+    //-------------------------------------------------------------
+    // Comet execution with the executable and the arguments StringList
+    TOPPBase::ExitCodes exit_code = runExternalProcess_(comet_executable.toQString(), arguments);
+    if (exit_code != EXECUTION_OK)
     {
-      writeLog_("Comet problem. Aborting! Calling command was: '" + comet_executable + " \"" + inputfile_name + "\"'.\n");
-      return EXTERNAL_PROGRAM_ERROR;
+      return exit_code;
     }
-
     //-------------------------------------------------------------
     // writing IdXML output
     //-------------------------------------------------------------
@@ -622,6 +615,9 @@ protected:
     PepXMLFile().load(tmp_pepxml, protein_identifications, peptide_identifications);
     writeDebug_("write idXMLFile", 1);
     writeDebug_(out, 1);
+
+    //Whatever the pepXML says, overwrite origin as the input mzML
+    protein_identifications[0].setPrimaryMSRunPath({inputfile_name}, exp);
     IdXMLFile().store(out, protein_identifications, peptide_identifications);
 
     //-------------------------------------------------------------
@@ -635,17 +631,6 @@ protected:
       {
         return CANNOT_WRITE_OUTPUT_FILE;
       }
-    }
-
-    // remove tempdir
-    if (this->debug_level_ == 0)
-    {
-        removeTempDir_(tmp_dir);
-        LOG_WARN << "Set debug level to >=2 to keep the temporary files at '" << tmp_dir << "'" << std::endl;
-    }
-    else
-    {
-      LOG_WARN << "Keeping the temporary files at '" << tmp_pepxml << "'. Set debug level to 0 to remove them." << std::endl;
     }
 
     return EXECUTION_OK;

@@ -2,7 +2,7 @@
 //                   OpenMS -- Open-Source Mass Spectrometry
 // --------------------------------------------------------------------------
 // Copyright The OpenMS Team -- Eberhard Karls University Tuebingen,
-// ETH Zurich, and Freie Universitaet Berlin 2002-2017.
+// ETH Zurich, and Freie Universitaet Berlin 2002-2018.
 //
 // This software is released under a three-clause BSD license:
 //  * Redistributions of source code must retain the above copyright
@@ -132,7 +132,7 @@ namespace OpenMS
     {
       offset = 1;
       ++input_it;
-      LOG_INFO << "Detected a header line.\n";
+      OPENMS_LOG_INFO << "Detected a header line.\n";
     }
 
     if (headers.size() >= 5)
@@ -156,10 +156,10 @@ namespace OpenMS
 
     SignedSize input_size = input.end() - input.begin();
 
-    ConsensusMap::FileDescription desc;
+    ConsensusMap::ColumnHeader desc;
     desc.filename = filename;
     desc.size = (input_size) - offset;
-    consensus_map.getFileDescriptions()[0] = desc;
+    consensus_map.getColumnHeaders()[0] = desc;
 
     // parsing features
     consensus_map.reserve(input_size);
@@ -171,7 +171,7 @@ namespace OpenMS
       line_trimmed.trim();
       if (line_trimmed == "")
       {
-        if ((input_it - input.begin()) < input_size - 1) LOG_WARN << "Notice: Empty line ignored (line " << ((input_it - input.begin()) + 1) << ").";
+        if ((input_it - input.begin()) < input_size - 1) OPENMS_LOG_WARN << "Notice: Empty line ignored (line " << ((input_it - input.begin()) + 1) << ").";
         continue;
       }
 
@@ -270,8 +270,8 @@ namespace OpenMS
       consensus_map.push_back(cf);
     }
 
-    // register FileDescriptions
-    ConsensusMap::FileDescription fd;
+    // register ColumnHeaders
+    ConsensusMap::ColumnHeader fd;
     fd.filename = filename;
     fd.size = consensus_map.size();
     Size maps = std::max(input_features - 1, Size(1)); // its either a simple feature or a consensus map
@@ -279,7 +279,7 @@ namespace OpenMS
     for (Size i = 0; i < maps; ++i)
     {
       fd.label = String("EDTA_Map ") + String(i);
-      consensus_map.getFileDescriptions()[i] = fd;
+      consensus_map.getColumnHeaders()[i] = fd;
     }
 
   }
