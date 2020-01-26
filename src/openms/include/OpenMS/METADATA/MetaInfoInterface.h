@@ -2,7 +2,7 @@
 //                   OpenMS -- Open-Source Mass Spectrometry
 // --------------------------------------------------------------------------
 // Copyright The OpenMS Team -- Eberhard Karls University Tuebingen,
-// ETH Zurich, and Freie Universitaet Berlin 2002-2017.
+// ETH Zurich, and Freie Universitaet Berlin 2002-2018.
 //
 // This software is released under a three-clause BSD license:
 //  * Redistributions of source code must retain the above copyright
@@ -34,11 +34,16 @@
 
 #pragma once
 
-#include <OpenMS/METADATA/MetaInfo.h>
+#include <vector>
+
+#include <OpenMS/CONCEPT/Types.h>
+#include <OpenMS/METADATA/MetaInfoRegistry.h>
+#include <OpenMS/DATASTRUCTURES/DataValue.h>
 
 namespace OpenMS
 {
   class String;
+  class MetaInfo;
 
   /**
     @brief Interface for classes that can store arbitrary meta information
@@ -60,21 +65,25 @@ public:
     MetaInfoInterface();
     /// Copy constructor
     MetaInfoInterface(const MetaInfoInterface& rhs);
+    /// Move constructor
+    MetaInfoInterface(MetaInfoInterface&&) noexcept;
     /// Destructor
     ~MetaInfoInterface();
 
     /// Assignment operator
     MetaInfoInterface& operator=(const MetaInfoInterface& rhs);
+    /// Move assignment operator
+    MetaInfoInterface& operator=(MetaInfoInterface&&) noexcept;
 
     /// Equality operator
     bool operator==(const MetaInfoInterface& rhs) const;
     /// Equality operator
     bool operator!=(const MetaInfoInterface& rhs) const;
 
-    /// Returns the value corresponding to a string (or DataValue::EMPTY if not found)
-    const DataValue& getMetaValue(const String& name) const;
-    /// Returns the value corresponding to an index (or DataValue::EMPTY if not found)
-    const DataValue& getMetaValue(UInt index) const;
+    /// Returns the value corresponding to a string, or a default value (default: DataValue::EMPTY) if not found
+    const DataValue& getMetaValue(const String& name, const DataValue& default_value = DataValue::EMPTY) const;
+    /// Returns the value corresponding to an index, or a default value (default: DataValue::EMPTY) if not found
+    const DataValue& getMetaValue(UInt index, const DataValue& default_value = DataValue::EMPTY) const;
 
     /// Returns whether an entry with the given name exists
     bool metaValueExists(const String& name) const;
@@ -107,8 +116,10 @@ public:
     void clearMetaInfo();
 
 protected:
+
     /// Creates the MetaInfo object if it does not exist
     inline void createIfNotExists_();
+
     /// Pointer to the MetaInfo object (0 by default)
     MetaInfo* meta_;
   };

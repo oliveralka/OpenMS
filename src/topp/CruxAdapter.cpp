@@ -2,7 +2,7 @@
 //                   OpenMS -- Open-Source Mass Spectrometry
 // --------------------------------------------------------------------------
 // Copyright The OpenMS Team -- Eberhard Karls University Tuebingen,
-// ETH Zurich, and Freie Universitaet Berlin 2002-2017.
+// ETH Zurich, and Freie Universitaet Berlin 2002-2018.
 //
 // This software is released under a three-clause BSD license:
 //  * Redistributions of source code must retain the above copyright
@@ -51,10 +51,8 @@
 #include <OpenMS/FORMAT/DATAACCESS/MSDataWritingConsumer.h>
 #include <OpenMS/FORMAT/DATAACCESS/MSDataCachedConsumer.h>
 
-#include <QtCore/QFile>
-#include <QtCore/QProcess>
-#include <QDir>
-#include <QDebug>
+#include <QtCore/QDir>
+
 #include <iostream>
 #include <fstream>
 
@@ -115,7 +113,7 @@ public:
   }
 
 protected:
-  void registerOptionsAndFlags_()
+  void registerOptionsAndFlags_() override
   {
     registerInputFile_("in", "<file>", "", "Input file");
     setValidFormats_("in", ListUtils::create<String>("mzML"));
@@ -208,7 +206,7 @@ protected:
     }
   }
 
-  ExitCodes main_(int, const char**)
+  ExitCodes main_(int, const char**) override
   {
     //-------------------------------------------------------------
     // parsing parameters
@@ -256,14 +254,14 @@ protected:
       db_name = full_db_name;
     }
 
-    const String tmp_dir = makeTempDirectory_();
+    //tmp_dir
+    String tmp_dir = makeAutoRemoveTempDirectory_();
 
     String output_dir = tmp_dir + "crux-output";
     String out_dir_q = QDir::toNativeSeparators((output_dir + "/").toQString());
     String concat = " --concat T"; // concat target and decoy
     String parser = " --spectrum-parser mstoolkit "; // only this parser correctly parses our .mzML files
 
-    writeDebug_("Creating temporary directory '" + tmp_dir + "'", 1);
     String tmp_mzml = tmp_dir + "input.mzML";
 
     // Low memory conversion
@@ -307,24 +305,22 @@ protected:
       QStringList process_params;
       process_params << tool.toQString();
       params.split(' ', substrings);
-      for (auto s : substrings)
+      for (const auto& s : substrings)
       {
         process_params << s.toQString();
       }
       process_params << db_name.toQString() << idx_name.toQString();
 
-      qDebug() << process_params;
-
-      int status = QProcess::execute(crux_executable.toQString(), process_params); // does automatic escaping etc...
-      if (status != 0)
+      //-------------------------------------------------------------
+      // run tide-index
+      //-------------------------------------------------------------
+      writeLog_("Executing Crux (tide-index)...");
+      TOPPBase::ExitCodes exit_code = runExternalProcess_(crux_executable.toQString(), process_params);
+      if (exit_code != EXECUTION_OK)
       {
-        writeLog_("Crux problem. Aborting! Calling command was: '" + 
-            crux_executable + " \"" + params + " " + db_name + " " + idx_name + "\"'.\nDoes the Crux executable exist?");
-        return EXTERNAL_PROGRAM_ERROR;
+        return exit_code;
       }
     }
-
-    std::cout << " Done running tide-index ... " << std::endl;
 
     // run crux tide-search
     {
@@ -359,23 +355,22 @@ protected:
       QStringList process_params;
       process_params << tool.toQString();
       params.split(' ', substrings);
-      for (auto s : substrings)
+      for (const auto& s : substrings)
       {
         process_params << s.toQString();
       }
       process_params << tmp_mzml.toQString() << idx_name.toQString();
-      qDebug() << process_params;
 
-      int status = QProcess::execute(crux_executable.toQString(), process_params); // does automatic escaping etc...
-      if (status != 0)
+      //-------------------------------------------------------------
+      // run tide-index
+      //-------------------------------------------------------------
+      writeLog_("Executed Crux (tide-search)...");
+      TOPPBase::ExitCodes exit_code = runExternalProcess_(crux_executable.toQString(), process_params);
+      if (exit_code != EXECUTION_OK)
       {
-        writeLog_("Crux problem. Aborting! Calling command was: '" + 
-            crux_executable + " \"" + params + " " + tmp_mzml + " " + idx_name + "\"'.\nDoes the Crux executable exist?");
-        return EXTERNAL_PROGRAM_ERROR;
+        return exit_code;
       }
     }
-
-    std::cout << " Done running tide-search ... " << std::endl;
 
     // run crux percolator (currently we dont have much choice in the matter)
     if (run_percolator)
@@ -406,22 +401,22 @@ protected:
       QStringList process_params;
       process_params << tool.toQString();
       params.split(' ', substrings);
-      for (auto s : substrings)
+      for (const auto& s : substrings)
       {
         process_params << s.toQString();
       }
       process_params << input.toQString();
-      qDebug() << process_params;
 
-      int status = QProcess::execute(crux_executable.toQString(), process_params); // does automatic escaping etc...
-      if (status != 0)
+      //-------------------------------------------------------------
+      // run percolator
+      //-------------------------------------------------------------
+      writeLog_("Executing Crux (percolator)...");
+      TOPPBase::ExitCodes exit_code = runExternalProcess_(crux_executable.toQString(), process_params);
+      if (exit_code != EXECUTION_OK)
       {
-        writeLog_("Crux problem. Aborting! Calling command was: '" + crux_executable + " \"" + inputfile_name + "\"'.\nDoes the Crux executable exist?");
-        return EXTERNAL_PROGRAM_ERROR;
+        return exit_code;
       }
     }
-
-    std::cout << " Done running percolator ... " << std::endl;
 
     //-------------------------------------------------------------
     // writing IdXML output
@@ -431,12 +426,44 @@ protected:
     vector<PeptideIdentification> peptide_identifications;
     vector<ProteinIdentification> protein_identifications;
 
+    // fill search parameters
+    ProteinIdentification::SearchParameters sp;
+    sp.db = getStringOption_("database");
+    //sp.charges = getIntList_("charge"); //dont know. Seems like tide doesnt support ranges and usually searches all?
+    //TODO input options do not follow our standard so we cant just copy here
+    sp.fixed_modifications = {}; //getStringList_("fixed_modifications");
+    sp.variable_modifications = {}; //getStringList_("variable_modifications");
+    sp.missed_cleavages = getIntOption_("allowed_missed_cleavages");
+    sp.fragment_mass_tolerance = getDoubleOption_("fragment_bin_width");
+    sp.fragment_mass_tolerance_ppm = "Da";
+    sp.precursor_mass_tolerance = getDoubleOption_("precursor_mass_tolerance");
+    sp.precursor_mass_tolerance_ppm = getStringOption_("precursor_mass_units") == "ppm";
+    sp.digestion_enzyme = *static_cast<const DigestionEnzymeProtein*>(ProteaseDB::getInstance()->getEnzyme(getStringOption_("enzyme")));
+
     std::cout << " will load file now " << std::endl;
     if (run_percolator)
     {
       String mzid = out_dir_q + "percolator.target.mzid";
       String mzid_decoy = out_dir_q + "percolator.decoy.mzid";
       MzIdentMLFile().load(mzid, protein_identifications, peptide_identifications);
+      for (auto& protID : protein_identifications)
+      {
+        protID.setSearchEngine("Percolator");
+        String SE = "tide_search";
+        protID.setMetaValue("SE:"+SE,"");
+        protID.setMetaValue(SE+":db",sp.db);
+        protID.setMetaValue(SE+":db_version",sp.db_version);
+        protID.setMetaValue(SE+":taxonomy",sp.taxonomy);
+        protID.setMetaValue(SE+":charges",sp.charges);
+        protID.setMetaValue(SE+":fixed_modifications",ListUtils::concatenate(sp.fixed_modifications, ","));
+        protID.setMetaValue(SE+":variable_modifications",ListUtils::concatenate(sp.variable_modifications, ","));
+        protID.setMetaValue(SE+":missed_cleavages",sp.missed_cleavages);
+        protID.setMetaValue(SE+":fragment_mass_tolerance",sp.fragment_mass_tolerance);
+        protID.setMetaValue(SE+":fragment_mass_tolerance_ppm",sp.fragment_mass_tolerance_ppm);
+        protID.setMetaValue(SE+":precursor_mass_tolerance",sp.precursor_mass_tolerance);
+        protID.setMetaValue(SE+":precursor_mass_tolerance_ppm",sp.precursor_mass_tolerance_ppm);
+        protID.setMetaValue(SE+":digestion_enzyme",sp.digestion_enzyme.getName());
+      }
 
       // also load the decoys
       if (report_decoys)
@@ -448,12 +475,14 @@ protected:
     {
       String mzid = out_dir_q + "tide-search.mzid";
       MzIdentMLFile().load(mzid, protein_identifications, peptide_identifications);
+      for (auto& protID : protein_identifications)
+      {
+        protID.setSearchEngine("tide-search");
+        protID.setSearchParameters(sp);
+      }
     }
 
     IdXMLFile().store(out, protein_identifications, peptide_identifications);
-
-    // remove tempdir
-    removeTempDir_(tmp_dir);
 
     return EXECUTION_OK;
   }

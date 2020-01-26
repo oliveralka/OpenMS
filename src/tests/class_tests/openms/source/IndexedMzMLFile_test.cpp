@@ -2,7 +2,7 @@
 //                   OpenMS -- Open-Source Mass Spectrometry
 // --------------------------------------------------------------------------
 // Copyright The OpenMS Team -- Eberhard Karls University Tuebingen,
-// ETH Zurich, and Freie Universitaet Berlin 2002-2017.
+// ETH Zurich, and Freie Universitaet Berlin 2002-2018.
 //
 // This software is released under a three-clause BSD license:
 //  * Redistributions of source code must retain the above copyright
@@ -231,7 +231,7 @@ START_SECTION(([EXTRA] load broken file))
     // Manually, one can cast the indexoffset variable to int to trigger this
     // behavior in IndexedMzMLDecoder.cpp
     // 
-    TEST_EXCEPTION_WITH_MESSAGE (Exception::ConversionError, 
+    TEST_EXCEPTION_WITH_MESSAGE(Exception::ConversionError,
       new IndexedMzMLHandler(OPENMS_GET_TEST_DATA_PATH("IndexedmzMLFile_3_broken.mzML")), 
       "Could not convert string '9223372036854775807' to an integer on your system." )
   }

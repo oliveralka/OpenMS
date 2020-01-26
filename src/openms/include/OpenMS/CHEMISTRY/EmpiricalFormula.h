@@ -2,7 +2,7 @@
 //                   OpenMS -- Open-Source Mass Spectrometry
 // --------------------------------------------------------------------------
 // Copyright The OpenMS Team -- Eberhard Karls University Tuebingen,
-// ETH Zurich, and Freie Universitaet Berlin 2002-2017.
+// ETH Zurich, and Freie Universitaet Berlin 2002-2018.
 //
 // This software is released under a three-clause BSD license:
 //  * Redistributions of source code must retain the above copyright
@@ -38,6 +38,7 @@
 #include <map>
 #include <set>
 #include <algorithm>
+#include <string>
 
 #include <OpenMS/CONCEPT/Types.h>
 
@@ -47,6 +48,8 @@ namespace OpenMS
   class Element;
   class ElementDB;
   class IsotopeDistribution;
+  class IsotopePatternGenerator;
+  class CoarseIsotopePatternGenerator;
 
   /**
     @ingroup Chemistry
@@ -90,16 +93,21 @@ public:
     /// Iterators
     typedef MapType_::const_iterator ConstIterator;
     typedef MapType_::const_iterator const_iterator;
+    typedef MapType_::iterator Iterator;
+    typedef MapType_::iterator iterator;
     //@}
 
     /** @name Constructors and Destructors
     */
     //@{
-    /// default constructor
+    /// Default constructor
     EmpiricalFormula();
 
-    /// copy constructor
-    EmpiricalFormula(const EmpiricalFormula& rhs);
+    /// Copy constructor
+    EmpiricalFormula(const EmpiricalFormula&) = default;
+
+    /// Move constructor
+    EmpiricalFormula(EmpiricalFormula&&) = default;
 
     /**
       Constructor from an OpenMS String
@@ -108,10 +116,11 @@ public:
     */
     explicit EmpiricalFormula(const String& rhs);
 
-    /// constructor with element pointer and number
+
+    /// Constructor with element pointer and number
     EmpiricalFormula(SignedSize number, const Element* element, SignedSize charge = 0);
 
-    /// destructor
+    /// Destructor
     virtual ~EmpiricalFormula();
     //@}
 
@@ -123,6 +132,9 @@ public:
 
     /// returns the average weight of the formula (includes proton charges)
     double getAverageWeight() const;
+
+    /// returns the total number of discrete isotopes
+    double calculateTheoreticalIsotopesNumber() const;
 
     /**
       @brief Fills this EmpiricalFormula with an approximate elemental composition for a given average weight and approximate elemental stoichiometry
@@ -159,12 +171,12 @@ public:
     /**
       @brief returns the isotope distribution of the formula
       The details of the calculation of the isotope distribution
-      are described in the doc to the IsotopeDistribution class.
+      are described in the doc to the CoarseIsotopePatternGenerator class.
 
-      @param max_depth: the maximum isotope which is considered, if 0 all are reported
+      @param method: the method that will be used for the calculation of the IsotopeDistribution 
     */
-    IsotopeDistribution getIsotopeDistribution(UInt max_depth) const;
-
+    IsotopeDistribution getIsotopeDistribution(const IsotopePatternGenerator& method) const;    
+    
     /**
       @brief returns the fragment isotope distribution of this given a precursor formula
       and conditioned on a set of isolated precursor isotopes.
@@ -172,9 +184,12 @@ public:
       The max_depth of the isotopic distribution is set to max(precursor_isotopes)+1.
       @param precursor: the empirical formula of the precursor
       @param precursor_isotopes: the precursor isotopes that were isolated
+      @param method: the method that will be used for the calculation of the IsotopeDistribution
       @return the conditional IsotopeDistribution of the fragment
     */
-    IsotopeDistribution getConditionalFragmentIsotopeDist(const EmpiricalFormula& precursor, const std::set<UInt>& precursor_isotopes) const;
+    IsotopeDistribution getConditionalFragmentIsotopeDist(const EmpiricalFormula& precursor,
+                                                          const std::set<UInt>& precursor_isotopes,
+                                                          const CoarseIsotopePatternGenerator& method) const;
 
     /// returns the number of atoms for a certain @p element (can be negative)
     SignedSize getNumberOf(const Element* element) const;
@@ -183,20 +198,27 @@ public:
     SignedSize getNumberOfAtoms() const;
 
     /// returns the charge
-    SignedSize getCharge() const;
+    Int getCharge() const;
 
     /// sets the charge
-    void setCharge(SignedSize charge);
+    void setCharge(Int charge);
 
     /// returns the formula as a string (charges are not included)
     String toString() const;
+
+    /// returns the formula as a map (charges are not included)
+    std::map<std::string, int> toMap() const;
     //@}
 
     /** Assignment
     */
     //@{
-    /// assignment operator
-    EmpiricalFormula& operator=(const EmpiricalFormula& rhs);
+
+    /// Assignment operator
+    EmpiricalFormula& operator=(const EmpiricalFormula&) = default;
+
+    /// Move assignment operator
+    EmpiricalFormula& operator=(EmpiricalFormula&&) & = default;
 
     /// adds the elements of the given formula
     EmpiricalFormula& operator+=(const EmpiricalFormula& rhs);
@@ -236,6 +258,9 @@ public:
     /// returns true if the formulas differ in elements composition
     bool operator!=(const EmpiricalFormula& rhs) const;
 
+    /// less operator
+    bool operator<(const EmpiricalFormula& rhs) const;
+
     //@}
 
     /// writes the formula to a stream
@@ -247,6 +272,10 @@ public:
     inline ConstIterator begin() const { return formula_.begin(); }
 
     inline ConstIterator end() const { return formula_.end(); }
+    
+    inline Iterator begin() { return formula_.begin(); }
+
+    inline Iterator end() { return formula_.end(); }
     //@}
 
 protected:
@@ -256,9 +285,9 @@ protected:
 
     MapType_ formula_;
 
-    SignedSize charge_;
+    Int charge_;
 
-    SignedSize parseFormula_(std::map<const Element*, SignedSize>& ef, const String& formula) const;
+    Int parseFormula_(std::map<const Element*, SignedSize>& ef, const String& formula) const;
 
   };
 
