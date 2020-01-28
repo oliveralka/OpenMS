@@ -635,13 +635,14 @@ namespace OpenMS
     std::pair<Size, Size> tr2_fwhm_idx(tr2.getFWHMborders());
 
     // TODO: start, end retention time to calculate overhang
-    double getOverhang(const MassTrace& longer, const MassTrace& shorter)
+    double getOverhang(const MassTrace& t_long, const MassTrace& t_short)
     {
-      double tr1_start = tr1.begin()->getRT();
-      double tr1_end = tr1.end()->getRT();
+      // TODO: Check precondition that trace is really longer / shorter
+      double long_start = t_long.begin()->getRT();
+      double long_end = t_long.end()->getRT();
 
-      double tr2_start = tr1.begin()->getRT();
-      double tr2_end = tr2.end()->getRT();
+      double short_start = t_short.begin()->getRT();
+      double short_end = t_short.end()->getRT();
 
     }
 
