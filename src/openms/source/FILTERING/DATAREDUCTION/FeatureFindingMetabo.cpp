@@ -634,7 +634,18 @@ namespace OpenMS
     std::pair<Size, Size> tr1_fwhm_idx(tr1.getFWHMborders());
     std::pair<Size, Size> tr2_fwhm_idx(tr2.getFWHMborders());
 
-    //    std::cout << tr1_fwhm_idx.first << " " << tr1_fwhm_idx.second << std::endl;
+    // TODO: start, end retention time to calculate overhang
+    double getOverhang(const MassTrace& longer, const MassTrace& shorter)
+    {
+      double tr1_start = tr1.begin()->getRT();
+      double tr1_end = tr1.end()->getRT();
+
+      double tr2_start = tr1.begin()->getRT();
+      double tr2_end = tr2.end()->getRT();
+
+    }
+
+    //    std::cout << tr1_fwhm_idx.first << " " << tr1_fwhm_idx.second <<
     //    std::cout << tr2_fwhm_idx.first << " " << tr2_fwhm_idx.second << std::endl;
 
     //    Size tr1_fwhm_size(tr1_fwhm_idx.second - tr1_fwhm_idx.first);
@@ -645,6 +656,23 @@ namespace OpenMS
     double tr1_length(tr1.getFWHM());
     double tr2_length(tr2.getFWHM());
     double max_length = (tr1_length > tr2_length) ? tr1_length : tr2_length;
+    // check which one is the longer trace and call function based on that,
+    // which gives the percentage o the overlap!
+    if (tr1_length > tr2_length)
+    {
+      double getOverhang(tr1, tr2);
+    }
+    else if (tr1_length < tr2_length)
+    {
+      double getOverhang(tr2, tr1);
+    }
+    else
+    {
+      // not sure what to do yet - should be the same size/lenght
+      // 100 percent overlap.
+    }
+
+
 
     // std::cout << "tr1 " << tr1_length << " tr2 " << tr2_length << std::endl;
 
@@ -679,8 +707,7 @@ namespace OpenMS
     // if (coinciding_rts.size() > 0)
     // {
     //     rt_range = std::fabs(coinciding_rts.rbegin()->first - coinciding_rts.begin()->first);
-    // }
-
+    //
 
     double overlap(0.0);
     if (overlap_rts.size() > 0)
@@ -689,11 +716,13 @@ namespace OpenMS
       overlap = std::fabs(end_rt - start_rt);
     }
 
+    // TODO: Reduce the proportion to 40%
     double proportion(overlap / max_length);
     if (proportion < 0.7)
     {
       return 0.0;
     }
+
     return computeCosineSim_(x, y);
   }
 
