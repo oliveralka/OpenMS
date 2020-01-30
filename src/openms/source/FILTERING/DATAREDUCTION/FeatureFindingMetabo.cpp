@@ -352,7 +352,7 @@ namespace OpenMS
 
     remove_single_traces_ = param_.getValue("remove_single_traces").toBool();
 
-    use_mz_scoring_by_element_range = param_.getValue("mz_scoring_by_elements").toBool();
+    use_mz_scoring_by_element_range_ = param_.getValue("mz_scoring_by_elements").toBool();
     std::string elements_list_ = param_.getValue("elements");
     elements_ = elementsFromString_(elements_list_);
   }
@@ -543,7 +543,8 @@ namespace OpenMS
 
     double mz_score(0.0);
 
-    if (use_mz_scoring_by_element_range){
+    if (use_mz_scoring_by_element_range_)
+    {
       mz_score = scoreMZByExpectedRange_(charge, diff_mz, mt_variances, isotope_window);
     }
     else
@@ -604,14 +605,16 @@ namespace OpenMS
     {
       //isotope masstrace lies in the expected range
       mz_score = 1.0;
-    } else if ((diff_mz < rbound + max_allowed_deviation) && (diff_mz > lbound - max_allowed_deviation))
+    }
+    else if ((diff_mz < rbound + max_allowed_deviation) && (diff_mz > lbound - max_allowed_deviation))
     {
       //score only the m/z difference which cannot explained by the elements m/z ranges
       double tmp_exponent;
       if (diff_mz < lbound)
       {
         tmp_exponent = (lbound - diff_mz) / mt_sigma;
-      } else
+      }
+      else
       {
         tmp_exponent = (diff_mz - rbound) / mt_sigma;
       }
@@ -736,7 +739,7 @@ namespace OpenMS
 
     for (const Element* e : alphabet) {
       IsotopeDistribution iso = e->getIsotopeDistribution();
-      for (int k = 1; k < iso.size(); ++k) {
+      for (unsigned int k = 1; k < iso.size(); ++k) {
         const double mz_mono = iso[0].getMZ();
         const double mz_iso = iso[k].getMZ();
 
@@ -758,7 +761,6 @@ namespace OpenMS
     range.right_boundary = peakOffset + maxmz;
     return range;
   }
-
 
   double FeatureFindingMetabo::computeCosineSim_(const std::vector<double>& x, const std::vector<double>& y) const
   {
@@ -895,6 +897,15 @@ namespace OpenMS
 
   void FeatureFindingMetabo::run(std::vector<MassTrace>& input_mtraces, FeatureMap& output_featmap, std::vector<std::vector< OpenMS::MSChromatogram > >& output_chromatograms)
   {
+
+    if (use_mz_scoring_by_element_range_ && isotope_filtering_model_ != "none")
+    {
+      OPENMS_LOG_WARN << "Isotope filtering is not supported, when using the mz scoring by elements.\n"
+                      << "The parameter isotope_filtering_model will be set to 'none'."
+                      << std::endl;
+      isotope_filtering_model_ = "none";
+    }
+
     output_featmap.clear();
     output_chromatograms.clear();
 
