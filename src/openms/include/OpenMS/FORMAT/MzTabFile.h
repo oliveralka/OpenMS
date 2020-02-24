@@ -148,13 +148,13 @@ namespace OpenMS
 
     String generateMzTabSmallMoleculeFeatureHeader_() const;
 
-    String generatreMzTabSmallMoleculeFeatureSectionRow() const;
+    String generateMzTabSmallMoleculeFeatureSectionRow() const;
 
     void generateMzTabSmallMoleculeEvidenceSection_() const;
 
     String generateMzTabSmallMoleculeEvidenceHeader_() const;
 
-    String generatreMzTabSmallMoleculeEvidenceSectionRow() const;
+    String generateMzTabSmallMoleculeEvidenceSectionRow() const;
 
 
     // auxiliary functions
