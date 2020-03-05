@@ -3,7 +3,7 @@
 #                   OpenMS -- Open-Source Mass Spectrometry
 # --------------------------------------------------------------------------
 # Copyright The OpenMS Team -- Eberhard Karls University Tuebingen,
-# ETH Zurich, and Freie Universitaet Berlin 2002-2018.
+# ETH Zurich, and Freie Universitaet Berlin 2002-2020.
 #
 # This software is released under a three-clause BSD license:
 #  * Redistributions of source code must retain the above copyright
@@ -287,6 +287,11 @@ add_test("TOPP_FeatureFinderIdentification_3" ${TOPP_BIN_PATH}/FeatureFinderIden
 add_test("TOPP_FeatureFinderIdentification_3_out1" ${DIFF} -whitelist "spectra_data" "featureMap" -in1 FeatureFinderIdentification_3.tmp -in2 ${DATA_DIR_TOPP}/FeatureFinderIdentification_3_output.featureXML)
 set_tests_properties("TOPP_FeatureFinderIdentification_3_out1" PROPERTIES DEPENDS "TOPP_FeatureFinderIdentification_3")
 
+## with batch extraction size smaller than the nr of peptides (we need towhitelist feature ids, since they might be generated differently)
+add_test("TOPP_FeatureFinderIdentification_4" ${TOPP_BIN_PATH}/FeatureFinderIdentification -test -in ${DATA_DIR_TOPP}/FeatureFinderIdentification_1_input.mzML -id ${DATA_DIR_TOPP}/FeatureFinderIdentification_1_input.idXML -out FeatureFinderIdentification_4.tmp -extract:mz_window 0.1 -extract:batch_size 10 -detect:peak_width 60 -model:type none)
+add_test("TOPP_FeatureFinderIdentification_4_out1" ${DIFF} -whitelist "feature id" "spectra_data" "featureMap" -in1 FeatureFinderIdentification_4.tmp -in2 ${DATA_DIR_TOPP}/FeatureFinderIdentification_1_output.featureXML)
+set_tests_properties("TOPP_FeatureFinderIdentification_4_out1" PROPERTIES DEPENDS "TOPP_FeatureFinderIdentification_4")
+
 #------------------------------------------------------------------------------
 # FeatureFinderMRM test
 add_test("TOPP_FeatureFinderMRM_1" ${TOPP_BIN_PATH}/FeatureFinderMRM -test -in ${DATA_DIR_TOPP}/FeatureFinderMRM_1_input.mzML -ini ${DATA_DIR_TOPP}/FeatureFinderMRM_1_parameters.ini -out FeatureFinderMRM_1.tmp)
@@ -476,6 +481,9 @@ set_tests_properties("TOPP_FileConverter_30_out" PROPERTIES DEPENDS "TOPP_FileCo
 add_test("TOPP_FileConverter_31" ${TOPP_BIN_PATH}/FileConverter -test -in ${DATA_DIR_TOPP}/FileConverter_30_output.mzML -change_im_format single -out_type mzML -out FileConverter_31.tmp)
 add_test("TOPP_FileConverter_31_out" ${DIFF} -in1 FileConverter_31.tmp -in2 ${DATA_DIR_TOPP}/FileConverter_31_output.mzML -whitelist "location=" "<offset")
 set_tests_properties("TOPP_FileConverter_31_out" PROPERTIES DEPENDS "TOPP_FileConverter_31")
+add_test("TOPP_FileConverter_32" ${TOPP_BIN_PATH}/FileConverter -test -in ${DATA_DIR_TOPP}/FileConverter_32_input.mzML -out_type mzML -out FileConverter_32.tmp)
+add_test("TOPP_FileConverter_32_out" ${DIFF} -in1 FileConverter_32.tmp -in2 ${DATA_DIR_TOPP}/FileConverter_32_output.mzML -whitelist "location=" "<offset")
+set_tests_properties("TOPP_FileConverter_32_out" PROPERTIES DEPENDS "TOPP_FileConverter_32")
 
 #------------------------------------------------------------------------------
 # FileFilter tests
@@ -809,6 +817,11 @@ set_tests_properties("TOPP_IDRTCalibration_2_out1" PROPERTIES DEPENDS "TOPP_IDRT
 
 
 #------------------------------------------------------------------------------
+# IDMassAccuracy tests
+add_test("TOPP_IDMassAccuracy_1" ${TOPP_BIN_PATH}/IDMassAccuracy -test -in ${DATA_DIR_TOPP}/THIRDPARTY/spectra.mzML -id_in ${DATA_DIR_TOPP}/THIRDPARTY/MSGFPlusAdapter_1_out.idXML -number_of_bins 10 -out_fragment IDMassAccuracy_1_out_fragment.tsv -out_fragment_fit IDMassAccuracy_1_out_fragment_fit.tsv -out_precursor IDMassAccuracy_1_out_precursor.tsv -out_precursor_fit IDMassAccuracy_1_out_precursor_fit.tsv)
+# Currently just testing if the tool runs
+
+#------------------------------------------------------------------------------
 # IsobaricAnalyzer tests
 add_test("TOPP_IsobaricAnalyzer_1" ${TOPP_BIN_PATH}/IsobaricAnalyzer -test -in ${DATA_DIR_TOPP}/IsobaricAnalyzer_input_1.mzML -ini ${DATA_DIR_TOPP}/IsobaricAnalyzer.ini -out IsobaricAnalyzer_output_1.tmp)
 add_test("TOPP_IsobaricAnalyzer_1_out1" ${DIFF} -whitelist "id=" "<map" "?xml-stylesheet" -in1 IsobaricAnalyzer_output_1.tmp -in2 ${DATA_DIR_TOPP}/IsobaricAnalyzer_output_1.consensusXML )
@@ -1125,6 +1138,24 @@ add_test("TOPP_MapAlignerSpectrum_1_out2" ${DIFF} -whitelist ${INDEX_WHITELIST} 
 set_tests_properties("TOPP_MapAlignerSpectrum_1_out2" PROPERTIES DEPENDS "TOPP_MapAlignerSpectrum_1")
 add_test("TOPP_MapAlignerSpectrum_1_out3" ${DIFF} -whitelist ${INDEX_WHITELIST} -in1 MapAlignerSpectrum_1_output3.tmp -in2 ${DATA_DIR_TOPP}/MapAlignerSpectrum_1_output3.mzML )
 set_tests_properties("TOPP_MapAlignerSpectrum_1_out3" PROPERTIES DEPENDS "TOPP_MapAlignerSpectrum_1")
+
+#------------------------------------------------------------------------------
+# MapAlignerTreeGuided tests:
+add_test("TOPP_MapAlignerTreeGuided_1" ${TOPP_BIN_PATH}/MapAlignerTreeGuided -test -ini ${DATA_DIR_TOPP}/MapAlignerTreeGuided_parameters.ini -in ${DATA_DIR_TOPP}/MapAlignerTreeGuided_1_input1.featureXML ${DATA_DIR_TOPP}/MapAlignerTreeGuided_1_input2.featureXML ${DATA_DIR_TOPP}/MapAlignerTreeGuided_1_input3.featureXML -out MapAlignerTreeGuided_1_output1.tmp MapAlignerTreeGuided_1_output2.tmp MapAlignerTreeGuided_1_output3.tmp)
+add_test("TOPP_MapAlignerTreeGuided_1_out1" ${DIFF} -in1 MapAlignerTreeGuided_1_output1.tmp -in2 ${DATA_DIR_TOPP}/MapAlignerTreeGuided_1_output1.featureXML )
+set_tests_properties("TOPP_MapAlignerTreeGuided_1_out1" PROPERTIES DEPENDS "TOPP_MapAlignerTreeGuided_1")
+add_test("TOPP_MapAlignerTreeGuided_1_out2" ${DIFF} -in1 MapAlignerTreeGuided_1_output2.tmp -in2 ${DATA_DIR_TOPP}/MapAlignerTreeGuided_1_output2.featureXML )
+set_tests_properties("TOPP_MapAlignerTreeGuided_1_out2" PROPERTIES DEPENDS "TOPP_MapAlignerTreeGuided_1")
+add_test("TOPP_MapAlignerTreeGuided_1_out3" ${DIFF} -in1 MapAlignerTreeGuided_1_output3.tmp -in2 ${DATA_DIR_TOPP}/MapAlignerTreeGuided_1_output3.featureXML )
+set_tests_properties("TOPP_MapAlignerTreeGuided_1_out3" PROPERTIES DEPENDS "TOPP_MapAlignerTreeGuided_1")
+# trafoXML output:
+add_test("TOPP_MapAlignerTreeGuided_2" ${TOPP_BIN_PATH}/MapAlignerTreeGuided -test -ini ${DATA_DIR_TOPP}/MapAlignerTreeGuided_parameters.ini -in ${DATA_DIR_TOPP}/MapAlignerTreeGuided_1_input1.featureXML ${DATA_DIR_TOPP}/MapAlignerTreeGuided_1_input2.featureXML ${DATA_DIR_TOPP}/MapAlignerTreeGuided_1_input3.featureXML -trafo_out MapAlignerTreeGuided_2_output1.tmp MapAlignerTreeGuided_2_output2.tmp MapAlignerTreeGuided_2_output3.tmp)
+add_test("TOPP_MapAlignerTreeGuided_2_out1" ${DIFF} -in1 MapAlignerTreeGuided_2_output1.tmp -in2 ${DATA_DIR_TOPP}/MapAlignerTreeGuided_2_output1.trafoXML )
+set_tests_properties("TOPP_MapAlignerTreeGuided_2_out1" PROPERTIES DEPENDS "TOPP_MapAlignerTreeGuided_2")
+add_test("TOPP_MapAlignerTreeGuided_2_out2" ${DIFF} -in1 MapAlignerTreeGuided_2_output2.tmp -in2 ${DATA_DIR_TOPP}/MapAlignerTreeGuided_2_output2.trafoXML )
+set_tests_properties("TOPP_MapAlignerTreeGuided_2_out2" PROPERTIES DEPENDS "TOPP_MapAlignerTreeGuided_2")
+add_test("TOPP_MapAlignerTreeGuided_2_out3" ${DIFF} -in1 MapAlignerTreeGuided_2_output3.tmp -in2 ${DATA_DIR_TOPP}/MapAlignerTreeGuided_2_output3.trafoXML )
+set_tests_properties("TOPP_MapAlignerTreeGuided_2_out3" PROPERTIES DEPENDS "TOPP_MapAlignerTreeGuided_2")
 
 #------------------------------------------------------------------------------
 # MapRTTransformer tests
@@ -1909,10 +1940,10 @@ set_tests_properties("TOPP_ExternalCalibration_2_out1" PROPERTIES DEPENDS "TOPP_
 
 #------------------------------------------------------------------------------
 # TOFCalibration tests
-add_test("TOPP_TOFCalibration_1" ${TOPP_BIN_PATH}/TOFCalibration -test -in ${DATA_DIR_TOPP}/TOFCalibration_1_input.mzML -out TOFCalibration.tmp -ref_masses ${DATA_DIR_TOPP}/TOFCalibration_ref_masses -ini ${DATA_DIR_TOPP}/TOFCalibration_parameters.ini -tof_const ${DATA_DIR_TOPP}/TOFCalibration_const -ext_calibrants ${DATA_DIR_TOPP}/TOFCalibration_1_calibrants.mzML)
+add_test("TOPP_TOFCalibration_1" ${TOPP_BIN_PATH}/TOFCalibration -test -in ${DATA_DIR_TOPP}/TOFCalibration_1_input.mzML -out TOFCalibration.tmp -ref_masses ${DATA_DIR_TOPP}/TOFCalibration_ref_masses.tsv -ini ${DATA_DIR_TOPP}/TOFCalibration_parameters.ini -tof_const ${DATA_DIR_TOPP}/TOFCalibration_const.tsv -ext_calibrants ${DATA_DIR_TOPP}/TOFCalibration_1_calibrants.mzML)
 #add_test("TOPP_TOFCalibration_1_out1" ${DIFF} -in1 TOFCalibration.tmp -in2 ${DATA_DIR_TOPP}/TOFCalibration_1_output.mzML )
 #set_tests_properties("TOPP_TOFCalibration_1_out1" PROPERTIES DEPENDS "TOPP_TOFCalibration_1")
-add_test("TOPP_TOFCalibration_2" ${TOPP_BIN_PATH}/TOFCalibration -test -in ${DATA_DIR_TOPP}/TOFCalibration_2_input.mzML -out TOFCalibration_2.tmp -ref_masses ${DATA_DIR_TOPP}/TOFCalibration_ref_masses -ini ${DATA_DIR_TOPP}/TOFCalibration_parameters.ini -tof_const ${DATA_DIR_TOPP}/TOFCalibration_const -ext_calibrants ${DATA_DIR_TOPP}/TOFCalibration_2_calibrants.mzML -peak_data)
+add_test("TOPP_TOFCalibration_2" ${TOPP_BIN_PATH}/TOFCalibration -test -in ${DATA_DIR_TOPP}/TOFCalibration_2_input.mzML -out TOFCalibration_2.tmp -ref_masses ${DATA_DIR_TOPP}/TOFCalibration_ref_masses.tsv -ini ${DATA_DIR_TOPP}/TOFCalibration_parameters.ini -tof_const ${DATA_DIR_TOPP}/TOFCalibration_const.tsv -ext_calibrants ${DATA_DIR_TOPP}/TOFCalibration_2_calibrants.mzML -peak_data)
 #add_test("TOPP_TOFCalibration_2_out1" ${DIFF} -in1 TOFCalibration_2.tmp -in2 ${DATA_DIR_TOPP}/TOFCalibration_2_output.mzML )
 #set_tests_properties("TOPP_TOFCalibration_2_out1" PROPERTIES DEPENDS "TOPP_TOFCalibration_2")
 

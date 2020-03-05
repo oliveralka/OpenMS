@@ -2,7 +2,7 @@
 //                   OpenMS -- Open-Source Mass Spectrometry
 // --------------------------------------------------------------------------
 // Copyright The OpenMS Team -- Eberhard Karls University Tuebingen,
-// ETH Zurich, and Freie Universitaet Berlin 2002-2018.
+// ETH Zurich, and Freie Universitaet Berlin 2002-2020.
 //
 // This software is released under a three-clause BSD license:
 //  * Redistributions of source code must retain the above copyright
@@ -230,7 +230,7 @@ protected:
     registerOutputFile_("out", "<file>", "", "Output file");
     setValidFormats_("out", ListUtils::create<String>("mzid,idXML,osw"));
     registerOutputFile_("out_pin", "<file>", "", "Write pin file (e.g., for debugging)", !is_required, is_advanced_option);
-    setValidFormats_("out_pin", ListUtils::create<String>("tab"), !force_openms_format);
+    setValidFormats_("out_pin", ListUtils::create<String>("tsv"), !force_openms_format);
 
     registerStringOption_("out_type", "<type>", "", "Output file type -- default: determined from file extension or content.", false);
     setValidStrings_("out_type", ListUtils::create<String>("mzid,idXML,osw"));
