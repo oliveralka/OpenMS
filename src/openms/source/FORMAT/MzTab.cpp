@@ -139,7 +139,7 @@ namespace OpenMS
   {
     sep_ = sep;
   }
-
+  // mandatory
   bool MzTabStringList::isNull() const
   {
     return entries_.empty();
@@ -3185,5 +3185,29 @@ Not sure how to handle these:
       }
     }
   }
+
+
+  // Mztab-M
+  MzTab::MzTabM()
+  {
+
+  }
+
+  MzTab::~MzTabM()
+  {
+
+  }
+
+  const MzTabMSmallMoleculeSectionRows& getMSmallMoleculeSectionRows() const {}
+
+  void setMSmallMoleculeSectionRows(const MzTabMSmallMoleculeSectionRows& m_smsd) {}
+
+  const MzTabMSmallMoleculeFeatureSectionRows& getMSmallMoleculeFeatureSectionRows() const {}
+
+  void setMSmallMoleculeFeatureSectionRows(const MzTabMSmallMoleculeFeatureSectionRows& m_smfsd) {}
+
+  const MzTabMSmallMoleculeEvidenceSectionRows& getMSmallMoleculeEvidenceSectionRows() const {}
+
+  void setMSmallMoleculeSectionRows(const MzTabMSmallMoleculeSectionRows& m_smesd) {}
 }
 
