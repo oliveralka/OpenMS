@@ -311,15 +311,19 @@ namespace OpenMS
         //    - swath_assay
         //    - experiment_label
 
+        // https://spctools-discuss.narkive.com/dUMX9TyS/problems-with-ptmprophet-and-tandem2xml
+        // TPP: ScanNumber based on index 
+        scan_nr = scan_index + 1;
         String spectrum_name = base_name + "." + scan_nr + "." + scan_nr + ".";
+        std::cout << spectrum_name << std::endl;
         if (it->metaValueExists("pepxml_spectrum_name") && keep_native_name_)
         {
           spectrum_name = it->getMetaValue("pepxml_spectrum_name");
         }
 
         f << "\t<spectrum_query spectrum=\"" << spectrum_name << h.getCharge() << "\""
-          << " start_scan=\"" << scan_nr << "\""
-          << " end_scan=\"" << scan_nr << "\""
+          << " start_scan=\"" << scan_index << "\""
+          << " end_scan=\"" << scan_index << "\""
           << " precursor_neutral_mass=\"" << precisionWrapper(precursor_neutral_mass) << "\""
           << " assumed_charge=\"" << h.getCharge() << "\" index=\"" << scan_index << "\"";
 
