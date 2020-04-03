@@ -320,8 +320,12 @@ namespace OpenMS
           spectrum_name = it->getMetaValue("pepxml_spectrum_name");
         }
 
+        // due to the relationship of start_scan to the index
+        // index in the mzML should start from 0 
+        int start_scan = scan_index + 1;
+
         f << "\t<spectrum_query spectrum=\"" << spectrum_name << h.getCharge() << "\""
-          << " start_scan=\"" << scan_index << "\""
+          << " start_scan=\"" << start_scan << "\""
           << " end_scan=\"" << scan_nr << "\""
           << " precursor_neutral_mass=\"" << precisionWrapper(precursor_neutral_mass) << "\""
           << " assumed_charge=\"" << h.getCharge() << "\" index=\"" << scan_index << "\"";
