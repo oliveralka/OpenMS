@@ -39,6 +39,9 @@
 #include <OpenMS/FORMAT/MzTab.h>
 #include <OpenMS/FORMAT/MzTabFile.h>
 #include <OpenMS/SYSTEM/File.h>
+#include <OpenMS/FORMAT/FileTypes.h>
+#include <OpenMS/FORMAT/FileHandler.h>
+#include <OpenMS/FORMAT/MSPGenericFile.h>
 
 #include <OpenMS/ANALYSIS/ID/MetaboliteSpectralMatching.h>
 
@@ -102,8 +105,8 @@ protected:
   {
     registerInputFile_("in", "<file>", "", "Input spectra.");
     setValidFormats_("in", ListUtils::create<String>("mzML"));
-    registerInputFile_("database", "<file>", "CHEMISTRY/MetaboliteSpectralDB.mzML", "Default spectral database.", false);
-    setValidFormats_("database", ListUtils::create<String>("mzML"));
+    registerInputFile_("database", "<file>", "CHEMISTRY/MetaboliteSpectralDB.mzML", "Default spectral database (mzML or msp (NIST library format)).", false);
+    setValidFormats_("database", ListUtils::create<String>("mzML,msp"));
     registerOutputFile_("out", "<file>", "", "mzTab file");
     setValidFormats_("out", ListUtils::create<String>("mzTab"));
 
@@ -165,9 +168,20 @@ protected:
     //-------------------------------------------------------------
     // load database
     //-------------------------------------------------------------
-
+    
     PeakMap spec_db;
-    mz_file.load(spec_db_filename, spec_db);
+    FileHandler fh;
+    FileTypes::Type in_type = fh.getType(spec_db_filename);
+
+    if (in_type == FileTypes::MZML)
+    {
+      mz_file.load(spec_db_filename, spec_db);
+    }
+    else if (in_type == FileTypes::MSP)
+    {
+      MSPGenericFile msp_file;
+      msp_file.load(spec_db_filename, spec_db);
+    }
 
     if (spec_db.empty())
     {

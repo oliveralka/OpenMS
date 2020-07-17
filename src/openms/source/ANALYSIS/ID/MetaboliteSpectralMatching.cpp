@@ -460,7 +460,7 @@ namespace OpenMS
 
     wm.filterPeakMap(msexp);
 
-    // merge MS2 spectra with same precursor mass
+    // merge MS2 spectra with same precursor mass // why would you do that e.g. check similarity beforehand?
     SpectraMerger spme;
     spme.mergeSpectraPrecursors(msexp);
     wm.filterPeakMap(msexp);
@@ -533,7 +533,7 @@ namespace OpenMS
             SpectralMatch tmp_match;
             tmp_match.setObservedPrecursorMass(precursor_mz);
             tmp_match.setFoundPrecursorMass(spec_db[search_idx].getPrecursors()[0].getMZ());
-            double obs_rt = floor(msexp[spec_idx].getRT() * 10)/10.0;
+            double obs_rt = floor(msexp[spec_idx].getRT() * 10)/10.0; //what does this do?
             tmp_match.setObservedPrecursorRT(obs_rt);
             tmp_match.setFoundPrecursorCharge(spec_db[search_idx].getPrecursors()[0].getCharge());
             tmp_match.setMatchingScore(hyperscore);
