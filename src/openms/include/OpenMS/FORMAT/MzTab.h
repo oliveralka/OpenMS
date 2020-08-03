@@ -481,8 +481,6 @@ protected:
     std::map<Size, MzTabModificationMetaData> quantification_mod;
     MzTabString sample_ref;
     std::vector<int> ms_run_ref; // adapted to address https://github.com/HUPO-PSI/mzTab/issues/26
-    MzTabParameter custom; // mztab-m
-    MzTabString external_uri; // mztab-m
   };
 
   struct OPENMS_DLLAPI MzTabCVMetaData
@@ -514,10 +512,6 @@ protected:
     MzTabString location;
     MzTabParameter id_format;
     MzTabParameterList fragmentation_method;
-    MzTabInteger instrument_ref; // mztab-m
-    MzTabParameter scan_polarity; // mztab-m
-    MzTabString hash; // mztab-m
-    MzTabParameter hash_method; // mztab-m
   };
 
   struct OPENMS_DLLAPI MzTabStudyVariableMetaData
@@ -525,17 +519,6 @@ protected:
     std::vector<int> assay_refs;
     std::vector<int> sample_refs;
     MzTabString description;
-    MzTabParameter average_function; // mztab-m
-    MzTabParameter variation_function; // mztab-m
-    MzTabParameterList factors; // mztab-m
-  };
-
-  struct OPENMS_DLLAPI MzTabDatabaseMetaData // mztab-m
-  {
-    MzTabParameter database;
-    MzTabString prefix;
-    MzTabString version;
-    MzTabString uri;
   };
 
   /// all meta data of a mzTab file. Please refer to specification for documentation.

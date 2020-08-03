@@ -39,6 +39,49 @@
 namespace OpenMS
 {
 
+  // Reuse most of struct and classes from mztab for the MTD section, which
+  // a few exceptions below:
+
+  struct OPENMS_DLLAPI MzTabMAssayMetaData
+  {
+    MzTabParameter quantification_reagent;
+    std::map<Size, MzTabModificationMetaData> quantification_mod;
+    MzTabString sample_ref;
+    std::vector<int> ms_run_ref; // adapted to address https://github.com/HUPO-PSI/mzTab/issues/26
+    MzTabParameter custom; // mztab-m
+    MzTabString external_uri; // mztab-m
+  };
+
+  struct OPENMS_DLLAPI MzTabMMSRunMetaData
+  {
+    MzTabParameter format;
+    MzTabString location;
+    MzTabParameter id_format;
+    MzTabParameterList fragmentation_method;
+    MzTabInteger instrument_ref; // mztab-m
+    MzTabParameter scan_polarity; // mztab-m
+    MzTabString hash; // mztab-m
+    MzTabParameter hash_method; // mztab-m
+  };
+
+    struct OPENMS_DLLAPI MzTabMStudyVariableMetaData
+  {
+    std::vector<int> assay_refs;
+    std::vector<int> sample_refs;
+    MzTabString description;
+    MzTabParameter average_function; // mztab-m
+    MzTabParameter variation_function; // mztab-m
+    MzTabParameterList factors; // mztab-m
+  };
+
+  struct OPENMS_DLLAPI MzTabMDatabaseMetaData // mztab-m
+  {
+    MzTabParameter database;
+    MzTabString prefix;
+    MzTabString version;
+    MzTabString uri;
+  };
+
   /// all meta data of a mzTab file. Please refer to specification for documentation.
   // TODO: Check https://github.com/HUPO-PSI/mzTab/blob/master/specification_document-releases/2_0-Metabolomics-Release/mzTab_format_specification_2_0-M_release.adoc#62-metadata-section
   // TODO: Check if the Type used here and the Type in the specification are the same
@@ -60,12 +103,12 @@ namespace OpenMS
     std::map<Size, MzTabString> external_study_uri;
     MzTabParameter quantification_method;
     std::map<Size, MzTabSampleMetaData> sample;
-    std::map<Size, MzTabMSRunMetaData> ms_run;
-    std::map<Size, MzTabAssayMetaData> assay;
-    std::map<Size, MzTabStudyVariableMetaData> study_variable;
+    std::map<Size, MzTabMMSRunMetaData> ms_run;
+    std::map<Size, MzTabMAssayMetaData> assay;
+    std::map<Size, MzTabMStudyVariableMetaData> study_variable;
     std::map<Size, MzTabParameter> custom;
     std::map<Size, MzTabCVMetaData> cv;
-    std::map<Size, MzTabDatabaseMetaData> database;
+    std::map<Size, MzTabMDatabaseMetaData> database;
     std::map<Size, MzTabParameter> derivatization_agent;
     MzTabParameter small_molecule_quantification_unit;
     MzTabParameter small_molecule_feature_quantification_unit;
