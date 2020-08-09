@@ -530,9 +530,9 @@ class OpenMSMapConverter(StdMapConverter):
         inner_check_2 = inner_conv_2.type_check_expression(tt_value, "v")
 
         return Code().add("""
-          |is.environment(d) && identical(parent.env(d), asNamespace("collections")) && identical(strsplit(capture.output(d$print())," ")[[1]][1], "dict")
-          + && all(sapply($arg_var$$$$keys()),function(k) $inner_check_1)
-          + && all(sapply($arg_var$$$$values()),function(v) $inner_check_2)
+          |is.environment($arg_var) && identical(parent.env($arg_var), asNamespace("collections")) && identical(strsplit(capture.output($arg_var$$$$print())," ")[[1]][1], "dict")
+          + && all(sapply($arg_var$$$$keys(),function(k) $inner_check_1))
+          + && all(sapply($arg_var$$$$values(),function(v) $inner_check_2))
           """, locals()).render()
         # return Code().add("""
         #   |isinstance($arg_var, dict)
@@ -587,7 +587,7 @@ class OpenMSMapConverter(StdMapConverter):
                 cy_tt = tt_value.base_type
                 value_conv = "py_to_r(py_builtin$list(%s$values()))" % (temp_var)
                 cleanup_code = Code().add("""
-                    |byref_${arg_num} <- collections::dict(${key_conv},lapply(${value_conv},function(v) eval(parse(text = paste0(${cy_tt},\"$$\",\"new(v)\")))))
+                    |byref_${arg_num} <- collections::dict(lapply(${value_conv},function(v) ${cy_tt}$$new(v)), ${key_conv})
                     """, locals())
                 # cleanup_code = Code().add("""
                 #     |cdef $replace = dict()
@@ -605,7 +605,7 @@ class OpenMSMapConverter(StdMapConverter):
             else:
                 value_conv = "py_to_r(py_builtin$list(%s$values()))" % (temp_var)
                 cleanup_code = Code().add("""
-                    |byref_${arg_num} <- collections::dict(${key_conv},${value_conv})
+                    |byref_${arg_num} <- collections::dict(${value_conv},${key_conv})
                     """, locals())
         else:
             cleanup_code = ""
@@ -633,7 +633,7 @@ class OpenMSMapConverter(StdMapConverter):
             cy_tt = tt_value.base_type
             value_conv = "py_to_r(py_builtin$list(%s$values()))" % (input_cpp_var)
             code = Code().add("""
-                |$output_py_var = collections::dict(${key_conv},lapply(${value_conv},function(v) eval(parse(text = paste0(${cy_tt},\"$$\",\"new(v)\")))))
+                |$output_py_var = collections::dict(lapply(${value_conv},function(v) ${cy_tt}$$new(v)), ${key_conv})
                 """, locals())
             # code = Code().add("""
             #     |$output_py_var = dict()
@@ -649,7 +649,7 @@ class OpenMSMapConverter(StdMapConverter):
         else:
             value_conv = "py_to_r(py_builtin$list(%s$values()))" % (input_cpp_var)
             code = Code().add("""
-                |$output_py_var = collections::dict(${key_conv},${value_conv})
+                |$output_py_var = collections::dict(${value_conv}, ${key_conv})
                 """, locals())
             # code = Code().add("""
             #     |$output_py_var = dict()
@@ -678,7 +678,7 @@ class CVTermMapConverter(TypeConverterBase):
 
     def type_check_expression(self, cpp_type, arg_var):
         return Code().add("""
-          |is.environment(d) && identical(parent.env(d), asNamespace("collections")) && identical(strsplit(capture.output(d$print())," ")[[1]][1], "dict")
+          |is.environment($arg_var) && identical(parent.env($arg_var), asNamespace("collections")) && identical(strsplit(capture.output($arg_var$$$$print())," ")[[1]][1], "dict")
           + && all(sapply($arg_var$$$$keys(),is_scalar_character))
           + && all(sapply($arg_var$$$$values(), function(in) is_list(in) && sapply(in, function(in1) is.R6(in1) && class(in1)[1] == "CVTerm")))
           """, locals()).render()
@@ -701,7 +701,7 @@ class CVTermMapConverter(TypeConverterBase):
         key_conv = "modify_depth(%s$keys(),1,function(i) py_builtin$bytes(i,'utf-8'))" % (argument_var)
         value_conv = "%s$values()" % (argument_var)
         code = Code().add("""
-                |$map_name <- py_dict(${key_conv},${value_conv})
+                |$map_name <- py_dict(${value_conv},${key_conv})
                 """, locals())
         # code = Code().add("""
         #         |cdef Map[_String, libcpp_vector[_CVTerm]] $map_name
@@ -720,7 +720,7 @@ class CVTermMapConverter(TypeConverterBase):
             key_conv = "py_to_r(py_builtin$list(%s$keys()))" % (map_name)
             value_conv = "py_to_r(py_builtin$list(%s$values()))" % (map_name)
             cleanup_code = Code().add("""
-                |byref_${arg_num} <- collections::dict(lapply(${key_conv},as.character),lapply(${value_conv},function(v) CVTerm$$new(v)))
+                |byref_${arg_num} <- collections::dict(lapply(${value_conv},function(v) CVTerm$$new(v)), lapply(${key_conv},as.character))
                 """, locals())
             # cleanup_code = Code().add("""
             #     |cdef $replace = dict()
@@ -766,7 +766,7 @@ class CVTermMapConverter(TypeConverterBase):
         key_conv = "py_to_r(py_builtin$list(%s$keys()))" % (input_cpp_var)
         value_conv = "py_to_r(py_builtin$list(%s$values()))" % (input_cpp_var)
         code = Code().add("""
-            |$output_py_var <- collections::dict(lapply(${key_conv},as.character),lapply(${value_conv},function(v) CVTerm$$new(v)))
+            |$output_py_var <- collections::dict(lapply(${value_conv},function(v) CVTerm$$new(v)), lapply(${key_conv},as.character))
             """, locals())
         # code = Code().add("""
         #     |$output_py_var = dict()
