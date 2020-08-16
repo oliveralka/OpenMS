@@ -10469,7 +10469,7 @@ ConfidenceScoring <- R6Class(classname = "ConfidenceScoring",cloneable = FALSE,
     },
     
     # C++ signature: void initialize(TargetedExperiment & targeted, size_t n_decoys, size_t n_transitions, TransformationDescription trafo)
-    initialize = function(targeted, n_decoys, n_transitions, trafo){
+    initialise = function(targeted, n_decoys, n_transitions, trafo){
     
         if(!(is.R6(targeted) && class(targeted)[1] == "TargetedExperiment")){ stop("arg targeted wrong type") }
         if(!( (is_scalar_integer(n_decoys) || is_scalar_double(n_decoys)) && n_decoys == as.integer(n_decoys))){ stop("arg n_decoys wrong type") }
@@ -16511,24 +16511,6 @@ DataValue <- R6Class(classname = "DataValue",cloneable = FALSE,
     
     },
     
-    toInt = function(){
-        py_ans = private$py_obj$toInt()
-            r_ans = py_ans
-        return(r_ans)
-    },
-    
-    toString = function(){
-        py_ans = private$py_obj$toString()
-        r_ans = py_ans
-        return(r_ans)
-    },
-    
-    toDouble = function(){
-        py_ans = private$py_obj$toDouble()
-            r_ans = py_ans
-        return(r_ans)
-    },
-    
     # C++ signature: StringList toStringList()
     toStringList = function(){
     
@@ -16627,7 +16609,23 @@ DataValue <- R6Class(classname = "DataValue",cloneable = FALSE,
         invisible()
     }
 )
-) 
+)
+    DataValue$set("public","toInt",
+      function(){
+          py_ans = private$py_obj$toInt()
+                  r_ans = py_ans
+          return(r_ans)
+      }
+    )
+    
+    DataValue$set("public","toDouble",
+      function(){
+          py_ans = private$py_obj$toDouble()
+                  r_ans = py_ans
+          return(r_ans)
+      }
+    )
+     
 
 # R implementation of _Date
 # Documentation is available at http://www.openms.de/current_doxygen/html/classOpenMS_1_1Date.html
@@ -30922,7 +30920,7 @@ IndexedMzMLHandler <- R6Class(classname = "IndexedMzMLHandler",cloneable = FALSE
         if(!( (is_scalar_integer(id_) || is_scalar_double(id_)) && id_ == as.integer(id_))){ stop("arg id_ wrong type") }
     
         py_ans = private$py_obj$getSpectrumById(as.integer(id_))
-        r_ans = _Interfaces_Spectrum$new(py_ans)
+        r_ans = Spectrum$new(py_ans)
         return(r_ans)
     },
     
@@ -30932,7 +30930,7 @@ IndexedMzMLHandler <- R6Class(classname = "IndexedMzMLHandler",cloneable = FALSE
         if(!( (is_scalar_integer(id_) || is_scalar_double(id_)) && id_ == as.integer(id_))){ stop("arg id_ wrong type") }
     
         py_ans = private$py_obj$getChromatogramById(as.integer(id_))
-        r_ans = _Interfaces_Chromatogram$new(py_ans)
+        r_ans = Chromatogram$new(py_ans)
         return(r_ans)
     },
     
@@ -52544,11 +52542,11 @@ MzMLSpectrumDecoder <- R6Class(classname = "MzMLSpectrumDecoder",cloneable = FAL
     domParseChromatogram = function(in_, cptr){
     
         if(!((is.R6(in_) && class(in_)[1]=="String") || is_scalar_character(in_))){ stop("arg in_ wrong type") }
-        if(!(all(class(cptr) == c('_Interfaces_Chromatogram','R6')))){ stop("arg cptr wrong type") }
+        if(!(all(class(cptr) == c('Chromatogram','R6')))){ stop("arg cptr wrong type") }
     
         input_cptr <- r_to_py(cptr)
         private$py_obj$domParseChromatogram(in_, input_cptr)
-        byref_1 = py_to_r(input_cptr)
+        byref_1 = Chromatogram$new(input_cptr)
     
         tryCatch({
         eval.parent(substitute(cptr <- byref_1))
@@ -52562,11 +52560,11 @@ MzMLSpectrumDecoder <- R6Class(classname = "MzMLSpectrumDecoder",cloneable = FAL
     domParseSpectrum = function(in_, cptr){
     
         if(!((is.R6(in_) && class(in_)[1]=="String") || is_scalar_character(in_))){ stop("arg in_ wrong type") }
-        if(!(all(class(cptr) == c('_Interfaces_Spectrum','R6')))){ stop("arg cptr wrong type") }
+        if(!(all(class(cptr) == c('Spectrum','R6')))){ stop("arg cptr wrong type") }
     
         input_cptr <- r_to_py(cptr)
         private$py_obj$domParseSpectrum(in_, input_cptr)
-        byref_1 = py_to_r(input_cptr)
+        byref_1 = Spectrum$new(input_cptr)
     
         tryCatch({
         eval.parent(substitute(cptr <- byref_1))
@@ -55781,7 +55779,7 @@ OnDiscMSExperiment <- R6Class(classname = "OnDiscMSExperiment",cloneable = FALSE
         if(!( (is_scalar_integer(id_) || is_scalar_double(id_)) && id_ == as.integer(id_))){ stop("arg id_ wrong type") }
     
         py_ans = private$py_obj$getSpectrumById(as.integer(id_))
-        r_ans = _Interfaces_Spectrum$new(py_ans)
+        r_ans = Spectrum$new(py_ans)
         return(r_ans)
     },
     
@@ -55791,7 +55789,7 @@ OnDiscMSExperiment <- R6Class(classname = "OnDiscMSExperiment",cloneable = FALSE
         if(!( (is_scalar_integer(id_) || is_scalar_double(id_)) && id_ == as.integer(id_))){ stop("arg id_ wrong type") }
     
         py_ans = private$py_obj$getChromatogramById(as.integer(id_))
-        r_ans = _Interfaces_Chromatogram$new(py_ans)
+        r_ans = Chromatogram$new(py_ans)
         return(r_ans)
     },
     
@@ -56248,7 +56246,7 @@ OpenSwathScoring <- R6Class(classname = "OpenSwathScoring",cloneable = FALSE,
     },
     
     # C++ signature: void initialize(double rt_normalization_factor, int add_up_spectra, double spacing_for_spectra_resampling, double drift_extra, OpenSwath_Scores_Usage su, libcpp_string spectrum_addition_method)
-    initialize = function(rt_normalization_factor, add_up_spectra, spacing_for_spectra_resampling, drift_extra, su, spectrum_addition_method){
+    initialise = function(rt_normalization_factor, add_up_spectra, spacing_for_spectra_resampling, drift_extra, su, spectrum_addition_method){
     
         if(!(is_scalar_double(rt_normalization_factor))){ stop("arg rt_normalization_factor wrong type") }
         if(!( (is_scalar_integer(add_up_spectra) || is_scalar_double(add_up_spectra)) && add_up_spectra == as.integer(add_up_spectra))){ stop("arg add_up_spectra wrong type") }
@@ -77992,7 +77990,7 @@ SignalToNoiseEstimatorMedianRapid <- R6Class(classname = "SignalToNoiseEstimator
     # C++ signature: NoiseEstimator estimateNoise(shared_ptr[_Interfaces_Spectrum])
     estimateNoise_0 = function(in_0){
     
-        if(!(all(class(in_0) == c('_Interfaces_Spectrum','R6')))){ stop("arg in_0 wrong type") }
+        if(!(all(class(in_0) == c('Spectrum','R6')))){ stop("arg in_0 wrong type") }
         input_in_0 <- r_to_py(in_0)
         py_ans = private$py_obj$`_estimateNoise_0`(input_in_0)
         r_ans = NoiseEstimator$new(py_ans)
@@ -78002,7 +78000,7 @@ SignalToNoiseEstimatorMedianRapid <- R6Class(classname = "SignalToNoiseEstimator
     # C++ signature: NoiseEstimator estimateNoise(shared_ptr[_Interfaces_Chromatogram])
     estimateNoise_1 = function(in_0){
     
-        if(!(all(class(in_0) == c('_Interfaces_Chromatogram','R6')))){ stop("arg in_0 wrong type") }
+        if(!(all(class(in_0) == c('Chromatogram','R6')))){ stop("arg in_0 wrong type") }
         input_in_0 <- r_to_py(in_0)
         py_ans = private$py_obj$`_estimateNoise_1`(input_in_0)
         r_ans = NoiseEstimator$new(py_ans)
@@ -78028,8 +78026,8 @@ SignalToNoiseEstimatorMedianRapid <- R6Class(classname = "SignalToNoiseEstimator
     # C++ signature: NoiseEstimator estimateNoise(libcpp_vector[double] mz_array, libcpp_vector[double] int_array)
     estimateNoise = function(...){
         arg_list = list(...)
-        if ((length(arg_list)==1) && (all(class(arg_list[[1]]) == c('_Interfaces_Spectrum','R6')))) { self$estimateNoise_0(...) }
-        else if ((length(arg_list)==1) && (all(class(arg_list[[1]]) == c('_Interfaces_Chromatogram','R6')))) { self$estimateNoise_1(...) }
+        if ((length(arg_list)==1) && (all(class(arg_list[[1]]) == c('Spectrum','R6')))) { self$estimateNoise_0(...) }
+        else if ((length(arg_list)==1) && (all(class(arg_list[[1]]) == c('Chromatogram','R6')))) { self$estimateNoise_1(...) }
         else if ((length(arg_list)==2) && (is_list(arg_list[[1]]) && all(sapply(arg_list[[1]],function(elemt_rec) is_scalar_double(elemt_rec)))) && (is_list(arg_list[[2]]) && all(sapply(arg_list[[2]],function(elemt_rec) is_scalar_double(elemt_rec))))) { self$estimateNoise_2(...) }
         else {
               stop("wrong arguments provided")
@@ -78093,7 +78091,7 @@ SimRandomNumberGenerator <- R6Class(classname = "SimRandomNumberGenerator",clone
     },
     
     # C++ signature: void initialize(bool biological_random, bool technical_random)
-    initialize = function(biological_random, technical_random){
+    initialise = function(biological_random, technical_random){
     
         if(!( (is_scalar_integer(biological_random) || is_scalar_double(biological_random)) && biological_random == as.integer(biological_random))){ stop("arg biological_random wrong type") }
         if(!( (is_scalar_integer(technical_random) || is_scalar_double(technical_random)) && technical_random == as.integer(technical_random))){ stop("arg technical_random wrong type") }
@@ -80544,7 +80542,7 @@ SpectrumAccessOpenMS <- R6Class(classname = "SpectrumAccessOpenMS",cloneable = F
         private$py_obj <- Pymod$SpectrumAccessOpenMS(input_ms_experiment)
         invisible()
     
-        byref_0 = py_to_r(input_ms_experiment)
+        byref_0 = MSExperiment$new(input_ms_experiment)
     
     },
     
@@ -83190,7 +83188,7 @@ String <- R6Class(classname = "String",cloneable = FALSE,
         par <- list(...)
     if (!length(par) %in% c(0,1)) { stop("arg wrong type")}
     if (length(par)==1) {
-        if ("python.builtin.object" %in% class(par[[1]]) && class_to_wrap(par[[1]]) == String) { private$py_obj <- par[[1]] }
+        if ("python.builtin.object" %in% class(par[[1]]) && class_to_wrap(par[[1]]) == "String") { private$py_obj <- par[[1]] }
         else { stop("arg wrong type") }
     } else if (length(par)==0) {
     
@@ -91187,7 +91185,7 @@ XTandemXMLFile <- R6Class(classname = "XTandemXMLFile",cloneable = FALSE,
 
 # R implementation of _BinaryDataArray
 # Documentation is available at http://www.openms.de/current_doxygen/html/classOpenMS::Interfaces_1_1BinaryDataArray.html
-_Interfaces_BinaryDataArray <- R6Class(classname = "_Interfaces_BinaryDataArray",cloneable = FALSE,
+BinaryDataArray <- R6Class(classname = "BinaryDataArray",cloneable = FALSE,
 
     private = list(py_obj = NA),
 
@@ -91216,7 +91214,7 @@ _Interfaces_BinaryDataArray <- R6Class(classname = "_Interfaces_BinaryDataArray"
     init_0 = function(){
     
     
-        private$py_obj <- Pymod$_Interfaces_BinaryDataArray()
+        private$py_obj <- Pymod$Interfaces$BinaryDataArray()
         invisible()
     
     
@@ -91225,10 +91223,10 @@ _Interfaces_BinaryDataArray <- R6Class(classname = "_Interfaces_BinaryDataArray"
     # C++ signature: void _Interfaces_BinaryDataArray(_Interfaces_BinaryDataArray)
     init_1 = function(in_0){
     
-        if(!(is.R6(in_0) && class(in_0)[1] == "_Interfaces_BinaryDataArray")){ stop("arg in_0 wrong type") }
+        if(!(is.R6(in_0) && class(in_0)[1] == "BinaryDataArray")){ stop("arg in_0 wrong type") }
     
     
-        private$py_obj <- Pymod$_Interfaces_BinaryDataArray(in_0)
+        private$py_obj <- Pymod$Interfaces$BinaryDataArray(in_0)
         invisible()
     
     
@@ -91239,11 +91237,11 @@ _Interfaces_BinaryDataArray <- R6Class(classname = "_Interfaces_BinaryDataArray"
     initialize = function(...){
         arg_list = list(...)
         if (length(arg_list)==0) { self$init_0(...) }
-        else if ((length(arg_list)==1) && (is.R6(arg_list[[1]]) && class(arg_list[[1]])[1] == "_Interfaces_BinaryDataArray")) { self$init_1(...) }
+        else if ((length(arg_list)==1) && (is.R6(arg_list[[1]]) && class(arg_list[[1]])[1] == "BinaryDataArray")) { self$init_1(...) }
         else{
                # to create a new R object and set its underlying python object as the one supplied in the constructor.
                # this helps avoid use of set_py_object(), s.t., the user is not able to manipulate the python object in a direct fashion.
-               if( length(arg_list)==1 && ( "python.builtin.object" %in% class(arg_list[[1]]) && class_to_wrap(arg_list[[1]]) == "_Interfaces_BinaryDataArray" ) )
+               if( length(arg_list)==1 && ( "python.builtin.object" %in% class(arg_list[[1]]) && class_to_wrap(arg_list[[1]]) == "BinaryDataArray" ) )
                { private$py_obj <- arg_list[[1]]  }
                else {
                     stop("wrong arguments provided")
@@ -91256,7 +91254,7 @@ _Interfaces_BinaryDataArray <- R6Class(classname = "_Interfaces_BinaryDataArray"
 
 # R implementation of _Chromatogram
 # Documentation is available at http://www.openms.de/current_doxygen/html/classOpenMS::Interfaces_1_1Chromatogram.html
-_Interfaces_Chromatogram <- R6Class(classname = "_Interfaces_Chromatogram",cloneable = FALSE,
+Chromatogram <- R6Class(classname = "Chromatogram",cloneable = FALSE,
 
     private = list(py_obj = NA),
 
@@ -91267,7 +91265,7 @@ _Interfaces_Chromatogram <- R6Class(classname = "_Interfaces_Chromatogram",clone
     init_0 = function(){
     
     
-        private$py_obj <- Pymod$_Interfaces_Chromatogram()
+        private$py_obj <- Pymod$Interfaces$Chromatogram()
         invisible()
     
     
@@ -91276,10 +91274,10 @@ _Interfaces_Chromatogram <- R6Class(classname = "_Interfaces_Chromatogram",clone
     # C++ signature: void _Interfaces_Chromatogram(_Interfaces_Chromatogram)
     init_1 = function(in_0){
     
-        if(!(is.R6(in_0) && class(in_0)[1] == "_Interfaces_Chromatogram")){ stop("arg in_0 wrong type") }
+        if(!(is.R6(in_0) && class(in_0)[1] == "Chromatogram")){ stop("arg in_0 wrong type") }
     
     
-        private$py_obj <- Pymod$_Interfaces_Chromatogram(in_0)
+        private$py_obj <- Pymod$Interfaces$Chromatogram(in_0)
         invisible()
     
     
@@ -91290,11 +91288,11 @@ _Interfaces_Chromatogram <- R6Class(classname = "_Interfaces_Chromatogram",clone
     initialize = function(...){
         arg_list = list(...)
         if (length(arg_list)==0) { self$init_0(...) }
-        else if ((length(arg_list)==1) && (is.R6(arg_list[[1]]) && class(arg_list[[1]])[1] == "_Interfaces_Chromatogram")) { self$init_1(...) }
+        else if ((length(arg_list)==1) && (is.R6(arg_list[[1]]) && class(arg_list[[1]])[1] == "Chromatogram")) { self$init_1(...) }
         else{
                # to create a new R object and set its underlying python object as the one supplied in the constructor.
                # this helps avoid use of set_py_object(), s.t., the user is not able to manipulate the python object in a direct fashion.
-               if( length(arg_list)==1 && ( "python.builtin.object" %in% class(arg_list[[1]]) && class_to_wrap(arg_list[[1]]) == "_Interfaces_Chromatogram" ) )
+               if( length(arg_list)==1 && ( "python.builtin.object" %in% class(arg_list[[1]]) && class_to_wrap(arg_list[[1]]) == "Chromatogram" ) )
                { private$py_obj <- arg_list[[1]]  }
                else {
                     stop("wrong arguments provided")
@@ -91307,7 +91305,7 @@ _Interfaces_Chromatogram <- R6Class(classname = "_Interfaces_Chromatogram",clone
 
 # R implementation of _Spectrum
 # Documentation is available at http://www.openms.de/current_doxygen/html/classOpenMS::Interfaces_1_1Spectrum.html
-_Interfaces_Spectrum <- R6Class(classname = "_Interfaces_Spectrum",cloneable = FALSE,
+Spectrum <- R6Class(classname = "Spectrum",cloneable = FALSE,
 
     private = list(py_obj = NA),
 
@@ -91318,7 +91316,7 @@ _Interfaces_Spectrum <- R6Class(classname = "_Interfaces_Spectrum",cloneable = F
     init_0 = function(){
     
     
-        private$py_obj <- Pymod$_Interfaces_Spectrum()
+        private$py_obj <- Pymod$Interfaces$Spectrum()
         invisible()
     
     
@@ -91327,10 +91325,10 @@ _Interfaces_Spectrum <- R6Class(classname = "_Interfaces_Spectrum",cloneable = F
     # C++ signature: void _Interfaces_Spectrum(_Interfaces_Spectrum)
     init_1 = function(in_0){
     
-        if(!(is.R6(in_0) && class(in_0)[1] == "_Interfaces_Spectrum")){ stop("arg in_0 wrong type") }
+        if(!(is.R6(in_0) && class(in_0)[1] == "Spectrum")){ stop("arg in_0 wrong type") }
     
     
-        private$py_obj <- Pymod$_Interfaces_Spectrum(in_0)
+        private$py_obj <- Pymod$Interfaces$Spectrum(in_0)
         invisible()
     
     
@@ -91341,11 +91339,11 @@ _Interfaces_Spectrum <- R6Class(classname = "_Interfaces_Spectrum",cloneable = F
     initialize = function(...){
         arg_list = list(...)
         if (length(arg_list)==0) { self$init_0(...) }
-        else if ((length(arg_list)==1) && (is.R6(arg_list[[1]]) && class(arg_list[[1]])[1] == "_Interfaces_Spectrum")) { self$init_1(...) }
+        else if ((length(arg_list)==1) && (is.R6(arg_list[[1]]) && class(arg_list[[1]])[1] == "Spectrum")) { self$init_1(...) }
         else{
                # to create a new R object and set its underlying python object as the one supplied in the constructor.
                # this helps avoid use of set_py_object(), s.t., the user is not able to manipulate the python object in a direct fashion.
-               if( length(arg_list)==1 && ( "python.builtin.object" %in% class(arg_list[[1]]) && class_to_wrap(arg_list[[1]]) == "_Interfaces_Spectrum" ) )
+               if( length(arg_list)==1 && ( "python.builtin.object" %in% class(arg_list[[1]]) && class_to_wrap(arg_list[[1]]) == "Spectrum" ) )
                { private$py_obj <- arg_list[[1]]  }
                else {
                     stop("wrong arguments provided")
