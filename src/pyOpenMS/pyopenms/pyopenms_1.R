@@ -77876,7 +77876,7 @@ SignalToNoiseEstimatorMeanIterative <- R6Class(classname = "SignalToNoiseEstimat
 )
 ) 
 
-# R implementation of _SignalToNoiseEstimatorMedian[_MSSpectrum]
+# R impleSpectrumAlignmentmentation of _SignalToNoiseEstimatorMedian[_MSSpectrum]
 # Documentation is available at http://www.openms.de/current_doxygen/html/classOpenMS_1_1SignalToNoiseEstimatorMedian[_MSSpectrum].html
 SignalToNoiseEstimatorMedian <- R6Class(classname = "SignalToNoiseEstimatorMedian",cloneable = FALSE,
 

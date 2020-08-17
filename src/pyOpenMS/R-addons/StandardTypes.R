@@ -1,0 +1,3 @@
+PeakSpectrum = MSSpectrum
+
+PeakMap = MSExperiment
