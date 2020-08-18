@@ -23,7 +23,7 @@ py_run_string(paste("def transform_dict(d):","    return dict(zip([k.decode('utf
 class_to_wrap <- function(py_ob){
        class <- tail(strsplit(class(py_ob)[1],"\\.")[[1]],n = 1)
        # To correctly return the class name for Interfaces (BinaryDataArray,Chromatogram,Spectrum) by removing "_Interfaces_"
-       comp <- strplit(class,"_Interfaces_")[[1]]
+       comp <- strsplit(class,"_Interfaces_")[[1]]
        if (length(comp) == 1 && comp[1] == class){
            return(class)
        }

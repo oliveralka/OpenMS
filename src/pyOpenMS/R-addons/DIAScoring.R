@@ -1,4 +1,5 @@
-DIAScoring$set("public","dia_by_ion_score",function(spectrum,sequence,charge,bseries_score,yseries_score)= {
+
+DIAScoring$$set("public","dia_by_ion_score",function(spectrum,sequence,charge,bseries_score,yseries_score){
   if(!(is.R6(spectrum) && class(spectrum)[1]=="OSSpectrum")) { stop("arg spectrum wrong type") }
   if(!(is.R6(spectrum) && class(spectrum)[1]=="AASequence")) { stop("arg sequence wrong type") }
   if(!(is_scalar_integer(charge) || (length(charge)==1 && charge == as.integer(charge))) ) { stop("arg charge wrong type") }
@@ -6,7 +7,7 @@ DIAScoring$set("public","dia_by_ion_score",function(spectrum,sequence,charge,bse
   if(!is_scalar_double(yseries_score)) { stop("arg yseries_score wrong type") }
   input_bseries_score <- r_to_py(bseries_score)
   input_yseries_score <- r_to_py(yseries_score)
-  ans <- private$py_obj$dia_by_ion_score(spectrum,sequence,as.integer(charge),input_bseries_score,input_yseries_score)
+  ans <- private$$py_obj$$dia_by_ion_score(spectrum,sequence,as.integer(charge),input_bseries_score,input_yseries_score)
   tryCatch({
         eval.parent(substitute(bseries_score <- py_to_r(input_bseries_score)))
         eval.parent(substitute(yseries_score <- py_to_r(input_yseries_score)))
