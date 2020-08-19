@@ -177,7 +177,7 @@ AAIndex <- R6Class(classname = "AAIndex",cloneable = FALSE,
 )
 )
 AAIndex$set("public","initialize",function(){
-   private$py_obj <- Pymod$rname()
+   private$py_obj <- Pymod$AAIndex()
 },overwrite = TRUE) 
 
 # R implementation of _AASeqWithMass
@@ -5397,7 +5397,7 @@ BoxElement <- R6Class(classname = "BoxElement",cloneable = FALSE,
     )
 )
 BoxElement$set("public","initialize",function(){
-   private$py_obj <- Pymod$rname()
+   private$py_obj <- Pymod$BoxElement()
 },overwrite = TRUE) 
 
 # R implementation of _CV
@@ -8053,7 +8053,7 @@ ChannelInfo <- R6Class(classname = "ChannelInfo",cloneable = FALSE,
     )
 )
 ChannelInfo$set("public","initialize",function(){
-   private$py_obj <- Pymod$rname()
+   private$py_obj <- Pymod$ChannelInfo()
 },overwrite = TRUE) 
 
 # R implementation of _ChargePair
@@ -11769,7 +11769,7 @@ Configuration <- R6Class(classname = "Configuration",cloneable = FALSE,
 )
 )
 Configuration$set("public","initialize",function(){
-   private$py_obj <- Pymod$rname()
+   private$py_obj <- Pymod$Configuration()
 },overwrite = TRUE)
     #' @export
     `<.Configuration` = function(e1,e2){
@@ -12483,7 +12483,7 @@ ConsensusIDAlgorithm <- R6Class(classname = "ConsensusIDAlgorithm",cloneable = F
 )
 )
 ConsensusIDAlgorithm$set("public","initialize",function(){
-   private$py_obj <- Pymod$rname()
+   private$py_obj <- Pymod$ConsensusIDAlgorithm()
 },overwrite = TRUE) 
 
 # R implementation of _ConsensusIDAlgorithmAverage
@@ -12729,7 +12729,7 @@ ConsensusIDAlgorithmIdentity <- R6Class(classname = "ConsensusIDAlgorithmIdentit
 )
 )
 ConsensusIDAlgorithmIdentity$set("public","initialize",function(){
-   private$py_obj <- Pymod$rname()
+   private$py_obj <- Pymod$ConsensusIDAlgorithmIdentity()
 },overwrite = TRUE) 
 
 # R implementation of _ConsensusIDAlgorithmPEPIons
@@ -13061,7 +13061,7 @@ ConsensusIDAlgorithmSimilarity <- R6Class(classname = "ConsensusIDAlgorithmSimil
 )
 )
 ConsensusIDAlgorithmSimilarity$set("public","initialize",function(){
-   private$py_obj <- Pymod$rname()
+   private$py_obj <- Pymod$ConsensusIDAlgorithmSimilarity()
 },overwrite = TRUE) 
 
 # R implementation of _ConsensusIDAlgorithmWorst
@@ -16315,7 +16315,7 @@ CrossLinksDB <- R6Class(classname = "CrossLinksDB",cloneable = FALSE,
 )
 )
 CrossLinksDB$set("public","initialize",function(){
-   private$py_obj <- Pymod$rname()
+   private$py_obj <- Pymod$CrossLinksDB()
 },overwrite = TRUE)
     CrossLinksDB$set("public","initialize",function(){
   private$py_obj <- Pymod$CrossLinksDB()
@@ -16615,7 +16615,7 @@ CsiFingerIdMzTabWriter <- R6Class(classname = "CsiFingerIdMzTabWriter",cloneable
 
 )
 CsiFingerIdMzTabWriter$set("public","initialize",function(){
-   private$py_obj <- Pymod$rname()
+   private$py_obj <- Pymod$CsiFingerIdMzTabWriter()
 },overwrite = TRUE)
     
     # C++ signature: void read(libcpp_vector[String] sirius_output_paths, String original_input_mzml, size_t top_n_hits, MzTab & result)
@@ -18587,7 +18587,7 @@ DecoyGenerator <- R6Class(classname = "DecoyGenerator",cloneable = FALSE,
 )
 )
 DecoyGenerator$set("public","initialize",function(){
-   private$py_obj <- Pymod$rname()
+   private$py_obj <- Pymod$DecoyGenerator()
 },overwrite = TRUE) 
 
 # R implementation of _Deisotoper
@@ -19509,7 +19509,7 @@ DigestionEnzymeRNA <- R6Class(classname = "DigestionEnzymeRNA",cloneable = FALSE
 )
 )
 DigestionEnzymeRNA$set("public","initialize",function(){
-   private$py_obj <- Pymod$rname()
+   private$py_obj <- Pymod$DigestionEnzymeRNA()
 },overwrite = TRUE)
     #' @export
     `<.DigestionEnzymeRNA` = function(e1,e2){
@@ -20282,7 +20282,7 @@ ElementDB <- R6Class(classname = "ElementDB",cloneable = FALSE,
 )
 )
 ElementDB$set("public","initialize",function(){
-   private$py_obj <- Pymod$rname()
+   private$py_obj <- Pymod$ElementDB()
 },overwrite = TRUE)
     ElementDB$set("public","initialize",function(){
   private$py_obj <- Pymod$ElementDB()
@@ -21770,7 +21770,7 @@ ExperimentalDesignFile <- R6Class(classname = "ExperimentalDesignFile",cloneable
 
 )
 ExperimentalDesignFile$set("public","initialize",function(){
-   private$py_obj <- Pymod$rname()
+   private$py_obj <- Pymod$ExperimentalDesignFile()
 },overwrite = TRUE)
     
     # C++ signature: ExperimentalDesign load(const String & tsv_file, bool)
@@ -24680,7 +24680,7 @@ FeatureGroupingAlgorithm <- R6Class(classname = "FeatureGroupingAlgorithm",clone
 )
 )
 FeatureGroupingAlgorithm$set("public","initialize",function(){
-   private$py_obj <- Pymod$rname()
+   private$py_obj <- Pymod$FeatureGroupingAlgorithm()
 },overwrite = TRUE) 
 
 # R implementation of _FeatureGroupingAlgorithmKD
@@ -26408,7 +26408,7 @@ File <- R6Class(classname = "File",cloneable = FALSE,
 
 )
 File$set("public","initialize",function(){
-   private$py_obj <- Pymod$rname()
+   private$py_obj <- Pymod$File()
 },overwrite = TRUE)
     
     # C++ signature: String absolutePath(String file)
@@ -38269,7 +38269,7 @@ IsotopeWavelet <- R6Class(classname = "IsotopeWavelet",cloneable = FALSE,
 )
 )
 IsotopeWavelet$set("public","initialize",function(){
-   private$py_obj <- Pymod$rname()
+   private$py_obj <- Pymod$IsotopeWavelet()
 },overwrite = TRUE) 
 
 # R implementation of _IsotopeWaveletTransform[_Peak1D]
@@ -42002,7 +42002,7 @@ LinearResamplerAlign <- R6Class(classname = "LinearResamplerAlign",cloneable = F
 )
 )
 LinearResamplerAlign$set("public","initialize",function(){
-   private$py_obj <- Pymod$rname()
+   private$py_obj <- Pymod$LinearResamplerAlign()
 },overwrite = TRUE) 
 
 # R implementation of _LocalLinearMap
@@ -44799,7 +44799,7 @@ MRMRTNormalizer <- R6Class(classname = "MRMRTNormalizer",cloneable = FALSE,
 
 )
 MRMRTNormalizer$set("public","initialize",function(){
-   private$py_obj <- Pymod$rname()
+   private$py_obj <- Pymod$MRMRTNormalizer()
 },overwrite = TRUE)
     
     # C++ signature: bool chauvenet(libcpp_vector[double] residuals, int pos)
@@ -45051,7 +45051,7 @@ MRMScoring <- R6Class(classname = "MRMScoring",cloneable = FALSE,
 )
 )
 MRMScoring$set("public","initialize",function(){
-   private$py_obj <- Pymod$rname()
+   private$py_obj <- Pymod$MRMScoring()
 },overwrite = TRUE) 
 
 # R implementation of _MRMTransitionGroup[_MSChromatogram,_ReactionMonitoringTransition]
@@ -46364,7 +46364,7 @@ MSDataAggregatingConsumer <- R6Class(classname = "MSDataAggregatingConsumer",clo
 )
 )
 MSDataAggregatingConsumer$set("public","initialize",function(){
-   private$py_obj <- Pymod$rname()
+   private$py_obj <- Pymod$MSDataAggregatingConsumer()
 },overwrite = TRUE) 
 
 # R implementation of _MSDataCachedConsumer
@@ -50432,7 +50432,7 @@ MapConversion <- R6Class(classname = "MapConversion",cloneable = FALSE,
 )
 )
 MapConversion$set("public","initialize",function(){
-   private$py_obj <- Pymod$rname()
+   private$py_obj <- Pymod$MapConversion()
 },overwrite = TRUE) 
 
 # R implementation of _MarkerMower
@@ -51994,7 +51994,7 @@ MassTrace <- R6Class(classname = "MassTrace",cloneable = FALSE,
 )
 )
 MassTrace$set("public","initialize",function(){
-   private$py_obj <- Pymod$rname()
+   private$py_obj <- Pymod$MassTrace()
 },overwrite = TRUE) 
 
 # R implementation of _MassTraceDetection
@@ -55085,7 +55085,7 @@ ModificationsDB <- R6Class(classname = "ModificationsDB",cloneable = FALSE,
 )
 )
 ModificationsDB$set("public","initialize",function(){
-   private$py_obj <- Pymod$rname()
+   private$py_obj <- Pymod$ModificationsDB()
 },overwrite = TRUE)
     ModificationsDB$set("public","initialize",function(){
   private$py_obj <- Pymod$ModificationsDB()
@@ -55196,7 +55196,7 @@ MorpheusScore <- R6Class(classname = "MorpheusScore",cloneable = FALSE,
 )
 )
 MorpheusScore$set("public","initialize",function(){
-   private$py_obj <- Pymod$rname()
+   private$py_obj <- Pymod$MorpheusScore()
 },overwrite = TRUE) 
 
 # R implementation of _MorpheusScore_Result
@@ -56380,7 +56380,8 @@ MzMLFile <- R6Class(classname = "MzMLFile",cloneable = FALSE,
         invisible()
     }
 )
-) 
+)
+     
 
 # R implementation of _MzMLSpectrumDecoder
 # Documentation is available at http://www.openms.de/current_doxygen/html/classOpenMS_1_1MzMLSpectrumDecoder.html
@@ -57902,7 +57903,7 @@ NonNegativeLeastSquaresSolver <- R6Class(classname = "NonNegativeLeastSquaresSol
 )
 )
 NonNegativeLeastSquaresSolver$set("public","initialize",function(){
-   private$py_obj <- Pymod$rname()
+   private$py_obj <- Pymod$NonNegativeLeastSquaresSolver()
 },overwrite = TRUE) 
 
 # R implementation of _NoopMSDataWritingConsumer
@@ -58346,7 +58347,7 @@ OPXLDataStructs <- R6Class(classname = "OPXLDataStructs",cloneable = FALSE,
 
 )
 OPXLDataStructs$set("public","initialize",function(){
-   private$py_obj <- Pymod$rname()
+   private$py_obj <- Pymod$OPXLDataStructs()
 },overwrite = TRUE) 
 
 # R implementation of _OPXLHelper
@@ -59501,7 +59502,7 @@ OSW_ChromExtractParams <- R6Class(classname = "OSW_ChromExtractParams",cloneable
     )
 )
 OSW_ChromExtractParams$set("public","initialize",function(){
-   private$py_obj <- Pymod$rname()
+   private$py_obj <- Pymod$OSW_ChromExtractParams()
 },overwrite = TRUE) 
 
 # R implementation of _OfflinePrecursorIonSelection
@@ -60109,7 +60110,7 @@ OpenSwathDataAccessHelper <- R6Class(classname = "OpenSwathDataAccessHelper",clo
 )
 )
 OpenSwathDataAccessHelper$set("public","initialize",function(){
-   private$py_obj <- Pymod$rname()
+   private$py_obj <- Pymod$OpenSwathDataAccessHelper()
 },overwrite = TRUE)
     OpenSwathDataAccessHelper$set("public","convertToSpectrumPtr",function(spectrum){
   if( !(is.R6(spectrum) && class(spectrum)=="MSSpectrum")) { stop("arg spec wrong type") }
@@ -60172,7 +60173,7 @@ OpenSwathHelper <- R6Class(classname = "OpenSwathHelper",cloneable = FALSE,
 )
 )
 OpenSwathHelper$set("public","initialize",function(){
-   private$py_obj <- Pymod$rname()
+   private$py_obj <- Pymod$OpenSwathHelper()
 },overwrite = TRUE) 
 
 # R implementation of _OpenSwathOSWWriter
@@ -61834,7 +61835,7 @@ OptimizePick_Data <- R6Class(classname = "OptimizePick_Data",cloneable = FALSE,
     )
 )
 OptimizePick_Data$set("public","initialize",function(){
-   private$py_obj <- Pymod$rname()
+   private$py_obj <- Pymod$OptimizePick_Data()
 },overwrite = TRUE) 
 
 # R implementation of _PI_PeakArea
@@ -69827,7 +69828,7 @@ PercolatorFeatureSetHelper <- R6Class(classname = "PercolatorFeatureSetHelper",c
 )
 )
 PercolatorFeatureSetHelper$set("public","initialize",function(){
-   private$py_obj <- Pymod$rname()
+   private$py_obj <- Pymod$PercolatorFeatureSetHelper()
 },overwrite = TRUE) 
 
 # R implementation of _PercolatorOutfile
@@ -70993,7 +70994,7 @@ PrecursorCorrection <- R6Class(classname = "PrecursorCorrection",cloneable = FAL
 )
 )
 PrecursorCorrection$set("public","initialize",function(){
-   private$py_obj <- Pymod$rname()
+   private$py_obj <- Pymod$PrecursorCorrection()
 },overwrite = TRUE) 
 
 # R implementation of _PrecursorIonSelection
@@ -72403,7 +72404,7 @@ ProteaseDB <- R6Class(classname = "ProteaseDB",cloneable = FALSE,
 )
 )
 ProteaseDB$set("public","initialize",function(){
-   private$py_obj <- Pymod$rname()
+   private$py_obj <- Pymod$ProteaseDB()
 },overwrite = TRUE)
     ProteaseDB$set("public","initialize",function(spec){
   private$py_obj <- Pymod$ProteaseDB()
@@ -75316,7 +75317,7 @@ QTCluster <- R6Class(classname = "QTCluster",cloneable = FALSE,
 )
 )
 QTCluster$set("public","initialize",function(){
-   private$py_obj <- Pymod$rname()
+   private$py_obj <- Pymod$QTCluster()
 },overwrite = TRUE)
     #' @export
     `<.QTCluster` = function(e1,e2){
@@ -76784,7 +76785,7 @@ RNPxlReport <- R6Class(classname = "RNPxlReport",cloneable = FALSE,
 )
 )
 RNPxlReport$set("public","initialize",function(){
-   private$py_obj <- Pymod$rname()
+   private$py_obj <- Pymod$RNPxlReport()
 },overwrite = TRUE) 
 
 # R implementation of _RNPxlReportRow
@@ -77124,7 +77125,7 @@ RNPxlReportRow <- R6Class(classname = "RNPxlReportRow",cloneable = FALSE,
 )
 )
 RNPxlReportRow$set("public","initialize",function(){
-   private$py_obj <- Pymod$rname()
+   private$py_obj <- Pymod$RNPxlReportRow()
 },overwrite = TRUE) 
 
 # R implementation of _RNPxlReportRowHeader
@@ -77148,7 +77149,7 @@ RNPxlReportRowHeader <- R6Class(classname = "RNPxlReportRowHeader",cloneable = F
 )
 )
 RNPxlReportRowHeader$set("public","initialize",function(){
-   private$py_obj <- Pymod$rname()
+   private$py_obj <- Pymod$RNPxlReportRowHeader()
 },overwrite = TRUE) 
 
 # R implementation of _RNaseDB
@@ -77218,7 +77219,7 @@ RNaseDB <- R6Class(classname = "RNaseDB",cloneable = FALSE,
 )
 )
 RNaseDB$set("public","initialize",function(){
-   private$py_obj <- Pymod$rname()
+   private$py_obj <- Pymod$RNaseDB()
 },overwrite = TRUE)
     RNaseDB$set("public","initialize",function(){
   private$py_obj <- Pymod$RNaseDB()
@@ -79132,7 +79133,7 @@ ResidueDB <- R6Class(classname = "ResidueDB",cloneable = FALSE,
 )
 )
 ResidueDB$set("public","initialize",function(){
-   private$py_obj <- Pymod$rname()
+   private$py_obj <- Pymod$ResidueDB()
 },overwrite = TRUE)
     ResidueDB$set("public","initialize",function(){
   private$py_obj <- Pymod$ResidueDB()
@@ -80558,7 +80559,7 @@ RibonucleotideDB <- R6Class(classname = "RibonucleotideDB",cloneable = FALSE,
 )
 )
 RibonucleotideDB$set("public","initialize",function(){
-   private$py_obj <- Pymod$rname()
+   private$py_obj <- Pymod$RibonucleotideDB()
 },overwrite = TRUE)
     RibonucleotideDB$set("public","initialize",function(){
   private$py_obj <- Pymod$RibonucleotideDB()
@@ -82659,7 +82660,7 @@ Seed <- R6Class(classname = "Seed",cloneable = FALSE,
 )
 )
 Seed$set("public","initialize",function(){
-   private$py_obj <- Pymod$rname()
+   private$py_obj <- Pymod$Seed()
 },overwrite = TRUE)
     #' @export
     `<.Seed` = function(e1,e2){
@@ -87417,7 +87418,7 @@ SpectrumAccessTransforming <- R6Class(classname = "SpectrumAccessTransforming",c
 )
 )
 SpectrumAccessTransforming$set("public","initialize",function(){
-   private$py_obj <- Pymod$rname()
+   private$py_obj <- Pymod$SpectrumAccessTransforming()
 },overwrite = TRUE) 
 
 # R implementation of _SpectrumAlignment
@@ -87757,7 +87758,7 @@ SpectrumHelper <- R6Class(classname = "SpectrumHelper",cloneable = FALSE,
 
 )
 SpectrumHelper$set("public","initialize",function(){
-   private$py_obj <- Pymod$rname()
+   private$py_obj <- Pymod$SpectrumHelper()
 },overwrite = TRUE)
     
     # C++ signature: void removePeaks(MSChromatogram & p, double pos_start, double pos_end)
@@ -90124,7 +90125,7 @@ SvmModelParameterSet <- R6Class(classname = "SvmModelParameterSet",cloneable = F
     )
 )
 SvmModelParameterSet$set("public","initialize",function(){
-   private$py_obj <- Pymod$rname()
+   private$py_obj <- Pymod$SvmModelParameterSet()
 },overwrite = TRUE) 
 
 # R implementation of _SvmTheoreticalSpectrumGenerator
@@ -90517,7 +90518,7 @@ SwathFile <- R6Class(classname = "SwathFile",cloneable = FALSE,
 )
 )
 SwathFile$set("public","initialize",function(){
-   private$py_obj <- Pymod$rname()
+   private$py_obj <- Pymod$SwathFile()
 },overwrite = TRUE) 
 
 # R implementation of _SwathMap
@@ -90652,7 +90653,7 @@ SwathMapMassCorrection <- R6Class(classname = "SwathMapMassCorrection",cloneable
 
 )
 SwathMapMassCorrection$set("public","initialize",function(){
-   private$py_obj <- Pymod$rname()
+   private$py_obj <- Pymod$SwathMapMassCorrection()
 },overwrite = TRUE) 
 
 # R implementation of _SwathWindowLoader
@@ -94060,7 +94061,7 @@ TheoreticalIsotopePattern <- R6Class(classname = "TheoreticalIsotopePattern",clo
 )
 )
 TheoreticalIsotopePattern$set("public","initialize",function(){
-   private$py_obj <- Pymod$rname()
+   private$py_obj <- Pymod$TheoreticalIsotopePattern()
 },overwrite = TRUE) 
 
 # R implementation of _TheoreticalSpectrumGenerator
@@ -96471,7 +96472,7 @@ UniqueIdGenerator <- R6Class(classname = "UniqueIdGenerator",cloneable = FALSE,
 )
 )
 UniqueIdGenerator$set("public","initialize",function(){
-   private$py_obj <- Pymod$rname()
+   private$py_obj <- Pymod$UniqueIdGenerator()
 },overwrite = TRUE) 
 
 # R implementation of _Unit
@@ -96801,7 +96802,7 @@ VersionInfo <- R6Class(classname = "VersionInfo",cloneable = FALSE,
 
 )
 VersionInfo$set("public","initialize",function(){
-   private$py_obj <- Pymod$rname()
+   private$py_obj <- Pymod$VersionInfo()
 },overwrite = TRUE)
     
     # C++ signature: String getBranch()
@@ -97641,7 +97642,7 @@ XQuestScores <- R6Class(classname = "XQuestScores",cloneable = FALSE,
 )
 )
 XQuestScores$set("public","initialize",function(){
-   private$py_obj <- Pymod$rname()
+   private$py_obj <- Pymod$XQuestScores()
 },overwrite = TRUE) 
 
 # R implementation of _XTandemInfile
@@ -100514,6 +100515,7 @@ DPosition2 <- R6Class(classname="DPosition2",cloneable = FALSE,
   if(!ix %in% c(1,2)) { stop(paste0("invalid index ",ix)) }
   return(x$.__enclos_env__$private$py_obj[ix-1])
 } 
+ 
  
  
  
