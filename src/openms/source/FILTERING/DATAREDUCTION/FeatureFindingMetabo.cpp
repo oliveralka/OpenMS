@@ -624,6 +624,56 @@ namespace OpenMS
 
     return mz_score;
   }
+
+  // TODO: start, end retention time to calculate overhang
+  double FeatureFindingMetabo::getPercentOverhang_(const MassTrace& t_long, const MassTrace& t_short) const
+  {
+    // TODO: Check precondition that trace is really longer / shorter
+    //double long_start = t_long.begin()->getRT();
+    //double long_end = t_long.rbegin()->getRT();
+
+    //double short_start = t_short.begin()->getRT();
+    //double short_end = t_short.rbegin()->getRT(); // TODO: 650 seems not to be the right one - 642 at laest from grouped trace
+
+    std::pair<Size, Size> t_long_fwhm_idx(t_long.getFWHMborders());
+    std::pair<Size, Size> t_short_fwhm_idx(t_short.getFWHMborders());
+
+    double long_start = t_long[t_long_fwhm_idx.first].getRT();
+    double long_end = t_long[t_long_fwhm_idx.second].getRT();
+
+    double short_start = t_short[t_short_fwhm_idx.first].getRT();
+    double short_end = t_short[t_short_fwhm_idx.second].getRT();
+
+    // need actual trce length not FWHM
+    //double length_short = t_short.getFWHM();
+
+    double length_short = short_end - short_start;
+
+    // check which side has an overhang and calculate the how big overhang is
+    // if the shorter trace is within 95% or 99% overlapping or it has an overhang
+
+    // check if the short has an overhang!
+    // TODO: Check if that is working as expected
+    double overlap_percent = 0.0;
+    if (short_start > long_end)
+    {
+      overlap_percent = 0.0;
+    }
+    else if (short_end < long_start)
+    {
+      overlap_percent = 0.0;
+    }
+    else if (long_end < short_end) // overhang right
+    {
+      overlap_percent = 1-((short_end - long_end)/length_short);
+    }
+    else if (long_start < short_start) // overhang left
+    {
+      overlap_percent = 1-((short_start - long_start)/length_short);
+    }
+
+    return overlap_percent;
+  }
   
   double FeatureFindingMetabo::scoreRT_(const MassTrace& tr1, const MassTrace& tr2) const
   {
@@ -631,23 +681,10 @@ namespace OpenMS
     if (!enable_RT_filtering_) return 1.0;
 
     // continue to check overlap and cosine similarity
-    // ...
     std::map<double, std::vector<double> > coinciding_rts;
 
     std::pair<Size, Size> tr1_fwhm_idx(tr1.getFWHMborders());
     std::pair<Size, Size> tr2_fwhm_idx(tr2.getFWHMborders());
-
-    // TODO: start, end retention time to calculate overhang
-    double getOverhang(const MassTrace& t_long, const MassTrace& t_short)
-    {
-      // TODO: Check precondition that trace is really longer / shorter
-      double long_start = t_long.begin()->getRT();
-      double long_end = t_long.end()->getRT();
-
-      double short_start = t_short.begin()->getRT();
-      double short_end = t_short.end()->getRT();
-
-    }
 
     //    std::cout << tr1_fwhm_idx.first << " " << tr1_fwhm_idx.second <<
     //    std::cout << tr2_fwhm_idx.first << " " << tr2_fwhm_idx.second << std::endl;
@@ -657,26 +694,32 @@ namespace OpenMS
 
     //    double max_length = (tr1_fwhm_size > tr2_fwhm_size) ? tr1_fwhm_size : tr2_fwhm_size;
 
+    //TODO: can not use the FWHM
+    //double tr1_length(tr1.getFWHM());
+    //double tr2_length(tr2.getFWHM());
+    //double tr1_length(tr1.rbegin()->getRT() - tr1.begin()->getRT());
+    //double tr2_length(tr2.rbegin()->getRT() - tr2.begin()->getRT());
+    // double max_length = (tr1_length > tr2_length) ? tr1_length : tr2_length;
+
+    // TODO: does it work with FWHM? Instead of RT?
     double tr1_length(tr1.getFWHM());
     double tr2_length(tr2.getFWHM());
-    double max_length = (tr1_length > tr2_length) ? tr1_length : tr2_length;
+
     // check which one is the longer trace and call function based on that,
     // which gives the percentage o the overlap!
+    double overlap_percent = 0.0;
     if (tr1_length > tr2_length)
     {
-      double getOverhang(tr1, tr2);
+      overlap_percent = FeatureFindingMetabo::getPercentOverhang_(tr1, tr2);
     }
     else if (tr1_length < tr2_length)
     {
-      double getOverhang(tr2, tr1);
+      overlap_percent = FeatureFindingMetabo::getPercentOverhang_(tr2, tr1);
     }
     else
     {
-      // not sure what to do yet - should be the same size/lenght
-      // 100 percent overlap.
+      overlap_percent = 1.0;
     }
-
-
 
     // std::cout << "tr1 " << tr1_length << " tr2 " << tr2_length << std::endl;
 
@@ -713,16 +756,22 @@ namespace OpenMS
     //     rt_range = std::fabs(coinciding_rts.rbegin()->first - coinciding_rts.begin()->first);
     //
 
-    double overlap(0.0);
-    if (overlap_rts.size() > 0)
-    {
-      double start_rt(*(overlap_rts.begin())), end_rt(*(overlap_rts.rbegin()));
-      overlap = std::fabs(end_rt - start_rt);
-    }
+    // TODO: Change - see if it works
+    //double overlap(0.0);
+    //if (overlap_rts.size() > 0)
+    //{
+    //  double start_rt(*(overlap_rts.begin())), end_rt(*(overlap_rts.rbegin()));
+    //  overlap = std::fabs(end_rt - start_rt);
+    //}
 
-    // TODO: Reduce the proportion to 40%
-    double proportion(overlap / max_length);
-    if (proportion < 0.7)
+    //double proportion(overlap / max_length);
+    //if (proportion < 0.7)
+    //{
+    //  return 0.0;
+    //}
+
+    // if the overlap is not >= 99% the mass traces should not be grouped
+    if (overlap_percent >= 0.95) // TODO: is that correct?
     {
       return 0.0;
     }

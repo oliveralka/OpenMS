@@ -310,6 +310,8 @@ e conditions are fulfilled. Mainly the
     */
     void findLocalFeatures_(const std::vector<const MassTrace*>& candidates, double total_intensity, std::vector<FeatureHypothesis>& output_hypotheses) const;
 
+    double getPercentOverhang_(const MassTrace& t_long, const MassTrace& t_short) const;
+
     /// SVM parameters
     svm_model* isotope_filt_svm_;
     std::vector<double> svm_feat_centers_;
