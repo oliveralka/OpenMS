@@ -41,7 +41,7 @@ jobs:
     
     - name: Install pyopenms
       run: |
-          conda activate ropenms-bld
+          source activate ropenms-bld
           # install latest version of pyopenms
           pip install pyopenms==2.5.0
           conda deactivate
