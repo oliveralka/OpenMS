@@ -35,6 +35,7 @@ jobs:
     - name: Install pyopenms
       shell: bash
       run: |
+          conda init bash
           conda activate ropenms-bld
           # install latest version of pyopenms
           pip install pyopenms==2.5.0
