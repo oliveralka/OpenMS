@@ -16,22 +16,57 @@ on:
 
 jobs:
   build:
-    runs-on: macOS-latest
+    runs-on: macos-latest
     strategy:
       matrix:
-        r-version: [3.5, 3.6]
+        r-version: [3.6]
 
     steps:
-      - uses: actions/checkout@v2
-      - name: Set up R ${{ matrix.r-version }}
-        uses: r-lib/actions/setup-r@ffe45a39586f073cc2e9af79c4ba563b657dc6e3
-        with:
-          r-version: ${{ matrix.r-version }}
-      - name: Install dependencies
-        run: |
-          install.packages(c("remotes", "rcmdcheck"))
-          remotes::install_deps(dependencies = TRUE)
-        shell: Rscript {0}
-      - name: Check
-        run: rcmdcheck::rcmdcheck(args = "--no-manual", error_on = "error")
-        shell: Rscript {0}
+    - uses: actions/checkout@v2
+      with:
+        path: OpenMS/src/ropenms
+    
+    - uses: conda-incubator/setup-miniconda@v1
+      with:
+        miniconda-version: "latest"
+        activate-environment: ropenms-bld
+        python-version: 3.7
+    
+    - name: Bash
+      shell: bash
+      run: |
+        conda info
+        conda list
+    
+    - name: Install pyopenms
+      run: |
+          conda activate ropenms-bld
+          # install latest version of pyopenms
+          pip install pyopenms==2.5.0
+          conda deactivate
+
+    - name: Set up R ${{ matrix.r-version }}
+      uses: r-lib/actions/setup-r@ffe45a39586f073cc2e9af79c4ba563b657dc6e3
+      with:
+        r-version: ${{ matrix.r-version }}
+
+    - name: Install dependencies
+      run: |
+        install.packages(c("remotes", "rcmdcheck","devtools"))
+        remotes::install_deps(dependencies = TRUE)
+      shell: Rscript {0}
+
+    - name: Check
+      run: rcmdcheck::rcmdcheck(args = "--no-manual", error_on = "error")
+      shell: Rscript {0}
+    
+    - name: Build R
+      run: |
+          R CMD build ropenms
+    
+    - uses: actions/upload-artifact@v2
+      with:
+        name: ropenms-macos-R${{ matrix.r-version }}
+        path: OpenMS/src/ropenms_0.1.tar.gz
+      
+
