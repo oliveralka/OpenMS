@@ -44,7 +44,7 @@ jobs:
           conda create -n ropenms-bld python==3.8
           source activate ropenms-bld
           # install latest version of pyopenms
-          pip install -U pyopenms==2.5.0
+          pip install pyopenms-nightly==2.6.0.dev20201009
           conda deactivate
 
     - name: Set up R ${{ matrix.r-version }}
