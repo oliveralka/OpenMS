@@ -26,16 +26,21 @@ jobs:
       with:
         path: OpenMS/src/ropenms
     
-    - uses: conda-incubator/setup-miniconda@v1
-      with:
-        miniconda-version: "latest"
-        activate-environment: ropenms-bld
-        python-version: 3.7
-    
-    - name: Install pyopenms
+    - name: Install Miniconda
       shell: bash
       run: |
-          conda init bash
+            MINICONDA_FILENAME=Miniconda3-latest-MacOSX-x86_64.sh
+            curl -o $MINICONDA_FILENAME "https://repo.anaconda.com/miniconda/$MINICONDA_FILENAME"
+            bash ${MINICONDA_FILENAME} -b -f -p $HOME/miniconda3
+
+    - name: Setup conda paths
+      shell: bash
+      run: |
+        echo "::add-path::$HOME/miniconda3/bin"
+        echo "::add-path::$HOME/miniconda3/Scripts"
+    
+    - name: Install pyopenms
+      run: |
           conda activate ropenms-bld
           # install latest version of pyopenms
           pip install pyopenms==2.5.0
