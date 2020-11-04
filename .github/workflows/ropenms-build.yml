@@ -32,12 +32,6 @@ jobs:
         activate-environment: ropenms-bld
         python-version: 3.7
     
-    - name: Bash
-      shell: bash
-      run: |
-        conda info
-        conda list
-    
     - name: Install pyopenms
       shell: bash
       run: |
