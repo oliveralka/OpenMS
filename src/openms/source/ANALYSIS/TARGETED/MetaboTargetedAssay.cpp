@@ -456,7 +456,6 @@ namespace OpenMS
       cmp.setChargeState(charge);
       if (description == "UNKNOWN")
       {
-        std::cout << "tgc: " << transition_group_counter << std::endl;
         description = String(description + "_" + transition_group_counter);
       }
       if (decoy == 0)

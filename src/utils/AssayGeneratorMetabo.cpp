@@ -130,6 +130,9 @@ protected:
   {
     registerInputFile_("executable", "<executable>", "", "SIRIUS executable e.g. sirius", false, false, ListUtils::create<String>("skipexists"));
 
+    registerInputFile_("java_executable", "<executable>", "", "java executable", false, false, ListUtils::create<String>("skipexists"));
+
+
     registerInputFileList_("in", "<file(s)>", StringList(), "MzML input file(s) used for assay library generation");
     setValidFormats_("in", ListUtils::create<String>("mzML"));
 
@@ -254,6 +257,7 @@ protected:
     StringList in = getStringList_("in");
     StringList id = getStringList_("in_id");
     String out = getStringOption_("out");
+    String java_executable = getStringOption_("java_executable");
     String fragment_annotation = getStringOption_("fragment_annotation");
     String method = getStringOption_("method");
     bool use_fragment_annotation = fragment_annotation == "sirius" ? true : false;
@@ -503,6 +507,7 @@ protected:
         subdirs = algorithm.callSiriusQProcess(sirius_tmp.getTmpMsFile(),
             sirius_tmp.getTmpOutDir(),
             executable,
+            java_executable,
             out_csifingerid,
             decoy_generation);
   
@@ -725,6 +730,7 @@ protected:
     } // end iteration over all files
 
     // use first rank based on precursor intensity
+    // TODO: Is seems there might be duplicates - why? E.g. test with whole dataset? 44_Ethofumesate_[M+K]+_3
     std::map< std::pair <String,String>, MetaboTargetedAssay > map_mta;
     for (const auto& it : v_mta)
     {
@@ -767,7 +773,7 @@ protected:
     // e.g. if only one decoy is available it will not be filtered out!
     assay.detectingTransitionsCompound(t_exp, min_transitions, max_transitions);
 
-    // TODO: is that necessary?
+    // TODO: It is necessary!
     // remove decoys which do not have a respective target after min/max transition filtering
     if (decoy_generation)
     {
@@ -819,7 +825,7 @@ protected:
         // Check if decoy was filtered
         if (std::find(lone_decoy_id.begin(), lone_decoy_id.end(), compound.id) != lone_decoy_id.end())
         {
-          OPENMS_LOG_INFO<< "The decoy " << compound.id << "was filtered due to missing a respective target." << std::endl;
+          OPENMS_LOG_DEBUG<< "The decoy " << compound.id << " was filtered due to missing a respective target." << std::endl;
         }
         else
         {
@@ -835,7 +841,7 @@ protected:
         // Check if compound has any transitions left
         if (std::find(lone_decoy_id.begin(), lone_decoy_id.end(), transition.getCompoundRef()) != lone_decoy_id.end())
         {
-          OPENMS_LOG_INFO << "The decoy " << transition.getCompoundRef() << "was filtered due to missing a respective target." << std::endl;
+          OPENMS_LOG_DEBUG << "The decoy " << transition.getCompoundRef() << " was filtered due to missing a respective target." << std::endl;
         }
         else
         {

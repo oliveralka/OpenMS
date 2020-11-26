@@ -44,6 +44,9 @@
 #include <fstream>
 #include <include/OpenMS/DATASTRUCTURES/StringUtils.h>
 
+#include <QStandardPaths>
+#include <QStringList>
+
 namespace OpenMS
 {
   // ###################
@@ -646,10 +649,66 @@ namespace OpenMS
     const std::vector<String> SiriusAdapterAlgorithm::callSiriusQProcess(const String& tmp_ms_file,
                                                                          const String& tmp_out_dir,
                                                                          String& executable,
+                                                                         String& java_executable,
                                                                          const String& out_csifingerid,
                                                                          const bool decoy_generation)
 
     {
+      QFileInfo exec(executable.toQString());
+      if (!exec.exists())
+      {
+        QString potential_exec = QStandardPaths::findExecutable(executable.toQString());
+        if (!potential_exec.isEmpty())
+        {
+          exec = QFileInfo(potential_exec);
+        }
+        else
+        {
+          throw OpenMS::Exception::FileNotFound(__FILE__,
+                                                __LINE__,
+                                                __FUNCTION__,
+                                                "Error: Sirius executable not found. Please check parameters and your PATH.");
+        }
+      }
+
+      // library paths are collected based on a reference (executable: sirius;sirius-console-64.exe")
+      // sirius is then called via its class "de.unijena.bioinf.ms.cli.SiriusCLIApplication"
+
+      // java -Djava.library.path="/Users/alka/Documents/work/software/openms_dev/OpenMS/THIRDPARTY/All/Sirius/lib/:/Users/alka/Documents/work/software/openms_dev/OpenMS/THIRDPARTY/MacOS/64bit/Sirius/lib/" -classpath "/Users/alka/Documents/work/software/openms_dev/OpenMS/THIRDPARTY/All/Sirius/lib/*" de.unijena.bioinf.ms.frontend.SiriusCLIApplication
+
+      String libpath = exec.absoluteDir().absolutePath();
+      // TODO: should not be hardcoded!
+      String java_memory = "-Xmx" + QString::number(1024) + "m";
+
+      // library path depends if original, merged (build system) or THIRDPARTY version of SIRIUS is used.
+      String sep = QDir::listSeparator().toLatin1(); // UNIX: ":", Windows: ";"
+      String lib_original = libpath + "/../lib";
+      String lib_merged = libpath + "/lib";
+      String lib_thirdparty = libpath + "/../../../All/Sirius/lib";
+      String lib_glpk_thirdparty_mac = libpath + "/../../../MacOS/64bit/Sirius/lib";
+      String lib_glpk_thirdparty_lnx = libpath + "/../../../Linux/64bit/Sirius/lib";
+      String lib_glpk_thirdparty_win = libpath;
+
+      String quote = "\"";
+
+      // construct library and class path
+      String javalibpath = "-Djava.library.path=" + lib_glpk_thirdparty_win + sep + lib_merged + sep + lib_original + sep + lib_glpk_thirdparty_mac + sep + lib_glpk_thirdparty_lnx;
+      String classpath = quote + lib_original + "/*" + sep + lib_merged + "/*" + sep + lib_thirdparty + "/*" + quote; // "\"" needs to be added due to zsh (MacOS)
+      //String classpath = "-classpath " + lib_original + "/*" + sep + lib_merged + "/*" + sep + lib_thirdparty + "/*";
+
+
+      // check environment variables for additional solvers
+      if (getenv("GUROBI_HOME") != nullptr)
+      {
+        String gurobi_home = getenv("GUROBI_HOME");
+        classpath = classpath + sep + gurobi_home + "/lib/gurobi.jar";
+      }
+      if (getenv("CPLEX_HOME") != nullptr)
+      {
+        String cplex_home = getenv("CPLEX_HOME");
+        classpath = classpath + sep +  cplex_home + "/lib/cplex.jar";
+      }
+
       // get the command line parameters from all the subtools
       QStringList sirius_params = sirius.getCommandLine();
       QStringList fingerid_params = fingerid.getCommandLine();
@@ -657,17 +716,25 @@ namespace OpenMS
       const bool run_csifingerid = !out_csifingerid.empty();
       const bool run_passatutto = decoy_generation;
 
+      QString main_class = QString("de.unijena.bioinf.ms.frontend.SiriusCLIApplication");
+
       // structure of the command line passed to NightSky
-      QStringList command_line = QStringList({"--input", tmp_ms_file.toQString(), "--project", tmp_out_dir.toQString(), "sirius"}) + sirius_params;
+      QStringList command_line = QStringList({java_memory.toQString(),
+                                               javalibpath.toQString(),
+                                               QString("-classpath"), classpath.toQString(),
+                                               main_class,
+                                               QString("--input"), tmp_ms_file.toQString(),
+                                               QString("--project"), tmp_out_dir.toQString(),
+                                               QString("sirius")}) << sirius_params;
 
       if (run_passatutto)
       {
-        command_line << "passatutto";
+        command_line << QString("passatutto");
       }
 
       if (run_csifingerid)
       {
-        command_line << "fingerid" << fingerid_params;
+        command_line << QString("fingerid") << fingerid_params;
       }
 
       OPENMS_LOG_INFO << "Running SIRIUS with the following command line parameters: " << endl;
@@ -679,21 +746,22 @@ namespace OpenMS
 
       // the actual process
       QProcess qp;
-      QString executable_qstring = SiriusAdapterAlgorithm::determineSiriusExecutable(executable).toQString();
-      QString wd = File::path(executable).toQString();
-      qp.setWorkingDirectory(wd); //since library paths are relative to sirius executable path
+      // QString executable_qstring = SiriusAdapterAlgorithm::determineSiriusExecutable(executable).toQString();
+      //QString wd = File::path(executable).toQString();
+      //qp.setWorkingDirectory(wd);
+
       //since library paths are relative to sirius executable path
-      qp.setWorkingDirectory(File::path(executable).toQString());
-      qp.start(executable_qstring, command_line); // does automatic escaping etc... start
+      qp.setWorkingDirectory(File::path(executable).toQString()); //since library paths are relative to sirius executable path
+      qp.start(java_executable.toQString(), command_line); // does automatic escaping etc... start
 
       std::stringstream ss;
-      ss << "COMMAND: " << executable_qstring.toStdString();
+      ss << "COMMAND: " << java_executable;
       for (QStringList::const_iterator it = command_line.begin(); it != command_line.end(); ++it)
       {
         ss << " " << it->toStdString();
       }
       OPENMS_LOG_WARN << ss.str() << std::endl;
-      OPENMS_LOG_WARN << "Executing: " + executable_qstring.toStdString() << std::endl;
+      // OPENMS_LOG_WARN << "Executing: " + executable_qstring.toStdString() << std::endl;
 
       const bool success = qp.waitForFinished(-1);
 
@@ -720,7 +788,7 @@ namespace OpenMS
       QDirIterator it(tmp_out_dir.toQString(), QDir::Dirs | QDir::NoDotAndDotDot, QDirIterator::NoIteratorFlags);
       while (it.hasNext())
       {
-        subdirs.push_back(it.next());
+        subdirs.emplace_back(it.next());
       }
       return subdirs;
     }
@@ -748,5 +816,88 @@ namespace OpenMS
         .withValidStrings({"true", "false"});
     }
 } // namespace OpenMS
+
+//// tmp_msfile (store), all parameters, out_dir (tmpstructure)
+//const std::vector<String> SiriusAdapterAlgorithm::callSiriusQProcess(const String& tmp_ms_file,
+//                                                                     const String& tmp_out_dir,
+//                                                                     String& executable,
+//                                                                     const String& out_csifingerid,
+//                                                                     const bool decoy_generation)
+//
+//{
+//  // get the command line parameters from all the subtools
+//  QStringList sirius_params = sirius.getCommandLine();
+//  QStringList fingerid_params = fingerid.getCommandLine();
+//
+//  const bool run_csifingerid = !out_csifingerid.empty();
+//  const bool run_passatutto = decoy_generation;
+//
+//  // structure of the command line passed to NightSky
+//  QStringList command_line = QStringList({"--input", tmp_ms_file.toQString(), "--project", tmp_out_dir.toQString(), "sirius"}) + sirius_params;
+//
+//  if (run_passatutto)
+//  {
+//    command_line << "passatutto";
+//  }
+//
+//  if (run_csifingerid)
+//  {
+//    command_line << "fingerid" << fingerid_params;
+//  }
+//
+//  OPENMS_LOG_INFO << "Running SIRIUS with the following command line parameters: " << endl;
+//  for (const auto &param: command_line)
+//  {
+//    OPENMS_LOG_INFO << param.toStdString() << " ";
+//  }
+//  OPENMS_LOG_INFO << endl;
+//
+//  // the actual process
+//  QProcess qp;
+//  QString executable_qstring = SiriusAdapterAlgorithm::determineSiriusExecutable(executable).toQString();
+//  QString wd = File::path(executable).toQString();
+//  qp.setWorkingDirectory(wd); //since library paths are relative to sirius executable path
+//  //since library paths are relative to sirius executable path
+//  qp.setWorkingDirectory(File::path(executable).toQString());
+//  qp.start(executable_qstring, command_line); // does automatic escaping etc... start
+//
+//  std::stringstream ss;
+//  ss << "COMMAND: " << executable_qstring.toStdString();
+//  for (QStringList::const_iterator it = command_line.begin(); it != command_line.end(); ++it)
+//  {
+//    ss << " " << it->toStdString();
+//  }
+//  OPENMS_LOG_WARN << ss.str() << std::endl;
+//  OPENMS_LOG_WARN << "Executing: " + executable_qstring.toStdString() << std::endl;
+//
+//  const bool success = qp.waitForFinished(-1);
+//
+//  if (!success || qp.exitStatus() != 0 || qp.exitCode() != 0)
+//  {
+//    OPENMS_LOG_WARN << "FATAL: External invocation of Sirius failed. Standard output and error were:" << std::endl;
+//    const QString sirius_stdout(qp.readAllStandardOutput());
+//    const QString sirius_stderr(qp.readAllStandardError());
+//    OPENMS_LOG_WARN << String(sirius_stdout) << std::endl;
+//    OPENMS_LOG_WARN << String(sirius_stderr) << std::endl;
+//    OPENMS_LOG_WARN << String(qp.exitCode()) << std::endl;
+//    qp.close();
+//
+//    throw Exception::InvalidValue(__FILE__,
+//                                  __LINE__,
+//                                  OPENMS_PRETTY_FUNCTION,
+//                                  "FATAL: External invocation of Sirius failed!",
+//                                  "");
+//  }
+//  qp.close();
+//
+//  //extract path to subfolders (sirius internal folder structure)
+//  std::vector<String> subdirs;
+//  QDirIterator it(tmp_out_dir.toQString(), QDir::Dirs | QDir::NoDotAndDotDot, QDirIterator::NoIteratorFlags);
+//  while (it.hasNext())
+//  {
+//    subdirs.push_back(it.next());
+//  }
+//  return subdirs;
+//}
 
 /// @endcond

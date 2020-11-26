@@ -171,6 +171,7 @@ namespace OpenMS
       const vector<String> callSiriusQProcess(const String& tmp_ms_file,
                                               const String& tmp_out_dir,
                                               String& executable,
+                                              String& java_executable,
                                               const String& out_csifingerid,
                                               const bool decoy_generation);
 

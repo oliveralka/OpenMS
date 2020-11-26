@@ -132,6 +132,9 @@ protected:
 #endif
       "The Sirius executable. Provide a full or relative path, or make sure it can be found in your PATH environment.", false, false, {"is_executable"});
 
+    registerInputFile_("java_executable", "<executable>", "java", "java executable e.g. java", false, false, ListUtils::create<String>("skipexists"));
+
+
     registerInputFile_("in", "<file>", "", "MzML Input file");
     setValidFormats_("in", ListUtils::create<String>("mzML"));
 
@@ -168,6 +171,7 @@ protected:
     // Parsing parameters
     //-------------------------------------------------------------
     String executable = getStringOption_("executable");
+    String java_executable = getStringOption_("java_executable");
     String in = getStringOption_("in");
     String out_sirius = getStringOption_("out_sirius");
     String out_csifingerid = getStringOption_("out_fingerid");
