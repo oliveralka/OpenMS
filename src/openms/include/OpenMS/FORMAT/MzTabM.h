@@ -48,24 +48,6 @@ namespace OpenMS
       @ingroup FileIO
   */
 
-  class MzTabParameter : public MzTabParameter
-  {
-  protected:
-    String custom_;
-    String scan_polarity_;
-    String hash_method_;
-    String average_function_;
-    String variation_function_;
-    String small_molecule_quantification_unit_;
-    String small_molecule_feature_quantification_unit_;
-    String small_molecule_identification_reliability_;
-    String best_id_confidence_measure_;
-    String isotopomer_;
-    String derivatized_form_;
-    String identification_method;
-    String ms_level;
-  };
-
   struct OPENMS_DLLAPI MzTabMAssayMetaData
   {
     MzTabParameter quantification_reagent;
@@ -229,9 +211,9 @@ namespace OpenMS
     /// Destructor
     virtual ~MzTabM();
 
-    const MzTabMetaData& getMetaData() const;
+    const MzTabMMetaData& getMetaData() const;
 
-    void setMetaData(const MzTabMetaData& m_md); // TODO: check if the metadata section is the same or if additional / other stuff is needed as well
+    void setMetaData(const MzTabMMetaData& m_md); // TODO: check if the metadata section is the same or if additional / other stuff is needed as well
 
     const MzTabMSmallMoleculeSectionRows& getMSmallMoleculeSectionRows() const;
 
@@ -253,7 +235,7 @@ namespace OpenMS
 
     const std::map<Size, String>& getCommentRows() const;
 
-    // TODO: check if all levels (feature, evidence) can have optional colums
+    // TODO: check if all levels (feature, evidence) can have optional columns
 
     /// Extract opt_ (custom, optional column names)
     std::vector<String> getMSmallMoleculeOptionalColumnNames() const;
@@ -267,29 +249,21 @@ namespace OpenMS
     static void addMetaInfoToOptionalColumns(const std::set<String>& keys, std::vector<MzTabOptionalColumnEntry>& opt, const String& id, const MetaInfoInterface& meta);
 
     // TODO: check if Modification functions are needed for Metabolomics (I guess not)
-    static std::map<Size, MzTabModificationMetaData> generateMzTabStringFromModifications(const std::vector<String>& mods);
+    // static std::map<Size, MzTabModificationMetaData> generateMzTabStringFromModifications(const std::vector<String>& mods);
+    // static std::map<Size, MzTabModificationMetaData> generateMzTabStringFromVariableModifications(const std::vector<String>& mods);
+    //static std::map<Size, MzTabModificationMetaData> generateMzTabStringFromFixedModifications(const std::vector<String>& mods);
 
-    static std::map<Size, MzTabModificationMetaData> generateMzTabStringFromVariableModifications(const std::vector<String>& mods);
 
-    static std::map<Size, MzTabModificationMetaData> generateMzTabStringFromFixedModifications(const std::vector<String>& mods);
-
-    static MzTab exportFeatureMapToMzTab(const FeatureMap& feature_map, const String& filename);
+    // TODO: see what has to be changed for metebolomics?
+    // TODO: is all the info/metadata available at that point?
+    static MzTab exportFeatureMapToMzTabM(const FeatureMap& feature_map, const String& filename);
 
     /**
-      * @brief Export peptide and protein identifications to mzTab
+      * @brief Export metabolite identifications to mzTab
       *
-      * Additionally this function fills two std::maps with mappings for external usage.
-      *
-      * @param[IN] prot_ids Data structure containing protein identifications
-      * @param[IN] peptide_ids Data structure containing peptide identifications
-      * @param[IN] filename Input idXML file name
-      * @param[IN] first_run_inference_only Is all protein inference information stored in the first run?
-      * @param[OUT] map_run_fileidx_2_msfileidx Mapping from (run index, input file index) to experimental design file index. The experimental design file index is either given, or a simplified version created from the input file index on the fly.
-      * @param[OUT] idrun_2_run_index Mapping from protein identification identifier (search engine + date) to run index, i.e. for storing file origins from different runs
-      *
-      * @return mzTab object
+      * @return mzTabM object
     */
-    static MzTab exportIdentificationsToMzTab(
+    static MzTabM exportIdentificationsToMzTabM(
         const std::vector<ProteinIdentification>& prot_ids,
         const std::vector<PeptideIdentification>& peptide_ids,
         const String& filename,
@@ -350,7 +324,7 @@ namespace OpenMS
 
     static void checkSequenceUniqueness_(const std::vector<PeptideIdentification>& curr_pep_ids);
 
-    MzTabMetaData meta_data_;
+    MzTabMetaData m_meta_data_;
     MzTabMSmallMoleculeSectionRows m_small_molecule_data_;
     MzTabMSmallMoleculeFeatureSectionRows m_small_molecule_feature_data_;
     MzTabMSmallMoleculeEvidenceSectionRows m_small_molecule_evidence_data_;
