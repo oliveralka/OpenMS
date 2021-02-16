@@ -39,8 +39,32 @@
 namespace OpenMS
 {
 
-  // Reuse most of struct and classes from mztab for the MTD section, which
-  // a few exceptions below:
+  /**
+      @brief Data model of MzTabM files.
+
+      Please see the official MzTabM specification at
+      https://github.com/HUPO-PSI/mzTab/tree/master/specification_document-releases/2_0-Metabolomics-Release
+
+      @ingroup FileIO
+  */
+
+  class MzTabParameter : public MzTabParameter
+  {
+  protected:
+    String custom_;
+    String scan_polarity_;
+    String hash_method_;
+    String average_function_;
+    String variation_function_;
+    String small_molecule_quantification_unit_;
+    String small_molecule_feature_quantification_unit_;
+    String small_molecule_identification_reliability_;
+    String best_id_confidence_measure_;
+    String isotopomer_;
+    String derivatized_form_;
+    String identification_method;
+    String ms_level;
+  };
 
   struct OPENMS_DLLAPI MzTabMAssayMetaData
   {

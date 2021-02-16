@@ -168,21 +168,6 @@ namespace OpenMS
       }
     }
 
-    // TODO: Introduce new Funtions for Feature and Evidence
-
-    void generateMzTabSmallMoleculeFeatureSection_() const;
-
-    String generateMzTabSmallMoleculeFeatureHeader_() const;
-
-    String generateMzTabSmallMoleculeFeatureSectionRow() const;
-
-    void generateMzTabSmallMoleculeEvidenceSection_() const;
-
-    String generateMzTabSmallMoleculeEvidenceHeader_() const;
-
-    String generateMzTabSmallMoleculeEvidenceSectionRow() const;
-
-
     // auxiliary functions
 
     /// Helper function for "generateMzTabSectionRow_" functions
