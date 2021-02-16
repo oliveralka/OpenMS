@@ -28,8 +28,8 @@
 // ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 // --------------------------------------------------------------------------
-// $Maintainer: Mathias Walzer $
-// $Authors: Mathias Walzer $
+// $Maintainer: Eugen Netz $
+// $Authors: Mathias Walzer, Eugen Netz $
 // --------------------------------------------------------------------------
 
 #include <OpenMS/FORMAT/HANDLERS/MzIdentMLDOMHandler.h>
@@ -870,7 +870,7 @@ namespace OpenMS
           pro_id_->back().setMetaValue("spectra_data", spectra_data_list);
           if (!spectrumIdentification_date.empty())
           {
-            pro_id_->back().setDateTime(DateTime::fromString(spectrumIdentification_date.toQString(), "yyyy-MM-ddThh:mm:ss"));
+            pro_id_->back().setDateTime(DateTime::fromString(spectrumIdentification_date));
           }
           else
           {
@@ -990,18 +990,14 @@ namespace OpenMS
                         const ResidueModification* m = ModificationsDB::getInstance()->getModification(mname, r, ResidueModification::C_TERM);
                         mod = m->getFullId();
                       }
-                      else if (spci->second.front().getAccession() == "MS:1002057")  // pro nterm
+                      else if (spci->second.front().getAccession() == "MS:1002057")  // protein nterm
                       {
-                        // TODO: add support for protein N-terminal modifications in unimod
-                        // ResidueModification* m = ModificationsDB::getInstance()->getModification(mname,  r, ResidueModification::PROTEIN_N_TERM);
-                        const ResidueModification* m = ModificationsDB::getInstance()->getModification(mname,  r, ResidueModification::N_TERM);
+                        const ResidueModification* m = ModificationsDB::getInstance()->getModification(mname,  r, ResidueModification::PROTEIN_N_TERM);
                         mod = m->getFullId();
                       }
-                      else if (spci->second.front().getAccession() == "MS:1002058")  // pro cterm
+                      else if (spci->second.front().getAccession() == "MS:1002058")  // protein cterm
                       {
-                        // TODO: add support for protein C-terminal modifications in unimod
-                        // ResidueModification* m = ModificationsDB::getInstance()->getModification(mname,  r, ResidueModification::PROTEIN_C_TERM);
-                        const ResidueModification* m = ModificationsDB::getInstance()->getModification(mname,  r, ResidueModification::C_TERM);
+                        const ResidueModification* m = ModificationsDB::getInstance()->getModification(mname,  r, ResidueModification::PROTEIN_C_TERM);
                         mod = m->getFullId();
                       }
                     }
@@ -2009,14 +2005,12 @@ namespace OpenMS
 //      String massTable_ref = XMLString::transcode(spectrumIdentificationItemElement->getAttribute(XMLString::transcode("massTable_ref")));
 
       XSValue::Status status;
-      XSValue* val = XSValue::getActualValue(spectrumIdentificationItemElement->getAttribute(XMLString::transcode("passThreshold")), XSValue::dt_boolean, status);
+      std::unique_ptr<XSValue> val(XSValue::getActualValue(spectrumIdentificationItemElement->getAttribute(XMLString::transcode("passThreshold")), XSValue::dt_boolean, status));
       bool pass = false;
       if (status == XSValue::st_Init)
       {
         pass = val->fData.fValue.f_bool;
       }
-      delete val;
-      OPENMS_LOG_DEBUG << "'passThreshold' value " << pass;
       // TODO @all: where to store passThreshold value? set after score type eval in pass_threshold
 
       long double score = 0;
@@ -2043,7 +2037,7 @@ namespace OpenMS
             break;
           }
         }
-        else if (specific_score_terms.find(scoreit->first) != specific_score_terms.end() || scoreit->first == "MS:1001143")
+        else if (specific_score_terms.find(scoreit->first) != specific_score_terms.end())
         {
           score = scoreit->second.front().getValue().toString().toDouble(); // cast fix needed as DataValue is init with XercesString
           spectrum_identification.setHigherScoreBetter(ControlledVocabulary::CVTerm::isHigherBetterScore(cv_.getTerm(scoreit->first)));
@@ -2056,6 +2050,14 @@ namespace OpenMS
           score = scoreit->second.front().getValue().toString().toDouble(); // cast fix needed as DataValue is init with XercesString
           spectrum_identification.setHigherScoreBetter(false);
           spectrum_identification.setScoreType("E-value"); //higherIsBetter = false
+          scoretype = true;
+          break;
+        }
+        else if (scoreit->first == "MS:1001143")
+        {
+          spectrum_identification.setScoreType("PSM-level search engine specific statistic");
+          // TODO this is just an assumption for unknown scores
+          spectrum_identification.setHigherScoreBetter(true);
           scoretype = true;
         }
       }
@@ -2071,11 +2073,15 @@ namespace OpenMS
             {
               hit.setMetaValue(cvs->first, cv->getValue().toString());
             }
+            else if (cvs->first == "MS:1001143") // this is the CV term "PSM-level search engine specific statistic" and it doesn't have a value
+            {
+              continue;
+            }
             else
             {
-            hit.setMetaValue(cvs->first, cv->getValue().toString().toDouble());
+              hit.setMetaValue(cvs->first, cv->getValue().toString().toDouble());
+            }
           }
-        }
         }
         for (map<String, DataValue>::const_iterator up = params.second.begin(); up != params.second.end(); ++up)
         {
@@ -2571,13 +2577,13 @@ namespace OpenMS
                       // ownership to ModDB
                       if (!mod_db->has(residue_id))
                       {
-                        ResidueModification * new_mod = new ResidueModification();
+                        unique_ptr<ResidueModification> new_mod(new ResidueModification);
                         new_mod->setFullId(residue_id); // setting FullId but not Id makes it a user-defined mod
                         new_mod->setFullName(residue_name); // display name
                         new_mod->setDiffMonoMass(mass_delta);
                         new_mod->setMonoMass(mass_delta + Residue::getInternalToNTerm().getMonoWeight());
                         new_mod->setTermSpecificity(ResidueModification::N_TERM);
-                        mod_db->addModification(new_mod);
+                        mod_db->addModification(std::move(new_mod));
                       }
 
                       aas.setNTerminalModification(residue_id);
@@ -2594,13 +2600,13 @@ namespace OpenMS
                       // ownership to ModDB
                       if (!mod_db->has(residue_name))
                       {
-                        ResidueModification * new_mod = new ResidueModification();
+                        unique_ptr<ResidueModification> new_mod(new ResidueModification);
                         new_mod->setFullId(residue_id); // setting FullId but not Id makes it a user-defined mod
                         new_mod->setFullName(residue_name); // display name
                         new_mod->setDiffMonoMass(mass_delta);
                         new_mod->setMonoMass(mass_delta + Residue::getInternalToCTerm().getMonoWeight());
                         new_mod->setTermSpecificity(ResidueModification::C_TERM);
-                        mod_db->addModification(new_mod);
+                        mod_db->addModification(std::move(new_mod));
                       }
                       aas.setCTerminalModification(residue_id);
                       cvp = cvp->getNextElementSibling();
@@ -2616,11 +2622,11 @@ namespace OpenMS
                       if (!mod_db->has(residue_name))
                       {
                         // create new modification
-                        ResidueModification * new_mod = new ResidueModification();
+                        unique_ptr<ResidueModification> new_mod(new ResidueModification);
                         new_mod->setFullId(residue_name); // setting FullId but not Id makes it a user-defined mod
                         new_mod->setFullName(modification_name); // display name
 
-                        // We will set origin to make sure the same modifcation will be used
+                        // We will set origin to make sure the same modification will be used
                         // for the same AA
                         new_mod->setOrigin(residue.getOneLetterCode()[0]);
 
@@ -2633,7 +2639,7 @@ namespace OpenMS
                         new_mod->setAverageMass(mass_delta + residue.getAverageWeight());
                         new_mod->setDiffMonoMass(mass_delta);
 
-                        mod_db->addModification(new_mod);
+                        mod_db->addModification(std::move(new_mod));
                       }
 
                       // now use the new modification
