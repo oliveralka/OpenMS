@@ -33,6 +33,8 @@
 // --------------------------------------------------------------------------
 
 #include <OpenMS/FORMAT/FeatureXMLFile.h>
+#include <OpenMS/FORMAT/FileHandler.h>
+#include <OpenMS/FORMAT/MSPGenericFile.h>
 #include <OpenMS/FORMAT/MzMLFile.h>
 #include <OpenMS/KERNEL/FeatureMap.h>
 #include <OpenMS/KERNEL/MSExperiment.h>
@@ -97,7 +99,7 @@ protected:
     registerInputFile_("in", "<file>", "", "Input spectra.");
     setValidFormats_("in", ListUtils::create<String>("mzML"));
     registerInputFile_("database", "<file>", "", "Default spectral database.", true);
-    setValidFormats_("database", ListUtils::create<String>("mzML"));
+    setValidFormats_("database", ListUtils::create<String>("mzML,msp"));
     registerOutputFile_("out", "<file>", "", "mzTab file");
     setValidFormats_("out", ListUtils::create<String>("mzTab"));
 
@@ -161,7 +163,16 @@ protected:
     //-------------------------------------------------------------
 
     PeakMap spec_db;
-    mz_file.load(spec_db_filename, spec_db);
+    FileTypes::Type input_type = FileHandler::getTypeByFileName(spec_db_filename);
+    if (input_type == FileTypes::MSP)
+    {
+      MSPGenericFile mspf;
+      mspf.load(spec_db_filename, spec_db);
+    }
+    else
+    {
+      mz_file.load(spec_db_filename, spec_db);
+    }
 
     if (spec_db.empty())
     {
