@@ -55,7 +55,7 @@ namespace OpenMS
     setName(getProductName());
 
     defaults_.setValue("use_identifications", "false", "Never link features that are annotated with different peptides (only the best hit per peptide identification is taken into account).");
-    defaults_.setValidStrings("use_identifications", ListUtils::create<String>("true,false"));
+    defaults_.setValidStrings("use_identifications", {"true","false"});
     defaults_.setValue("nr_partitions", 100, "How many partitions in m/z space should be used for the algorithm (more partitions means faster runtime and more memory efficient execution).");
     defaults_.setMinInt("nr_partitions", 1);
     defaults_.setValue("min_nr_diffs_per_bin", 50, "If IDs are used: How many differences from matching IDs should be used to calculate a linking tolerance for unIDed features in an RT region. RT regions will be extended until that number is reached.");
@@ -82,7 +82,7 @@ namespace OpenMS
       throw Exception::IllegalArgument(__FILE__, __LINE__, OPENMS_PRETTY_FUNCTION,
                                        msg);
     }
-    use_IDs_ = String(param_.getValue("use_identifications")) == "true";
+    use_IDs_ = param_.getValue("use_identifications").toBool();
     nr_partitions_ = param_.getValue("nr_partitions");
     min_nr_diffs_per_bin_ = param_.getValue("min_nr_diffs_per_bin");
     min_score_ = param_.getValue("min_IDscore_forTolCalc");
@@ -136,10 +136,10 @@ namespace OpenMS
                 //TODO we could loosen the score filtering by requiring only ONE IDed feature of a peptide to pass the threshold.
                 // Would require a second pass though
                 const String key = pepIDs[0].getHits()[0].getSequence().toString() + "/" + feat.getCharge();
-                const auto it_inserted = ided_feat_rts.emplace(key, std::vector<double>{feat.getRT()});
-                if (!it_inserted.second) // already present
+                const auto [it, inserted] = ided_feat_rts.emplace(key, std::vector<double>{feat.getRT()});
+                if (!inserted) // already present
                 {
-                  it_inserted.first->second.push_back(feat.getRT());
+                  it->second.push_back(feat.getRT());
                 }
                 //TODO we could score the whole feature instead of just the RT to calculate tolerances based on
                 // a combined score (RT/mz; using the scoring function of this class) instead of just RT

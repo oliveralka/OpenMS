@@ -76,6 +76,7 @@ namespace OpenMS
           const std::vector<PeptideIdentification>& peptide_identifications,
           bool first_run_inference_only,
           bool export_empty_pep_ids = false,
+          bool export_all_psms = false,
           const String& title = "ID export from OpenMS");
 
     // stream ConsensusMap to file
@@ -86,7 +87,8 @@ namespace OpenMS
       const bool export_unidentified_features,
       const bool export_unassigned_ids,
       const bool export_subfeatures,
-      const bool export_empty_pep_ids = false) const;
+      const bool export_empty_pep_ids = false,
+      const bool export_all_psms = false) const;
 
     // Set store behaviour of optional "reliability" and "uri" columns (default=no)
     void storeProteinReliabilityColumn(bool store);
